@@ -771,3 +771,20 @@ ul.actionlist li.changelink {
 .file {
     font-size: 13px;
 }
+
+.upload {
+    margin-left: 5px;
+    margin-bottom:10px;
+}
+
+.edit {
+    background: url(/static/img/edit.png) 0 .2em no-repeat;
+    padding-left: 12px;
+    margin-right: 5px;
+}
+
+.delete {
+    background: url(/static/img/delete.png) 0 .2em no-repeat;
+    padding-left: 12px;
+    margin-right: 5px;
+}

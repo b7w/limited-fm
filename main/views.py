@@ -3,8 +3,6 @@ import tempfile
 import zipfile
 
 from django.conf import settings
-from django.core.servers.basehttp import FileWrapper
-from django.core.files.uploadhandler import TemporaryFileUploadHandler
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -23,7 +21,7 @@ logger = logging.getLogger( __name__ )
 def Index( request ):
     user = get_user( request )
     if not user:
-        return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL,request.path) )
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     FileLibs = MHome.objects.select_related( 'lib' ).filter( user=user )
 
@@ -35,10 +33,9 @@ def Index( request ):
 
 @csrf_exempt
 def Browser( request ):
-
     user = get_user( request )
     if not user:
-        return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL,request.path) )
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     home_id, path = get_params( request )
     logger.debug( 'Br: ' + path )
@@ -50,8 +47,8 @@ def Browser( request ):
     files = Storage.listdir( path )
 
     if request.method == 'POST':
-        logger.debug( str(request.FILES) )
-        logger.debug( str(request.FILES.getlist('files') ) )
+        logger.debug( str( request.FILES ) )
+        logger.debug( str( request.FILES.getlist( 'files' ) ) )
         user = get_user( request )
 
         lib_id = request.POST['lib_id']
@@ -60,7 +57,7 @@ def Browser( request ):
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
         Storage = FileStorage( FileLib.lib.path )
 
-        for file in request.FILES.getlist('files'):
+        for file in request.FILES.getlist( 'files' ):
             name = file.name
             fool_path = Storage.path.join( path, name )
             Storage.save( fool_path, file )
@@ -75,10 +72,8 @@ def Browser( request ):
                        } )
 
 
-
 @csrf_exempt
 def Upload( request ):
-
     if request.method == 'POST':
         user = get_user( request )
 
@@ -88,22 +83,22 @@ def Upload( request ):
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
         Storage = FileStorage( FileLib.lib.path )
 
-        for filename, file in request.FILES.iteritems():
+        for filename, file in request.FILES.iteritems( ):
             name = request.FILES[filename].name
             fool_path = Storage.path.join( path, name )
             Storage.save( fool_path, file )
 
-#        for file in request.FILES:
-#            fool_path = Storage.path.join( path, file.name )
-#            Storage.save( fool_path, file )
-        return HttpResponse()
+        #        for file in request.FILES:
+        #            fool_path = Storage.path.join( path, file.name )
+        #            Storage.save( fool_path, file )
+        return HttpResponse( )
 
-    
+
 def Download( request ):
     if request.method == 'GET':
         user = get_user( request )
         if not user:
-            return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL,request.path) )
+            return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
         home, path = get_params( request )
 
@@ -113,25 +108,20 @@ def Download( request ):
 
         if Storage.isfile( path ):
             #wrapper = FileWrapper( Storage.open( path ) )
-            response = HttpResponse( Storage.open( path ).read(), content_type='application/force-download')
+            response = HttpResponse( Storage.open( path ).read( ), content_type='application/force-download' )
             response['Content-Disposition'] = 'attachment; filename=%s' % Storage.path.name( path )
             response['Content-Length'] = Storage.size( path )
 
-#        if Storage.isfile( path ):
-#            temp = tempfile.TemporaryFile()
-#            archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
-#            for index in range(10):
-#                file= Storage.open( path ).read() # Select your files here.
-#                #archive.write(filename, 'file%d.txt' % index)
-#                archive.writestr( 'file%d.txt' % index, file )
-#            archive.close()
-#            temp.seek(0)
-#            temp.close()
-#            wrapper = FileWrapper( open(temp, 'rb') )
-#            response = HttpResponse(wrapper, content_type='application/zip')
-#            response['Content-Disposition'] = 'attachment; filename=%s.zip' % Storage.path.name( path )
-#            #response['Content-Length'] = temp.tell()
-
-
+        if Storage.isdir( path ):
+            temp = tempfile.TemporaryFile( )
+            archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
+            for abspath, name in Storage.listfiles( path ).items( ):
+                archive.write( abspath, name )
+            archive.close( )
+            temp.seek( 0 )
+            #wrapper = FileWrapper(temp)
+            response = HttpResponse( temp.read( ), content_type='application/zip' )
+            response['Content-Disposition'] = 'attachment; filename=%s.zip' % Storage.path.name( path )
+            response['Content-Length'] = temp.tell( )
 
         return response

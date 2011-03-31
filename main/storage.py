@@ -13,6 +13,23 @@ class StoragePath( object ):
         return os.path.dirname( path )
 
 
+# List files recursive
+# Return dict { abspath : path from root }
+def ListFiles( root, dir='', array={ } ):
+    absdir = os.path.join( root, dir )
+    for name in os.listdir( absdir ):
+        fullpath = os.path.join( absdir, name )
+        if os.path.isdir( fullpath ):
+            dirpath = os.path.join( dir, name )
+            array = ListDir( root, dirpath, array )
+
+        if os.path.isfile( fullpath ):
+            path = os.path.join( dir, name )
+            array[fullpath] = path
+
+    return array
+
+
 class FileStorage( object ):
     def __init__(self, home ):
         self.home = home
@@ -23,10 +40,10 @@ class FileStorage( object ):
 
     def save(self, name, file):
         newfile = open( self.abspath( name ), 'wb' )
-        for chunk in file.chunks():
-            newfile.write( chunk)
+        for chunk in file.chunks( ):
+            newfile.write( chunk )
 
-        newfile.close()
+        newfile.close( )
 
     def abspath(self, name):
         return self.path.join( self.home, name )
@@ -67,6 +84,23 @@ class FileStorage( object ):
         files = sorted( files, key=lambda strut: strut['name'] )
         files = sorted( files, key=lambda strut: strut['class'] )
         return files
+
+    # List files recursive
+    # Return dict { abspath : path from root }
+    def listfiles(self, path, dir='', array={ } ):
+        root = self.abspath( path )
+        absdir = os.path.join( root, dir )
+        for name in os.listdir( absdir ):
+            fullpath = os.path.join( absdir, name )
+            if os.path.isdir( fullpath ):
+                dirpath = os.path.join( dir, name )
+                array = self.listfiles( path, dirpath, array )
+
+            if os.path.isfile( fullpath ):
+                fullname = os.path.join( dir, name )
+                array[fullpath] = fullname
+
+        return array
 
     def size(self, name):
         return os.path.getsize( self.abspath( name ) )
