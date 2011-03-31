@@ -106,7 +106,7 @@ class FileStorage( object ):
         return os.path.getsize( self.abspath( name ) )
 
     def url(self, name):
-        return self.abspath( name )
+        return name
 
     def accessed_time(self, name):
         return datetime.fromtimestamp( os.path.getatime( self.abspath( name ) ) )
