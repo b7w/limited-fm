@@ -1,5 +1,11 @@
 from datetime import datetime
 import os
+import shutil
+
+class StorageError( Exception ):
+
+    def __unicode__( self):
+        return unicode(self.__str__(), 'utf8')
 
 
 class StoragePath( object ):
@@ -45,12 +51,34 @@ class FileStorage( object ):
 
         newfile.close( )
 
+    def createdir(self, name):
+        os.mkdir( self.abspath( name ) )
+
     def abspath(self, name):
         return self.path.join( self.home, name )
 
     def delete(self, name):
-        if self.exists( name ):
-            os.remove( self.abspath( name ) )
+        os.remove( self.abspath( name ) )
+
+    def move(self, src, dst):
+        shutil.move( self.abspath( src ), self.abspath( dst ) )
+
+    def rename(self, path, name):
+        if '/' in name:
+            raise StorageError( "'%s' contains not supported symbols" % name )
+        if not self.exists( path ):
+            raise StorageError( "'%s' not found" % path )
+        new_path = self.path.join( self.path.dirname( path ), name )
+        if self.exists( new_path ):
+            raise StorageError( "'%s' already exist!" % name )
+        os.rename( self.abspath( path ), self.abspath( new_path ) )
+
+    def totrash(self, name):
+        if not self.exists( name ):
+            raise StorageError( '%s not found' % name )
+        if not self.exists( '.TrashBin' ):
+            self.createdir( '.TrashBin' )
+        self.move( name, '.TrashBin' )
 
     def exists(self, name):
         return os.path.exists( self.abspath( name ) )
