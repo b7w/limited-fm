@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from datetime import datetime
 import os
 import shutil
 
 class StorageError( Exception ):
-
-    def __unicode__( self):
-        return unicode(self.__str__(), 'utf8')
+    pass
 
 
 class StoragePath( object ):
@@ -70,7 +70,7 @@ class FileStorage( object ):
             raise StorageError( "'%s' not found" % path )
         new_path = self.path.join( self.path.dirname( path ), name )
         if self.exists( new_path ):
-            raise StorageError( "'%s' already exist!" % name )
+            raise StorageError( u"'%s' already exist!" % name )
         os.rename( self.abspath( path ), self.abspath( new_path ) )
 
     def totrash(self, name):

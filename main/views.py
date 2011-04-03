@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Create your views here.
 import tempfile
 import zipfile
@@ -8,7 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from main.storage import FileStorage
+from main.storage import FileStorage, StorageError
 from main.models import MHome
 from main.controls import get_user, get_params
 from main.utils import get_path_array
@@ -85,7 +86,7 @@ def Action( request, command ):
     if request.is_ajax( ):
         if command == 'delete':
             try:
-                #Storage.totrash( path )
+                Storage.totrash( path )
                 out['message'] = "'%s' successfully moved to trash" % Storage.path.name( path )
             except Exception as e:
                 out['error'] = True
@@ -96,9 +97,9 @@ def Action( request, command ):
                 name = request.POST['name']
                 Storage.rename( path, name )
                 out['message'] = "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name)
-            except Exception as e:
+            except StorageError as e:
                 out['error'] = True
-                out['message'] = str( e )
+                out['message'] = e.message
 
     return HttpResponse( json.dumps( out ) )
 
@@ -119,9 +120,6 @@ def Upload( request ):
             fool_path = Storage.path.join( path, name )
             Storage.save( fool_path, file )
 
-        #        for file in request.FILES:
-        #            fool_path = Storage.path.join( path, file.name )
-        #            Storage.save( fool_path, file )
         return HttpResponse( )
 
 
