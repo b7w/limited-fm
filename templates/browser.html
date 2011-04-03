@@ -1,5 +1,115 @@
 {% extends "base.html" %}
 
+{% block media %}
+<script type="text/javascript">
+
+    function getUrlVars( link )
+    {
+        if ( !link ) {
+            link = window.location.href;
+        }
+        var vars = [], hash;
+        var hashes = link.slice(link.indexOf('?') + 1).split('&');
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+    function Notify( message ) {
+        jQuery('.messagelist').append('<li class="info">'+message+'</li>');
+    }
+    function NotifyError( message ) {
+        jQuery('.messagelist').append('<li class="error">'+message+'</li>');
+    }
+    function NotifyWarning( message ) {
+        jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
+    }
+
+
+    function Trash( obj ) {
+
+        thobj = jQuery( obj ).parent().parent()
+
+        if ( jQuery( thobj ).parent().hasClass('trash') ) {
+            NotifyWarning('Sorry, in this version undo function is not implemented')
+        }
+        else {
+            var link = thobj.children("a").attr('href');
+            var Params = getUrlVars( link );
+
+            jQuery.post('/action/delete/', {
+                home: Params.h,
+                path: Params.p,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            function( json ) {
+                    if( json.error == false ) {
+                        Notify( json.message );
+                        jQuery( obj ).html('<img src="/static/img/redo.png" alt="Move back"/>');
+                        jQuery( thobj ).parent().addClass("trash");
+                    } else {
+                        NotifyError( json.message );
+                    }
+            },
+            "json"
+            );
+        }
+    }
+
+    function Rename( obj ) {
+        thobj = jQuery( obj ).parent().parent();
+
+        oldname = jQuery.trim( thobj.children("a").text() )
+
+        var name = prompt( 'Enter new name', oldname);
+
+        if (name!=null && name!="")
+        {
+            var link = thobj.children("a").attr('href');
+            var Params = getUrlVars( link );
+            jQuery.post('/action/rename/', {
+                home: Params.h,
+                path: Params.p,
+                name: name,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            function( json ) {
+                    if( json.error == false ) {
+                        Notify( json.message );
+                        oldpath = thobj.children("a").attr('href');
+                        thobj.children("a").attr('href', oldpath.replace( oldname, name ));
+
+                        oldpath = thobj.children('div').children("a").attr('href')
+                        thobj.children('div').children("a").attr('href', oldpath.replace( oldname, name ));
+                        thobj.children("a").html( name );
+                    } else {
+                        NotifyError( json.message );
+                    }
+            },
+            "json"
+            );
+        }
+    }
+
+    jQuery(document).ready( function() {
+
+        jQuery('.messagelist').click(function() {
+            jQuery(this).empty();
+        })
+        jQuery('.delete').click(function() {
+            Trash( this )
+        })
+        jQuery('.rename').click(function() {
+            Rename( this )
+        })
+    });
+</script>
+{% endblock %}
+
 {% block panels %}
 <div class="module">
     <h2>Upload</h2>
@@ -58,9 +168,9 @@
                         {{ item.name }}
                     </a>
                     <div style="float:right;">
-                        <span onclick="" ><img src="/static/img/edit.png" alt="Rename"/></span>
-                        <span onclick="" ><img src="/static/img/delete.png" alt="Move to trash"/></span>
-                        <a href="/download/?h={{ home_id }}&p={{ item.url }}" onclick="" ><img src="/static/img/down.png" alt="Download"/></a>
+                        <span class="rename"><img src="/static/img/edit.png" alt="Rename"/></span>
+                        <span class="delete"><img src="/static/img/delete.png" alt="Move to trash"/></span>
+                        <a href="/download/?h={{ home_id }}&p={{ item.url }}" title="Download" onclick=""><img src="/static/img/down.png"/></a>
                     </div>
                 </td>
                 <td class="nowrap">{{ item.size|filesizeformat }}</td>

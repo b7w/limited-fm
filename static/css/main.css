@@ -777,14 +777,6 @@ ul.actionlist li.changelink {
     margin-bottom:10px;
 }
 
-.edit {
-    background: url(/static/img/edit.png) 0 .2em no-repeat;
-    padding-left: 12px;
-    margin-right: 5px;
-}
-
-.delete {
-    background: url(/static/img/delete.png) 0 .2em no-repeat;
-    padding-left: 12px;
-    margin-right: 5px;
+.trash a, .trash td {
+    color: #BBB;
 }

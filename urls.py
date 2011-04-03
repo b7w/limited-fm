@@ -16,6 +16,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'main.views.Index', name='index' ),
     url(r'^browser/$', 'main.views.Browser', name='browser' ),
+    url(r'^action/(?P<command>\w+)/$', 'main.views.Action', name='action' ),
 
     url(r'^download/$', 'main.views.Download', name='download' ),
     url(r'^upload/$', 'main.views.Upload', name='upload' ),

@@ -1,9 +1,10 @@
 # Create your views here.
 import tempfile
 import zipfile
+import json
 
 from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
@@ -72,6 +73,36 @@ def Browser( request ):
                        } )
 
 
+def Action( request, command ):
+    out = { 'error': False, 'message': "Warn. Only ajax allowed to '%s'" % command }
+    home = request.POST['home']
+    path = request.POST['path']
+
+    user = get_user( request )
+    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+    Storage = FileStorage( FileLib.lib.path )
+
+    if request.is_ajax( ):
+        if command == 'delete':
+            try:
+                #Storage.totrash( path )
+                out['message'] = "'%s' successfully moved to trash" % Storage.path.name( path )
+            except Exception as e:
+                out['error'] = True
+                out['message'] = str( e )
+
+        if command == 'rename':
+            try:
+                name = request.POST['name']
+                Storage.rename( path, name )
+                out['message'] = "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name)
+            except Exception as e:
+                out['error'] = True
+                out['message'] = str( e )
+
+    return HttpResponse( json.dumps( out ) )
+
+
 @csrf_exempt
 def Upload( request ):
     if request.method == 'POST':
@@ -105,23 +136,30 @@ def Download( request ):
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
 
         Storage = FileStorage( FileLib.lib.path )
-
+        logger.debug( path )
         if Storage.isfile( path ):
             #wrapper = FileWrapper( Storage.open( path ) )
             response = HttpResponse( Storage.open( path ).read( ), content_type='application/force-download' )
             response['Content-Disposition'] = 'attachment; filename=%s' % Storage.path.name( path )
             response['Content-Length'] = Storage.size( path )
 
-        if Storage.isdir( path ):
+        elif Storage.isdir( path ):
             temp = tempfile.TemporaryFile( )
             archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
+            dirname = Storage.path.name( path )
             for abspath, name in Storage.listfiles( path ).items( ):
+                name = Storage.path.join( dirname, name )
                 archive.write( abspath, name )
+
             archive.close( )
             temp.seek( 0 )
             #wrapper = FileWrapper(temp)
             response = HttpResponse( temp.read( ), content_type='application/zip' )
-            response['Content-Disposition'] = 'attachment; filename=%s.zip' % Storage.path.name( path )
+            response['Content-Disposition'] = 'attachment; filename=%s.zip' % Storage.path.name( path ).encode(
+                'latin-1', 'replace' )
             response['Content-Length'] = temp.tell( )
+
+        else:
+            raise Http404( 'No file or directory find' )
 
         return response
