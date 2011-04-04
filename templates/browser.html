@@ -3,21 +3,6 @@
 {% block media %}
 <script type="text/javascript">
 
-    function getUrlVars( link )
-    {
-        if ( !link ) {
-            link = window.location.href;
-        }
-        var vars = [], hash;
-        var hashes = link.slice(link.indexOf('?') + 1).split('&');
-        for(var i = 0; i < hashes.length; i++)
-        {
-            hash = hashes[i].split('=');
-            vars.push(hash[0]);
-            vars[hash[0]] = hash[1];
-        }
-        return vars;
-    }
 
     function Notify( message ) {
         jQuery('.messagelist').append('<li class="info">'+message+'</li>');
@@ -29,69 +14,35 @@
         jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
     }
 
+    function Delete( obj ) {
 
-    function Trash( obj ) {
+        var oldname = jQuery(obj).parent().parent().children('a').text();
+        var flag = confirm("Do you realy want to delete" + jQuery.trim(oldname) + "?");
 
-        thobj = jQuery( obj ).parent().parent()
-
-        if ( jQuery( thobj ).parent().hasClass('trash') ) {
-            NotifyWarning('Sorry, in this version undo function is not implemented')
+        if ( flag == true )
+        {
+            var link = jQuery(obj).attr('href');
+            window.location = link;
         }
-        else {
-            var link = thobj.children("a").attr('href');
-            var Params = getUrlVars( link );
-
-            jQuery.post('/action/delete/', {
-                home: Params.h,
-                path: Params.p,
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            function( json ) {
-                    if( json.error == false ) {
-                        Notify( json.message );
-                        jQuery( obj ).html('<img src="/static/img/redo.png" alt="Move back"/>');
-                        jQuery( thobj ).parent().addClass("trash");
-                    } else {
-                        NotifyError( json.message );
-                    }
-            },
-            "json"
-            );
+        else
+        {
+            NotifyWarning('Отменено пользователем');
         }
     }
 
     function Rename( obj ) {
-        thobj = jQuery( obj ).parent().parent();
 
-        oldname = jQuery.trim( thobj.children("a").text() )
-
-        var name = prompt( 'Enter new name', oldname);
+        var oldname = jQuery(obj).parent().parent().children('a').text();
+        var name = prompt( 'Enter new name', jQuery.trim(oldname) );
 
         if (name!=null && name!="")
         {
-            var link = thobj.children("a").attr('href');
-            var Params = getUrlVars( link );
-            jQuery.post('/action/rename/', {
-                home: Params.h,
-                path: Params.p,
-                name: name,
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            function( json ) {
-                    if( json.error == false ) {
-                        Notify( json.message );
-                        oldpath = thobj.children("a").attr('href');
-                        thobj.children("a").attr('href', oldpath.replace( oldname, name ));
-
-                        oldpath = thobj.children('div').children("a").attr('href')
-                        thobj.children('div').children("a").attr('href', oldpath.replace( oldname, name ));
-                        thobj.children("a").html( name );
-                    } else {
-                        NotifyError( json.message );
-                    }
-            },
-            "json"
-            );
+            var link = jQuery(obj).attr('href');
+            link = link + '&amp;n=' + name;
+            window.location = link;
+        }
+        else {
+            NotifyWarning('Отменено пользователем');
         }
     }
 
@@ -101,7 +52,7 @@
             jQuery(this).empty();
         })
         jQuery('.delete').click(function() {
-            Trash( this )
+            Delete( this )
         })
         jQuery('.rename').click(function() {
             Rename( this )
@@ -117,7 +68,7 @@
     <h3>Files</h3>
 
     <div class="upload">
-        <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <form action="/browser/" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 200px;"/>
             <input type="hidden" name="lib_id" value="{{ home_id }}">
             <input type="hidden" name="path" value="{{ path }}">
@@ -163,14 +114,14 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td>
-                    <a href="/{% if item.class == 'file' %}download{% else %}browser{% endif %}/?h={{ home_id }}&p={{ item.url }}"
+                    <a href="/{% if item.class == 'file' %}download{% else %}browser{% endif %}/?h={{ home_id }}&amp;p={{ item.url }}"
                        class="{{ item.class }}">
                         {{ item.name }}
                     </a>
                     <div style="float:right;">
-                        <span class="rename"><img src="/static/img/edit.png" alt="Rename"/></span>
-                        <span class="delete"><img src="/static/img/delete.png" alt="Move to trash"/></span>
-                        <a href="/download/?h={{ home_id }}&p={{ item.url }}" title="Download" onclick=""><img src="/static/img/down.png"/></a>
+                        <a class="rename" href="/act/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;"><img src="/static/img/edit.png" alt="Rename"/></a>
+                        <a class="delete" href="/act/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;"><img src="/static/img/delete.png" alt="Move to trash"/></a>
+                        <a href="/download/?h={{ home_id }}&amp;p={{ item.url }}" title="Download" ><img src="/static/img/down.png"/></a>
                     </div>
                 </td>
                 <td class="nowrap">{{ item.size|filesizeformat }}</td>

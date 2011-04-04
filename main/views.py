@@ -5,6 +5,7 @@ import zipfile
 import json
 
 from django.conf import settings
+from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -90,7 +91,7 @@ def Action( request, command ):
                 out['message'] = "'%s' successfully moved to trash" % Storage.path.name( path )
             except Exception as e:
                 out['error'] = True
-                out['message'] = str( e )
+                out['message'] = e.message
 
         if command == 'rename':
             try:
@@ -102,6 +103,31 @@ def Action( request, command ):
                 out['message'] = e.message
 
     return HttpResponse( json.dumps( out ) )
+
+def Act( request, command ):
+    home = request.GET['h']
+    path = request.GET['p']
+
+    user = get_user( request )
+    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+    Storage = FileStorage( FileLib.lib.path )
+
+    if command == 'delete':
+        try:
+            Storage.totrash( path )
+            messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
+        except Exception as e:
+            messages.error( request, e.message )
+
+    if command == 'rename':
+        try:
+            name = request.GET['n']
+            Storage.rename( path, name )
+            messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
+        except StorageError as e:
+            messages.error( request, e.message )
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
 
 
 @csrf_exempt
