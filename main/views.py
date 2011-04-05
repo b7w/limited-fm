@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from main.storage import FileStorage, StorageError
 from main.models import MHome
 from main.controls import get_user, get_params
-from main.utils import get_path_array
+from main.utils import get_path_array, split_path
 
 from django.utils.log import logger
 
@@ -41,7 +41,8 @@ def Browser( request ):
     logger.debug( 'Br: ' + path )
     FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
-    patharr = get_path_array( path )
+    logger.info( path )
+    patharr = split_path( path )
 
     Storage = FileStorage( FileLib.lib.path )
     files = Storage.listdir( path )

@@ -37,7 +37,7 @@ def get_storage( path ):
 # types and backends getting from settings.FM_STORAGS
 def get_storage_cls( type='default' ):
     if type == 'default':
-        return get_storage_class()
+        return get_storage_class( )
 
     if type in settings.STORAGES:
         import_path = settings.FM_STORAGS[type]
@@ -45,12 +45,18 @@ def get_storage_cls( type='default' ):
     else:
         raise NotImplemented( "For '%s' storage is not found any backends" % type )
 
-def get_path_array( path ):
-    urls = []
-    temp = path.split( '/' )
-    for i in range( 1, len( temp )+1 ):
-        name = temp[i-1]
-        url = '/'.join( temp[:i] )
-        urls.append( (name,url) )
+# Split path for folders name
+# with path fot this name
+#   example: /root/path1/path2
+#       root:/root, path1:/root/path2, path2:/root/path1/path2
+def split_path( path ):
+    def __split_path( path, data ):
+        name = os.path.basename( path )
+        if name != '':
+            newpath = os.path.dirname( path )
+            data = __split_path( newpath, data )
+            data.append( (name, path) )
+            return data
+        return data
 
-    return urls
+    return __split_path( path, [] )
