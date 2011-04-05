@@ -3,6 +3,7 @@
 from datetime import datetime
 import os
 import shutil
+from django.utils.log import logger
 
 class StorageError( Exception ):
     pass
@@ -61,6 +62,31 @@ class FileStorage( object ):
         os.remove( self.abspath( name ) )
 
     def move(self, src, dst):
+        if not self.exists( src ):
+            raise StorageError( '%s not found' % src )
+
+        # delete first '/'
+        if dst[0] == '/':
+            dst = dst[1:]
+
+        name = self.path.name( src )
+        # if dst start whit './'
+        # we need to assume dst from src
+        #thisdir = re.search( '(\./)(.*)', dst )
+        thisdir = dst.split( './' )
+        if thisdir[0] == '':
+            #dst = self.path.join(src, thisdir.group(2))
+            dst = self.path.join( self.path.dirname( src ), thisdir[1] )
+
+        backdir = dst.split( '../' )
+        if backdir[0] == '':
+            dst = self.path.dirname( src )
+            for i in backdir[:-1]:
+                dst = self.path.dirname( dst )
+            dst = self.path.join( dst , backdir[-1] )
+
+        dst = self.path.join( dst, name )
+        logger.info( self.abspath( dst ) )
         shutil.move( self.abspath( src ), self.abspath( dst ) )
 
     def rename(self, path, name):

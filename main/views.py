@@ -15,14 +15,11 @@ from main.models import MHome
 from main.controls import get_user, get_params
 from main.utils import get_path_array
 
-import logging
-
-
-logger = logging.getLogger( __name__ )
-
+from django.utils.log import logger
 
 def Index( request ):
     user = get_user( request )
+    logger.info( 'Index page test' )
     if not user:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
@@ -119,11 +116,19 @@ def Act( request, command ):
         except Exception as e:
             messages.error( request, e.message )
 
-    if command == 'rename':
+    elif command == 'rename':
         try:
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
+        except StorageError as e:
+            messages.error( request, e.message )
+
+    elif command == 'move':
+        try:
+            path2 = request.GET['p2']
+            Storage.move( path, path2 )
+            messages.success( request, "'%s' successfully moved to '%s'" %  (Storage.path.name( path ), path2) )
         except StorageError as e:
             messages.error( request, e.message )
 
