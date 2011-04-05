@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from main.storage import FileStorage, StorageError
 from main.models import MHome
 from main.controls import get_user, get_params
-from main.utils import get_path_array, split_path
+from main.utils import split_path, HttpResponseReload
 
 from django.utils.log import logger
 
@@ -102,6 +102,7 @@ def Action( request, command ):
 
     return HttpResponse( json.dumps( out ) )
 
+
 def Act( request, command ):
     home = request.GET['h']
     path = request.GET['p']
@@ -129,11 +130,11 @@ def Act( request, command ):
         try:
             path2 = request.GET['p2']
             Storage.move( path, path2 )
-            messages.success( request, "'%s' successfully moved to '%s'" %  (Storage.path.name( path ), path2) )
+            messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
         except StorageError as e:
             messages.error( request, e.message )
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+    return HttpResponseReload( request )
 
 
 @csrf_exempt
