@@ -15,7 +15,7 @@ class MFileLib( models.Model ):
     def __unicode__(self):
         return str( self.name )
 
-    
+
 class MPermission( models.Model ):
     edit = models.BooleanField( default=False )
     delete = models.BooleanField( default=False )
@@ -45,11 +45,20 @@ class MHome( models.Model ):
     def __unicode__(self):
         return str( self.user ) + ' ' + str( self.lib )
 
-
 class MHistory( models.Model ):
+    ADD = 1
+    CHANGE = 2
+    DELETE = 3
+    ACTION = (
+        (ADD, 'add'),
+        (CHANGE, 'change'),
+        (DELETE, 'delete'),
+    )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
+    type = models.IntegerField( max_length=1, choices=ACTION )
     message = models.CharField( max_length=256, null=False )
+    path = models.CharField( max_length=256, null=True )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
     class Meta:

@@ -17,7 +17,7 @@
     function Delete( obj ) {
 
         var oldname = jQuery(obj).parent().parent().children('a').text();
-        var flag = confirm("Do you realy want to delete" + jQuery.trim(oldname) + "?");
+        var flag = confirm("Do you realy want to delete " + jQuery.trim(oldname) + "?");
 
         if ( flag == true )
         {
@@ -89,12 +89,25 @@
     <div class="upload">
         <form action="/upload/" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 200px;"/>
-            <input type="hidden" name="lib_id" value="{{ home_id }}">
-            <input type="hidden" name="path" value="{{ path }}">
-            <input type="submit" name="submit" value="Upload" style="margin-left: 5px;">
+            <input type="hidden" name="h" value="{{ home_id }}">
+            <input type="hidden" name="p" value="{{ path }}">
+            <input type="submit" name="submit" value="Upload" style="margin: 5px 5px;">
         </form>
     </div>
-</div>    
+</div>
+
+<div class="module">
+    <h2>Create</h2>
+
+    <div class="upload">
+        <form action="/action/add/" method="GET" >
+            <input type="text" name="n" size="32" style="margin: 5px 5px;">
+            <input type="hidden" name="h" value="{{ home_id }}">
+            <input type="hidden" name="p" value="{{ path }}">
+            <input type="submit" name="submit" value="Ok" style="margin: 5px 5px;">
+        </form>
+    </div>
+</div>
 
 <div class="module">
     <h2>Recent Actions</h2>
@@ -102,9 +115,11 @@
     <h3>Files</h3>
 
     <ul class="actionlist">
-        <li class="changelink">
-            <a href="member/iuser/3/">Kirill</a> <br/> <span class="mini quiet">IUser</span>
+        {% for item in history %}
+        <li class="{{ item.get_type_display }}link">
+            <a href="/browser/?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
         </li>
+        {% endfor %}
     </ul>
 </div>
 {% endblock %}

@@ -19,7 +19,6 @@ class StoragePath( object ):
     def dirname(self, path):
         return os.path.dirname( path )
 
-
 # List files recursive
 # Return dict { abspath : path from root }
 def ListFiles( root, dir='', array={ } ):
@@ -46,15 +45,7 @@ class FileStorage( object ):
         return open( self.abspath( name ), mode )
 
     def save(self, name, file):
-        # if file exists add [i] to file name
-        path, ext = os.path.splitext( name )
-        i = 1
-        while i != 0:
-            if self.exists( name ):
-                name = path + '[' + str( i ) + ']' + ext
-                i += 1
-            else:
-                i = 0
+        name = self.available_name( name )
 
         newfile = open( self.abspath( name ), 'wb' )
         for chunk in file.chunks( ):
@@ -63,7 +54,7 @@ class FileStorage( object ):
         newfile.close( )
 
     def createdir(self, name):
-        os.mkdir( self.abspath( name ) )
+        os.makedirs( self.abspath( name ) )
 
     def abspath(self, name):
         return self.path.join( self.home, name )
@@ -96,7 +87,7 @@ class FileStorage( object ):
             dst = self.path.join( dst, backdir[-1] )
 
         dst = self.path.join( dst, name )
-        logger.info( self.abspath( dst ) )
+        dst = self.available_name( dst )
         shutil.move( self.abspath( src ), self.abspath( dst ) )
 
     def rename(self, path, name):
@@ -171,6 +162,18 @@ class FileStorage( object ):
 
     def url(self, name):
         return name
+
+    def available_name(self, path):
+        # if file exists add [i] to file name
+        file, ext = os.path.splitext( path )
+        i = 1
+        while i != 0:
+            if self.exists( self.abspath( path ) ):
+                path = file + '[' + str( i ) + ']' + ext
+                i += 1
+            else:
+                i = 0
+        return path
 
     def accessed_time(self, name):
         return datetime.fromtimestamp( os.path.getatime( self.abspath( name ) ) )
