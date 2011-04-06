@@ -7,9 +7,11 @@
     <h3>Files</h3>
 
     <ul class="actionlist">
-        <li class="changelink">
-            <a href="member/iuser/3/">Kirill</a> <br/> <span class="mini quiet">IUser</span>
+        {% for item in history %}
+        <li class="{{ item.get_type_display }}link">
+            <a href="/browser/?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">in <b>{{ item.lib }}</b> by <b>{{ item.user }}</b></span>
         </li>
+        {% endfor %}
     </ul>
 </div>
 {% endblock %}

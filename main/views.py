@@ -24,8 +24,18 @@ def Index( request ):
 
     FileLibs = MHome.objects.select_related( 'lib' ).filter( user=user )
 
+    libs = []
+    for i in FileLibs:
+        libs.append( i.lib_id )
+    history = MHistory.objects.\
+              select_related( 'user', 'lib' ).\
+              only( 'lib', 'type', 'message', 'path', 'user__username', 'lib__name' ).\
+              filter( lib__in=libs ).\
+              order_by( '-id' )[0:8]
+
     return render( request, "index.html",
                    {
+                       'history': history,
                        'FileLibs': FileLibs,
                        } )
 
@@ -41,10 +51,10 @@ def Browser( request ):
     FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
     history = MHistory.objects.\
-        select_related('user').\
-        only('lib', 'type', 'message', 'path', 'user__username').\
-        filter( lib=home_id ).\
-        order_by('-id')[0:5]
+              select_related( 'user' ).\
+              only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+              filter( lib=home_id ).\
+              order_by( '-id' )[0:5]
 
     patharr = split_path( path )
 
@@ -75,16 +85,18 @@ def Action( request, command ):
     if command == 'add':
         try:
             name = request.GET['n']
-            dir = Storage.path.join(path,name)
+            dir = Storage.path.join( path, name )
             Storage.createdir( dir )
             messages.success( request, "directory '%s' successfully created" % name )
 
             history.type = MHistory.ADD
             history.message = "dir '%s' created" % name
             history.path = dir
-            history.save()
+            history.save( )
         except Exception as e:
-            f = open('/home/bw/app.log','a');f.writelines(e.message);f.close()
+            f = open( '/home/bw/app.log', 'a' );
+            f.writelines( e.message );
+            f.close( )
             messages.error( request, e.message )
 
     elif command == 'delete':
@@ -94,7 +106,7 @@ def Action( request, command ):
 
             history.type = MHistory.DELETE
             history.message = "'%s' moved to trash" % Storage.path.name( path )
-            history.save()
+            history.save( )
         except Exception as e:
             messages.error( request, e.message )
 
@@ -103,10 +115,10 @@ def Action( request, command ):
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
-            
+
             history.type = MHistory.CHANGE
             history.message = "'%s' renamed" % name
-            history.save()
+            history.save( )
         except StorageError as e:
             messages.error( request, e.message )
 
@@ -119,7 +131,7 @@ def Action( request, command ):
             history.type = MHistory.CHANGE
             history.message = "'%s' moved" % Storage.path.name( path )
             history.path = Storage.path.dirname( path2 )
-            history.save()
+            history.save( )
         except StorageError as e:
             messages.error( request, e.message )
 
@@ -139,20 +151,20 @@ def Upload( request ):
         Storage = FileStorage( FileLib.lib.path )
 
         files = request.FILES.getlist( 'files' )
-        if len( files ) > 3 :
+        if len( files ) > 3:
             history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
             history.message = "Uploaded %s files" % len( files )
             for file in files:
                 fool_path = Storage.path.join( path, file.name )
                 Storage.save( fool_path, file )
-            history.save()
+            history.save( )
         else:
             for file in files:
                 fool_path = Storage.path.join( path, file.name )
                 Storage.save( fool_path, file )
                 history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
                 history.message = "Uploaded '%s'" % file.name
-                history.save()
+                history.save( )
 
     return HttpResponseReload( request )
 

@@ -3,7 +3,6 @@
 from datetime import datetime
 import os
 import shutil
-from django.utils.log import logger
 
 class StorageError( Exception ):
     pass

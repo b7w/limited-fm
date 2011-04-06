@@ -3,14 +3,14 @@ from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
 
 
-class HttpResponseReload(HttpResponse):
-
+class HttpResponseReload( HttpResponse ):
     status_code = 302
 
     def __init__(self, request):
-        HttpResponse.__init__(self)
-        referer = request.META.get('HTTP_REFERER')
-        self['Location'] = iri_to_uri(referer or "/")
+        HttpResponse.__init__( self )
+        referer = request.META.get( 'HTTP_REFERER' )
+        self['Location'] = iri_to_uri( referer or "/" )
+
 
 # Split path for folders name
 # with path fot this name
