@@ -87,7 +87,7 @@
     <h3>Files</h3>
 
     <div class="upload">
-        <form action="/browser/" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <form action="/upload/" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 200px;"/>
             <input type="hidden" name="lib_id" value="{{ home_id }}">
             <input type="hidden" name="path" value="{{ path }}">
@@ -138,13 +138,13 @@
                         {{ item.name }}
                     </a>
                     <div style="float:right;">
-                        <a class="rename" href="/act/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
+                        <a class="rename" href="/action/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/edit.png" alt="Rename"/>
                         </a>
-                        <a class="move" href="/act/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
+                        <a class="move" href="/action/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/move.png" alt="Move"/>
                         </a>
-                        <a class="delete" href="/act/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
+                        <a class="delete" href="/action/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/delete.png" alt="Move to trash"/>
                         </a>
                         <a href="/download/?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >

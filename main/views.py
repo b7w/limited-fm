@@ -2,7 +2,6 @@
 # Create your views here.
 import tempfile
 import zipfile
-import json
 
 from django.conf import settings
 from django.contrib import messages
@@ -47,22 +46,6 @@ def Browser( request ):
     Storage = FileStorage( FileLib.lib.path )
     files = Storage.listdir( path )
 
-    if request.method == 'POST':
-        logger.debug( str( request.FILES ) )
-        logger.debug( str( request.FILES.getlist( 'files' ) ) )
-        user = get_user( request )
-
-        lib_id = request.POST['lib_id']
-        path = request.POST['path']
-
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
-        Storage = FileStorage( FileLib.lib.path )
-
-        for file in request.FILES.getlist( 'files' ):
-            name = file.name
-            fool_path = Storage.path.join( path, name )
-            Storage.save( fool_path, file )
-
     return render( request, "browser.html",
                    {
                        'path': path,
@@ -74,36 +57,6 @@ def Browser( request ):
 
 
 def Action( request, command ):
-    out = { 'error': False, 'message': "Warn. Only ajax allowed to '%s'" % command }
-    home = request.POST['home']
-    path = request.POST['path']
-
-    user = get_user( request )
-    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
-    Storage = FileStorage( FileLib.lib.path )
-
-    if request.is_ajax( ):
-        if command == 'delete':
-            try:
-                Storage.totrash( path )
-                out['message'] = "'%s' successfully moved to trash" % Storage.path.name( path )
-            except Exception as e:
-                out['error'] = True
-                out['message'] = e.message
-
-        if command == 'rename':
-            try:
-                name = request.POST['name']
-                Storage.rename( path, name )
-                out['message'] = "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name)
-            except StorageError as e:
-                out['error'] = True
-                out['message'] = e.message
-
-    return HttpResponse( json.dumps( out ) )
-
-
-def Act( request, command ):
     home = request.GET['h']
     path = request.GET['p']
 
@@ -148,12 +101,12 @@ def Upload( request ):
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
         Storage = FileStorage( FileLib.lib.path )
 
-        for filename, file in request.FILES.iteritems( ):
-            name = request.FILES[filename].name
+        for file in request.FILES.getlist( 'files' ):
+            name = file.name
             fool_path = Storage.path.join( path, name )
             Storage.save( fool_path, file )
 
-        return HttpResponse( )
+    return HttpResponseReload( request )
 
 
 def Download( request ):

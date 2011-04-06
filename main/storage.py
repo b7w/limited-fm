@@ -46,6 +46,16 @@ class FileStorage( object ):
         return open( self.abspath( name ), mode )
 
     def save(self, name, file):
+        # if file exists add [i] to file name
+        path, ext = os.path.splitext( name )
+        i = 1
+        while i != 0:
+            if self.exists( name ):
+                name = path + '[' + str( i ) + ']' + ext
+                i += 1
+            else:
+                i = 0
+
         newfile = open( self.abspath( name ), 'wb' )
         for chunk in file.chunks( ):
             newfile.write( chunk )
@@ -83,7 +93,7 @@ class FileStorage( object ):
             dst = self.path.dirname( src )
             for i in backdir[:-1]:
                 dst = self.path.dirname( dst )
-            dst = self.path.join( dst , backdir[-1] )
+            dst = self.path.join( dst, backdir[-1] )
 
         dst = self.path.join( dst, name )
         logger.info( self.abspath( dst ) )
