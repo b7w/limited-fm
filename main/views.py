@@ -86,7 +86,7 @@ def Action( request, command ):
         try:
             name = request.GET['n']
             dir = Storage.path.join( path, name )
-            Storage.createdir( dir )
+            Storage.mkdir( dir )
             messages.success( request, "directory '%s' successfully created" % name )
 
             history.type = MHistory.ADD
@@ -97,7 +97,7 @@ def Action( request, command ):
             f = open( '/home/bw/app.log', 'a' );
             f.writelines( e.message );
             f.close( )
-            messages.error( request, e.message )
+            messages.error( request, e )
 
     elif command == 'delete':
         try:
@@ -108,7 +108,7 @@ def Action( request, command ):
             history.message = "'%s' moved to trash" % Storage.path.name( path )
             history.save( )
         except Exception as e:
-            messages.error( request, e.message )
+            messages.error( request, e )
 
     elif command == 'rename':
         try:
@@ -120,20 +120,21 @@ def Action( request, command ):
             history.message = "'%s' renamed" % name
             history.save( )
         except StorageError as e:
-            messages.error( request, e.message )
+            messages.error( request, e )
 
     elif command == 'move':
         try:
             path2 = request.GET['p2']
+            path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
 
             history.type = MHistory.CHANGE
             history.message = "'%s' moved" % Storage.path.name( path )
-            history.path = Storage.path.dirname( path2 )
+            history.path = path2
             history.save( )
         except StorageError as e:
-            messages.error( request, e.message )
+            messages.error( request, e )
 
     #return render( request, "browser.html", {})
     return HttpResponseReload( request )

@@ -18,6 +18,23 @@ class StoragePath( object ):
     def dirname(self, path):
         return os.path.dirname( path )
 
+    # If src include '../' or './'
+    #  join root and src and normalise it
+    # Else return src
+    def norm(self, root, src ):
+        if src.find('../') != -1 or src.find('./') != -1:
+            path = self.join( root, src )
+            path = os.path.normpath( path )
+            if path.find('../') != -1 or path.find('./') != -1:
+                raise StorageError( "Wrong path '%s'" % path )
+        else:
+            path = src
+
+        # delete first '/'
+        if path[0] == '/':
+            path = path[1:]
+        return path
+
 # List files recursive
 # Return dict { abspath : path from root }
 def ListFiles( root, dir='', array={ } ):
@@ -52,8 +69,8 @@ class FileStorage( object ):
 
         newfile.close( )
 
-    def createdir(self, name):
-        os.makedirs( self.abspath( name ) )
+    def mkdir(self, name):
+        os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
         return self.path.join( self.home, name )
@@ -62,28 +79,15 @@ class FileStorage( object ):
         os.remove( self.abspath( name ) )
 
     def move(self, src, dst):
+        src_dir = self.path.dirname( src )
+        if src_dir == dst:
+            raise StorageError( "Moving to the same directory" )
         if not self.exists( src ):
-            raise StorageError( '%s not found' % src )
-
-        # delete first '/'
-        if dst[0] == '/':
-            dst = dst[1:]
+            raise StorageError( "'%s' not found" % src )
+        if not self.exists( dst ):
+            raise StorageError( "'%s' not found" % dst )
 
         name = self.path.name( src )
-        # if dst start whit './'
-        # we need to assume dst from src
-        #thisdir = re.search( '(\./)(.*)', dst )
-        thisdir = dst.split( './' )
-        if thisdir[0] == '':
-            #dst = self.path.join(src, thisdir.group(2))
-            dst = self.path.join( self.path.dirname( src ), thisdir[1] )
-
-        backdir = dst.split( '../' )
-        if backdir[0] == '':
-            dst = self.path.dirname( src )
-            for i in backdir[:-1]:
-                dst = self.path.dirname( dst )
-            dst = self.path.join( dst, backdir[-1] )
 
         dst = self.path.join( dst, name )
         dst = self.available_name( dst )
