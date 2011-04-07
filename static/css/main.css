@@ -295,6 +295,10 @@ tr.alt {
     background: #f6f6f6;
 }
 
+#changelist tr:hover {
+    background-color: #FFC;
+}
+
 .row1 {
     background: #EDF3FE;
 }
@@ -776,3 +780,4 @@ ul.actionlist li.changelink {
     margin-left: 5px;
     margin-bottom:10px;
 }
+

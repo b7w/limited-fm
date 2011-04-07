@@ -112,7 +112,11 @@
 <div class="module">
     <h2>Recent Actions</h2>
 
-    <h3>Files</h3>
+    {% if history|length != 0 %}
+    <h3>History</h3>
+    {% else %}
+    <h3>Nothig</h3>
+    {% endif %}
 
     <ul class="actionlist">
         {% for item in history %}
@@ -128,7 +132,7 @@
 <div class="module" id="changelist">
 
     <table id="result_list" cellspacing="0">
-        <caption><a href="auth/" class="section">Auth</a></caption>
+        <caption><a href="auth/" class="section">Files</a></caption>
         <thead>
         <tr>
             <th scope="col" class="sorted ascending" style="width: 70%;" >

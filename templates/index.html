@@ -21,7 +21,7 @@
     <table>
         <caption><a href="auth/" class="section">File libraries</a></caption>
         {% for item in FileLibs %}
-        <tr>
+        <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="/browser/?h={{ item.lib.id }}">{{ item.lib.name }}</a></th>
             <td><a href="auth/group/add/" class="addlink">Add</a></td>
             <td><a href="auth/group/" class="changelink">Change</a></td>
@@ -29,19 +29,4 @@
         {% endfor %}
     </table>
 </div>
-
-<div class="module dashboard">
-    <table>
-        <caption><a href="member/" class="section">Trash bins</a></caption>
-
-        {% for item in FileLibs %}
-        <tr>
-            <th scope="row"><a href="#">{{ item.lib.name }}</a></th>
-            <td><a href="auth/group/add/" class="addlink">Add</a></td>
-            <td><a href="auth/group/" class="changelink">Change</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
 {% endblock %}

@@ -23,9 +23,11 @@
 
         <div id="user-tools">
             Welcome,
-            <strong>{{ user.username|default:"Anonymous" }}</strong>.
+            <strong>{{ user.username|default:"Anonymous" }}</strong> |
             {% if user.is_authenticated %}
-            <a href="/admin/password_change/">Change password</a> / <a href="/logout/">Log out</a>
+            <a href="/admin/password_change/">Change password</a> | <a href="/logout/">Log out</a>
+            {% else %}
+            <a href="/login/">Log in</a>
             {% endif %}
         </div>
     </div>
