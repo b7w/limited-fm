@@ -33,7 +33,6 @@ class MPermission( models.Model ):
 class MFileLib( models.Model ):
     name = models.CharField( max_length=64, null=False )
     path = models.CharField( max_length=256, null=False )
-    permission = models.ForeignKey( MPermission, default=1 )
 
     class Meta:
         db_table = 'FileLib'
@@ -47,7 +46,8 @@ class MFileLib( models.Model ):
 class MHome( models.Model ):
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
-
+    permission = models.ForeignKey( MPermission, default=1 )
+    
     class Meta:
         db_table = 'Home'
         verbose_name = 'Home'
