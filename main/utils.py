@@ -27,3 +27,29 @@ def split_path( path ):
         return data
 
     return __split_path( path, [] )
+
+# Enumerate and create all permissions
+# For any count of columns in MPermission
+def LoadPermissions():
+    from main.models import MPermission
+
+    fields = [k.name for k in MPermission._meta.fields if k.name != 'id']
+    count = len( fields )
+    last = count - 1
+    rng = range( count )
+    data = [0 for x in rng]
+
+    for i in range( 2 ** count ):
+        print i, data
+        Pemm = MPermission( )
+        for l in range( count ):
+            setattr( Pemm, fields[l], data[l] )
+            print '. . .', fields[l], data[l]
+        Pemm.save( )
+
+        data[last] += 1
+        for j in reversed( rng ):
+            if data[j] == 2:
+                data[j] = 0
+                data[j - 1] += 1
+

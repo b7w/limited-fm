@@ -10,7 +10,9 @@ admin.site.register( MFileLib, AdminFileLib )
 
 
 class AdminPermission( admin.ModelAdmin ):
-    pass
+    list_display = ( 'id', 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
+    list_filter = ( 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
+    ordering = ('id',)
 
 admin.site.register( MPermission, AdminPermission )
 

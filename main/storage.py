@@ -107,7 +107,7 @@ class FileStorage( object ):
         if not self.exists( name ):
             raise StorageError( '%s not found' % name )
         if not self.exists( '.TrashBin' ):
-            self.createdir( '.TrashBin' )
+            self.mkdir( '.TrashBin' )
         self.move( name, '.TrashBin' )
 
     def exists(self, name):

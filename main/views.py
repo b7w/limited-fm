@@ -48,7 +48,7 @@ def Browser( request ):
 
     home_id, path = get_params( request )
     logger.debug( 'Br: ' + path )
-    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+    FileLib = MHome.objects.select_related( 'lib', 'lib__permission' ).get( user=user, lib__id=home_id )
 
     history = MHistory.objects.\
               select_related( 'user' ).\
@@ -68,6 +68,7 @@ def Browser( request ):
                        'history': history,
                        'home_id': home_id,
                        'home': FileLib.lib.name,
+                       'permission': FileLib.lib.permission,
                        'files': files,
                        } )
 
@@ -94,9 +95,6 @@ def Action( request, command ):
             history.path = dir
             history.save( )
         except Exception as e:
-            f = open( '/home/bw/app.log', 'a' );
-            f.writelines( e.message );
-            f.close( )
             messages.error( request, e )
 
     elif command == 'delete':

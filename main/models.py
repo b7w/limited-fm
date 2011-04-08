@@ -3,9 +3,37 @@ from django.db import models
 
 # Create your models here.
 
+
+
+class MPermission( models.Model ):
+    edit = models.BooleanField( default=False )
+    move = models.BooleanField( default=False )
+    delete = models.BooleanField( default=False )
+    create = models.BooleanField( default=False )
+    upload = models.BooleanField( default=False )
+    http_get = models.BooleanField( default=False )
+
+    class Meta:
+        db_table = 'Permission'
+        verbose_name = 'Permission'
+        verbose_name_plural = 'Permissions'
+
+    def __unicode__(self):
+        name = str( self.id ) + ': '
+        fields = [k.name for k in self._meta.fields if k.name != 'id']
+        for item in fields:
+            bool = getattr( self, item )
+            name += item[0].upper( )
+            if bool: name += '1'
+            else: name += '0'
+            name += ', '
+        return name
+
+
 class MFileLib( models.Model ):
     name = models.CharField( max_length=64, null=False )
     path = models.CharField( max_length=256, null=False )
+    permission = models.ForeignKey( MPermission, default=1 )
 
     class Meta:
         db_table = 'FileLib'
@@ -16,25 +44,8 @@ class MFileLib( models.Model ):
         return str( self.name )
 
 
-class MPermission( models.Model ):
-    edit = models.BooleanField( default=False )
-    delete = models.BooleanField( default=False )
-    upload = models.BooleanField( default=False )
-    http_get = models.BooleanField( default=False )
-    hidden = models.BooleanField( default=False )
-
-    class Meta:
-        db_table = 'Permission'
-        verbose_name = 'Permission'
-        verbose_name_plural = 'Permissions'
-
-    def __unicode__(self):
-        return 'Permission ' + str( self.pk )
-
-
 class MHome( models.Model ):
     user = models.ForeignKey( User )
-    permission = models.ForeignKey( MPermission )
     lib = models.ForeignKey( MFileLib )
 
     class Meta:
@@ -45,14 +56,15 @@ class MHome( models.Model ):
     def __unicode__(self):
         return str( self.user ) + ' ' + str( self.lib )
 
+
 class MHistory( models.Model ):
     ADD = 1
     CHANGE = 2
     DELETE = 3
     ACTION = (
-        (ADD, 'add'),
-        (CHANGE, 'change'),
-        (DELETE, 'delete'),
+    (ADD, 'add'),
+    (CHANGE, 'change'),
+    (DELETE, 'delete'),
     )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )

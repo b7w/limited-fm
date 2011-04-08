@@ -81,6 +81,7 @@
 {% endblock %}
 
 {% block panels %}
+{% if permission.upload %}
 <div class="module">
     <h2>Upload</h2>
 
@@ -95,7 +96,8 @@
         </form>
     </div>
 </div>
-
+{% endif %}
+{% if permission.edit %}
 <div class="module">
     <h2>Create</h2>
 
@@ -108,6 +110,7 @@
         </form>
     </div>
 </div>
+{% endif %}
 
 <div class="module">
     <h2>Recent Actions</h2>
@@ -157,15 +160,19 @@
                         {{ item.name }}
                     </a>
                     <div style="float:right;">
+                        {% if permission.edit %}
                         <a class="rename" href="/action/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/edit.png" alt="Rename"/>
                         </a>
                         <a class="move" href="/action/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/move.png" alt="Move"/>
                         </a>
+                        {% endif %}
+                        {% if permission.delete %}
                         <a class="delete" href="/action/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
                             <img src="/static/img/delete.png" alt="Move to trash"/>
                         </a>
+                        {% endif %}
                         <a href="/download/?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >
                             <img src="/static/img/down.png"/>
                         </a>
