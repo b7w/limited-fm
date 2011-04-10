@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django import forms
+
+from django.utils.log import logger
 
 from main.models import MFileLib, MPermission, MHome, MHistory
 
@@ -17,8 +20,57 @@ class AdminPermission( admin.ModelAdmin ):
 admin.site.register( MPermission, AdminPermission )
 
 
+class HomeForm( forms.ModelForm ):
+
+    # Override 'permission' to set it readonly
+    perm_id = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    perm = forms.MultipleChoiceField(
+        choices = [(i,i) for i in MPermission.fields()],
+        widget = forms.CheckboxSelectMultiple,
+        required = False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(HomeForm, self).__init__(*args, **kwargs)
+
+        if kwargs.has_key('instance'):
+            # init data
+            instance = kwargs['instance']
+            self.initial['perm_id'] = instance.permission_id
+
+            self.initial['perm'] = []
+            permission = MPermission.objects.get(id=instance.permission_id)
+            # if MPermission.{edit..} == true
+            # append edit to init data
+            for name in MPermission.fields():
+                 if getattr( permission, name):
+                    self.initial['perm'].append( name )
+
+
+    def save(self, commit=True):
+        model = super(HomeForm, self).save(commit=False)
+        # Get checked names
+        new = self.cleaned_data['perm']
+        kwargs = {}
+        # All array is False items
+        # if name exist in new, set it True
+        for item in MPermission.fields():
+            if item in new:
+                kwargs[item] = True
+            else:
+                kwargs[item] = False
+
+        model.permission = MPermission.objects.get_or_create( **kwargs  )
+        if commit:
+            model.save()
+        return model
+
+    class Meta:
+        model = MHome
+        exclude = ('permission',)
+
 class AdminHome( admin.ModelAdmin ):
-    pass
+    form = HomeForm
 
 admin.site.register( MHome, AdminHome )
 

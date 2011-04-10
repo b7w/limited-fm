@@ -13,6 +13,10 @@ class MPermission( models.Model ):
     upload = models.BooleanField( default=False )
     http_get = models.BooleanField( default=False )
 
+    @classmethod
+    def fields(self):
+        return [k.name for k in self._meta.fields if k.name != 'id']
+
     class Meta:
         db_table = 'Permission'
         verbose_name = 'Permission'
@@ -47,7 +51,7 @@ class MHome( models.Model ):
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
     permission = models.ForeignKey( MPermission, default=1 )
-    
+
     class Meta:
         db_table = 'Home'
         verbose_name = 'Home'

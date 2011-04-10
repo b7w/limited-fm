@@ -33,7 +33,7 @@ def split_path( path ):
 def LoadPermissions():
     from main.models import MPermission
 
-    fields = [k.name for k in MPermission._meta.fields if k.name != 'id']
+    fields = MPermission.fields()
     count = len( fields )
     last = count - 1
     rng = range( count )
