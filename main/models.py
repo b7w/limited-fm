@@ -3,7 +3,8 @@ from django.db import models
 
 # Create your models here.
 
-
+class PermissionError( Exception ):
+    pass
 
 class MPermission( models.Model ):
     edit = models.BooleanField( default=False )
@@ -23,14 +24,11 @@ class MPermission( models.Model ):
         verbose_name_plural = 'Permissions'
 
     def __unicode__(self):
-        name = str( self.id ) + ': '
-        fields = [k.name for k in self._meta.fields if k.name != 'id']
+        name = 'ID' + str( self.id ) + ': '
+        fields = self.fields()
         for item in fields:
             bool = getattr( self, item )
-            name += item[0].upper( )
-            if bool: name += '1'
-            else: name += '0'
-            name += ', '
+            name += item.capitalize() + ' ' + str(bool) + ', '
         return name
 
 
@@ -44,7 +42,7 @@ class MFileLib( models.Model ):
         verbose_name_plural = 'File Libs'
 
     def __unicode__(self):
-        return str( self.name )
+        return 'ID' + str( self.id ) + ': ' + str( self.name )
 
 
 class MHome( models.Model ):
@@ -58,7 +56,7 @@ class MHome( models.Model ):
         verbose_name_plural = 'Home'
 
     def __unicode__(self):
-        return str( self.user ) + ' ' + str( self.lib )
+        return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
 
 
 class MHistory( models.Model ):
@@ -83,4 +81,4 @@ class MHistory( models.Model ):
         verbose_name_plural = 'History'
 
     def __unicode__(self):
-        return str( self.user ) + ' ' + str( self.lib )
+        return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )

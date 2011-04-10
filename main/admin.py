@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django import forms
 
-from django.utils.log import logger
-
 from main.models import MFileLib, MPermission, MHome, MHistory
 
 
@@ -21,48 +19,47 @@ admin.site.register( MPermission, AdminPermission )
 
 
 class HomeForm( forms.ModelForm ):
-
     # Override 'permission' to set it readonly
-    perm_id = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    perm_id = forms.CharField( widget=forms.TextInput( attrs={ 'readonly': 'readonly' } ) )
     perm = forms.MultipleChoiceField(
-        choices = [(i,i) for i in MPermission.fields()],
-        widget = forms.CheckboxSelectMultiple,
-        required = False
+        choices=[(i, i) for i in MPermission.fields( )],
+        widget=forms.CheckboxSelectMultiple,
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
-        super(HomeForm, self).__init__(*args, **kwargs)
+        super( HomeForm, self ).__init__( *args, **kwargs )
 
-        if kwargs.has_key('instance'):
+        if kwargs.has_key( 'instance' ):
             # init data
             instance = kwargs['instance']
             self.initial['perm_id'] = instance.permission_id
 
             self.initial['perm'] = []
-            permission = MPermission.objects.get(id=instance.permission_id)
+            permission = MPermission.objects.get( id=instance.permission_id )
             # if MPermission.{edit..} == true
             # append edit to init data
-            for name in MPermission.fields():
-                 if getattr( permission, name):
+            for name in MPermission.fields( ):
+                if getattr( permission, name ):
                     self.initial['perm'].append( name )
 
 
     def save(self, commit=True):
-        model = super(HomeForm, self).save(commit=False)
+        model = super( HomeForm, self ).save( commit=False )
         # Get checked names
         new = self.cleaned_data['perm']
-        kwargs = {}
+        kwargs = { }
         # All array is False items
         # if name exist in new, set it True
-        for item in MPermission.fields():
+        for item in MPermission.fields( ):
             if item in new:
                 kwargs[item] = True
             else:
                 kwargs[item] = False
 
-        model.permission = MPermission.objects.get_or_create( **kwargs  )
+        model.permission = MPermission.objects.get_or_create( **kwargs )[0]
         if commit:
-            model.save()
+            model.save( )
         return model
 
     class Meta:
@@ -70,12 +67,16 @@ class HomeForm( forms.ModelForm ):
         exclude = ('permission',)
 
 class AdminHome( admin.ModelAdmin ):
+    list_display = ( 'user', 'lib', 'permission', )
+    list_filter = ( 'user', 'lib', )
+    ordering = ('user',)
     form = HomeForm
 
 admin.site.register( MHome, AdminHome )
 
 
 class AdminHistory( admin.ModelAdmin ):
-    pass
+    list_display = ( 'user', 'lib', 'type', 'time', )
+    list_filter = ( 'time', 'user', 'lib', )
 
 admin.site.register( MHistory, AdminHistory )
