@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.storage import FileStorage, StorageError
-from main.models import MHome, MHistory
+from main.models import MHome, MHistory, PermissionError
 from main.controls import get_user, get_params
 from main.utils import split_path, HttpResponseReload
 
@@ -85,6 +85,8 @@ def Action( request, command ):
     history.path = Storage.path.dirname( path )
     if command == 'add':
         try:
+            if not FileLib.permission.edit:
+                raise PermissionError( u'You have no permission to create new directory' )
             name = request.GET['n']
             dir = Storage.path.join( path, name )
             Storage.mkdir( dir )
@@ -94,22 +96,30 @@ def Action( request, command ):
             history.message = "dir '%s' created" % name
             history.path = dir
             history.save( )
-        except Exception as e:
+        except StorageError as e:
+            messages.error( request, e )
+        except PermissionError as e:
             messages.error( request, e )
 
     elif command == 'delete':
         try:
+            if not FileLib.permission.delete:
+                raise PermissionError( u'You have no permission to delete' )
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
 
             history.type = MHistory.DELETE
             history.message = "'%s' moved to trash" % Storage.path.name( path )
             history.save( )
-        except Exception as e:
+        except StorageError as e:
+            messages.error( request, e )
+        except PermissionError as e:
             messages.error( request, e )
 
     elif command == 'rename':
         try:
+            if not FileLib.permission.edit:
+                raise PermissionError( u'You have no permission to rename' )
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
@@ -119,9 +129,13 @@ def Action( request, command ):
             history.save( )
         except StorageError as e:
             messages.error( request, e )
+        except PermissionError as e:
+            messages.error( request, e )
 
     elif command == 'move':
         try:
+            if not FileLib.permission.move:
+                raise PermissionError( u'You have no permission to move' )
             path2 = request.GET['p2']
             path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
             Storage.move( path, path2 )
@@ -133,6 +147,8 @@ def Action( request, command ):
             history.save( )
         except StorageError as e:
             messages.error( request, e )
+        except PermissionError as e:
+            messages.error( request, e )
 
     #return render( request, "browser.html", {})
     return HttpResponseReload( request )
@@ -141,29 +157,35 @@ def Action( request, command ):
 @csrf_exempt
 def Upload( request ):
     if request.method == 'POST':
-        user = get_user( request )
+        try:
+            user = get_user( request )
 
-        lib_id = request.POST['h']
-        path = request.POST['p']
+            lib_id = request.POST['h']
+            path = request.POST['p']
 
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
-        Storage = FileStorage( FileLib.lib.path )
+            FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
+            if not FileLib.permission.upload:
+                raise PermissionError( u'You have no permission to upload' )
+            
+            Storage = FileStorage( FileLib.lib.path )
 
-        files = request.FILES.getlist( 'files' )
-        if len( files ) > 3:
-            history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-            history.message = "Uploaded %s files" % len( files )
-            for file in files:
-                fool_path = Storage.path.join( path, file.name )
-                Storage.save( fool_path, file )
-            history.save( )
-        else:
-            for file in files:
-                fool_path = Storage.path.join( path, file.name )
-                Storage.save( fool_path, file )
+            files = request.FILES.getlist( 'files' )
+            if len( files ) > 3:
                 history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-                history.message = "Uploaded '%s'" % file.name
+                history.message = "Uploaded %s files" % len( files )
+                for file in files:
+                    fool_path = Storage.path.join( path, file.name )
+                    Storage.save( fool_path, file )
                 history.save( )
+            else:
+                for file in files:
+                    fool_path = Storage.path.join( path, file.name )
+                    Storage.save( fool_path, file )
+                    history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
+                    history.message = "Uploaded '%s'" % file.name
+                    history.save( )
+        except PermissionError as e:
+            messages.error( request, e )
 
     return HttpResponseReload( request )
 
