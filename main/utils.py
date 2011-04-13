@@ -53,3 +53,12 @@ def LoadPermissions():
                 data[j] = 0
                 data[j - 1] += 1
 
+
+def UrlGET( **kwargs ):
+    str = None
+    for key,val in kwargs.items():
+        if not str: str = '?'
+        else: str += '&amp;'
+        str += '%s=%s' % (key,val)
+
+    return str

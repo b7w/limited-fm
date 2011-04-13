@@ -62,11 +62,14 @@
         }
     }
 
+    function Link( obj ) {
+    
+        var link = jQuery(obj).attr('href');
+        window.location = link;
+    }
+
     jQuery(document).ready( function() {
 
-        jQuery('.messagelist').click(function() {
-            jQuery(this).empty();
-        })
         jQuery('.delete').click(function() {
             Delete( this )
         })
@@ -75,6 +78,9 @@
         })
         jQuery('.move').click(function() {
             Move( this )
+        })
+        jQuery('.link').click(function() {
+            Link( this )
         })
     });
 </script>
@@ -142,11 +148,11 @@
                 Pk
             </th>
             <th scope="col">
-                <a href="http://95.143.222.146:8080/admin/post/ipost/?ot=asc&amp;o=4">
+                <a href="#">
                     Size
                 </a></th>
             <th scope="col" >
-                <a href="http://95.143.222.146:8080/admin/post/ipost/?ot=desc&amp;o=5">
+                <a href="#">
                     Time
                 </a></th>
         </tr>
@@ -161,20 +167,23 @@
                     </a>
                     <div style="float:right;">
                         {% if permission.edit %}
-                        <a class="rename" href="/action/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
-                            <img src="/static/img/edit.png" alt="Rename"/>
+                        <a class="rename" href="/action/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Rename">
+                            <img src="/static/img/edit.png"/>
                         </a>
-                        <a class="move" href="/action/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
-                            <img src="/static/img/move.png" alt="Move"/>
+                        <a class="move" href="/action/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Move to other dir">
+                            <img src="/static/img/move.png"/>
                         </a>
                         {% endif %}
                         {% if permission.delete %}
-                        <a class="delete" href="/action/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;">
-                            <img src="/static/img/delete.png" alt="Move to trash"/>
+                        <a class="delete" href="/action/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Create direct link">
+                            <img src="/static/img/delete.png"/>
                         </a>
                         {% endif %}
                         <a href="/download/?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >
                             <img src="/static/img/down.png"/>
+                        </a>
+                        <a class="link" href="/action/link/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Create direct link">
+                            <img src="/static/img/link.png"/>
                         </a>
                     </div>
                 </td>

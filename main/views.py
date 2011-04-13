@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-import tempfile
-import zipfile
+from datetime import datetime
+import hashlib
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.contrib.sites.models import Site
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.storage import FileStorage, StorageError
-from main.models import MHome, MHistory, PermissionError
-from main.controls import get_user, get_params
+from main.models import MHome, MHistory, PermissionError, MLink, MFileLib
+from main.controls import get_user, get_params, Downloads
 from main.utils import split_path, HttpResponseReload
 
 from django.utils.log import logger
@@ -24,14 +25,17 @@ def Index( request ):
 
     FileLibs = MHome.objects.select_related( 'lib' ).filter( user=user )
 
+    # get ids for SELECT HAVE statement
     libs = []
     for i in FileLibs:
         libs.append( i.lib_id )
+    # SELECT Histories messages
+    # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
               only( 'lib', 'type', 'message', 'path', 'user__username', 'lib__name' ).\
               filter( lib__in=libs ).\
-              order_by( '-id' )[0:8]
+              order_by( '-time' )[0:8]
 
     return render( request, "index.html",
                    {
@@ -73,9 +77,10 @@ def Browser( request ):
                        } )
 
 
+# Action add, delete, rename, movem link
+# GET 'h' - home id, 'p' - path
 def Action( request, command ):
-    home = request.GET['h']
-    path = request.GET['p']
+    home, path = get_params( request )
 
     user = get_user( request )
     FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
@@ -83,6 +88,7 @@ def Action( request, command ):
 
     history = MHistory( user=user, lib=FileLib.lib )
     history.path = Storage.path.dirname( path )
+    # GET 'n' - folder name
     if command == 'add':
         try:
             if not FileLib.permission.edit:
@@ -116,6 +122,7 @@ def Action( request, command ):
         except PermissionError as e:
             messages.error( request, e )
 
+    # GET 'n' - new file name
     elif command == 'rename':
         try:
             if not FileLib.permission.edit:
@@ -132,6 +139,7 @@ def Action( request, command ):
         except PermissionError as e:
             messages.error( request, e )
 
+    # GET 'p2' - new directory path
     elif command == 'move':
         try:
             if not FileLib.permission.move:
@@ -150,10 +158,42 @@ def Action( request, command ):
         except PermissionError as e:
             messages.error( request, e )
 
+    elif command == 'link':
+        try:
+            if user.is_anonymous( ):
+                raise PermissionError( u'You have no permission to create links' )
+                # Get MaxAge
+            #age = request.GET['a']
+            hash = hashlib.md5( path ).hexdigest( )[0:12]
+            domain = Site.objects.get_current( ).domain
+
+            # if links exists where hash and `time`+ `maxage` > NOW()
+            # +! work only with MySQL
+            link = MLink.objects.filter( hash=hash ).\
+            extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
+            order_by( '-time' ).\
+            exists( )
+            # if exist and not expired
+            if link:
+                messages.success( request, "link already exists 'http://%s/link/%s' " % (domain, hash) )
+            # else create new one
+            else:
+                MLink( hash=hash, lib=FileLib.lib, path=path ).save( )
+                messages.success( request, "link successfully created to 'http://%s/link/%s' " % (domain, hash) )
+
+            history.type = MHistory.ADD
+            history.message = "add link for '%s'" % Storage.path.name( path )
+            history.path = Storage.path.dirname( path )
+            history.save( )
+        except PermissionError as e:
+            messages.error( request, e )
+
     #return render( request, "browser.html", {})
     return HttpResponseReload( request )
 
 
+# Files upload to
+# POST 'h' - home id, 'p' - path, 'files'
 @csrf_exempt
 def Upload( request ):
     if request.method == 'POST':
@@ -166,10 +206,11 @@ def Upload( request ):
             FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
             if not FileLib.permission.upload:
                 raise PermissionError( u'You have no permission to upload' )
-            
+
             Storage = FileStorage( FileLib.lib.path )
 
             files = request.FILES.getlist( 'files' )
+            # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
                 history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
                 history.message = "Uploaded %s files" % len( files )
@@ -177,6 +218,7 @@ def Upload( request ):
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
                 history.save( )
+            # else create message for each file
             else:
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
@@ -190,6 +232,8 @@ def Upload( request ):
     return HttpResponseReload( request )
 
 
+# Download files, folders whit checked permissions
+# GET 'h' - home id, 'p' - path
 def Download( request ):
     if request.method == 'GET':
         user = get_user( request )
@@ -200,31 +244,29 @@ def Download( request ):
 
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
 
-        Storage = FileStorage( FileLib.lib.path )
-        logger.debug( path )
-        if Storage.isfile( path ):
-            #wrapper = FileWrapper( Storage.open( path ) )
-            response = HttpResponse( Storage.open( path ).read( ), content_type='application/force-download' )
-            response['Content-Disposition'] = 'attachment; filename=%s' % Storage.path.name( path )
-            response['Content-Length'] = Storage.size( path )
+        response = Downloads( FileLib.lib.path, path )
 
-        elif Storage.isdir( path ):
-            temp = tempfile.TemporaryFile( )
-            archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
-            dirname = Storage.path.name( path )
-            for abspath, name in Storage.listfiles( path ).items( ):
-                name = Storage.path.join( dirname, name )
-                archive.write( abspath, name )
-
-            archive.close( )
-            temp.seek( 0 )
-            #wrapper = FileWrapper(temp)
-            response = HttpResponse( temp.read( ), content_type='application/zip' )
-            response['Content-Disposition'] = 'attachment; filename=%s.zip' % Storage.path.name( path ).encode(
-                'latin-1', 'replace' )
-            response['Content-Length'] = temp.tell( )
-
-        else:
+        if not response:
             raise Http404( 'No file or directory find' )
 
         return response
+
+
+# If link exist Download whitout any permission
+def Link( request, hash ):
+    # Filter kinks where hash and `time`+ `maxage` > NOW()
+    # if len == 0 send error
+    # +! work only with MySQL
+    link = MLink.objects.filter( hash=hash ).\
+           extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
+           order_by( '-time' )[0:1]
+    if len( link ) == 0:
+        raise Http404( 'We are sorry. But such object does not exists or link is out of time' )
+    link = link[0]
+
+    Lib = MFileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
+    response = Downloads( Lib.path, link.path )
+    if not response:
+        raise Http404( 'No file or directory find' )
+
+    return response

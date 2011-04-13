@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -82,3 +84,19 @@ class MHistory( models.Model ):
 
     def __unicode__(self):
         return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
+
+
+class MLink( models.Model ):
+    hash = models.CharField( max_length=12, null=False )
+    lib = models.ForeignKey( MFileLib )
+    path = models.CharField( max_length=256, null=False )
+    maxage = models.IntegerField( default=24*60*60, null=False )
+    time = models.DateTimeField( auto_now_add=True, null=False )
+
+    class Meta:
+        db_table = 'Link'
+        verbose_name = 'Link'
+        verbose_name_plural = 'Links'
+
+    def __unicode__(self):
+        return 'ID' + str( self.id ) + ': ' + str( self.path ) + ', ' + str( self.time )

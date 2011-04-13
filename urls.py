@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^action/(?P<command>\w+)/$', 'main.views.Action', name='action' ),
 
     url(r'^download/$', 'main.views.Download', name='download' ),
+    url(r'^link/(?P<hash>\w+)/$', 'main.views.Link', name='link' ),
     url(r'^upload/$', 'main.views.Upload', name='upload' ),
 
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login' ),

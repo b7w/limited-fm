@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from main.models import MFileLib, MPermission, MHome, MHistory
+from main.models import MFileLib, MPermission, MHome, MHistory, MLink
 
 
 class AdminFileLib( admin.ModelAdmin ):
@@ -80,3 +80,10 @@ class AdminHistory( admin.ModelAdmin ):
     list_filter = ( 'time', 'user', 'lib', )
 
 admin.site.register( MHistory, AdminHistory )
+
+
+class AdminLink( admin.ModelAdmin ):
+    list_display = ( 'path', 'lib', 'hash', 'maxage', 'time', )
+    list_filter = ( 'time', )
+
+admin.site.register( MLink, AdminLink )
