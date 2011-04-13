@@ -1,8 +1,7 @@
-from datetime import timedelta
-
+from datetime import timedelta, datetime
 from django.contrib.auth.models import User
 from django.db import models
-
+from django.utils import datetime_safe
 # Create your models here.
 
 class PermissionError( Exception ):
@@ -92,6 +91,9 @@ class MLink( models.Model ):
     path = models.CharField( max_length=256, null=False )
     maxage = models.IntegerField( default=24*60*60, null=False )
     time = models.DateTimeField( auto_now_add=True, null=False )
+
+    def expires(self):
+        return timedelta(seconds=self.maxage)
 
     class Meta:
         db_table = 'Link'

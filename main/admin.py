@@ -83,7 +83,7 @@ admin.site.register( MHistory, AdminHistory )
 
 
 class AdminLink( admin.ModelAdmin ):
-    list_display = ( 'path', 'lib', 'hash', 'maxage', 'time', )
+    list_display = ( 'path', 'lib', 'hash', 'expires', 'time', )
     list_filter = ( 'time', )
 
 admin.site.register( MLink, AdminLink )
