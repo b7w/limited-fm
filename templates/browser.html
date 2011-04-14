@@ -60,6 +60,10 @@
             NotifyWarning('Moving canceled by user');
         }
     }
+    function Click ( obj ) {
+        link = jQuery(obj).children('td').children('a').attr('href');
+        window.location = link;
+    }
 
     jQuery(document).ready( function() {
 
@@ -71,6 +75,9 @@
         })
         jQuery('.move').click(function() {
             Move( this )
+        })
+        jQuery('tr2').dblclick(function() {
+            Click( this )
         })
     });
 </script>
@@ -150,8 +157,12 @@
         <tbody>
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td>
-                    <a href="{% if item.class == 'file' %}{% url download %}{% else %}{% url browser %}{% endif %}?h={{ home_id }}&amp;p={{ item.url }}"
+                {% if item.class == 'dir' %}
+                    <td onclick="location.href='{% url browser %}?h={{ home_id }}&amp;p={{ item.url }}'">
+                {% else %}
+                    <td>
+                {% endif %}
+                    <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url }}"
                        class="{{ item.class }}">
                         {{ item.name }}
                     </a>
@@ -166,9 +177,6 @@
                         {% if permission.delete %}
                         <img class="delete" src="{{ STATIC_URL }}img/delete.png" title="Delete"/>
                         {% endif %}
-                        <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >
-                            <img src="/static/img/down.png"/>
-                        </a>
                         <a class="link" href="{% url action 'link' %}?h={{ home_id }}&amp;p={{ item.url }}" title="Create direct link">
                             <img src="{{ STATIC_URL }}img/link.png"/>
                         </a>
