@@ -16,12 +16,12 @@
 
     function Delete( obj ) {
 
-        var oldname = jQuery(obj).parent().parent().children('a').text();
-        var flag = confirm("Do you realy want to delete " + jQuery.trim(oldname) + "?");
+        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
+        var flag = confirm("Do you realy want to delete " + jQuery.trim(data.name) + "?");
 
         if ( flag == true )
         {
-            var link = jQuery(obj).attr('href');
+            link = '{% url action 'delete' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
             window.location = link;
         }
         else
@@ -32,13 +32,13 @@
 
     function Rename( obj ) {
 
-        var oldname = jQuery(obj).parent().parent().children('a').text();
-        var name = prompt( 'Enter new name', jQuery.trim(oldname) );
+        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
+        var name = prompt( 'Enter new name', jQuery.trim(data.name) );
 
         if (name!=null && name!="")
         {
-            var link = jQuery(obj).attr('href');
-            link = link + '&amp;n=' + name;
+
+            link = '{% url action 'rename' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
             window.location = link;
         }
         else {
@@ -48,24 +48,17 @@
 
     function Move( obj ) {
 
-
+        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
         var path2 = prompt( 'Enter new path', '' );
 
         if (path2!=null && path2!="")
         {
-            var link = jQuery(obj).attr('href');
-            link = link + '&amp;p2=' + path2;
+            link = '{% url action 'move' %}?h='+data.home+'&amp;p='+data.path+'&amp;p2=' + path2;
             window.location = link;
         }
         else {
             NotifyWarning('Moving canceled by user');
         }
-    }
-
-    function Link( obj ) {
-    
-        var link = jQuery(obj).attr('href');
-        window.location = link;
     }
 
     jQuery(document).ready( function() {
@@ -79,9 +72,6 @@
         jQuery('.move').click(function() {
             Move( this )
         })
-        jQuery('.link').click(function() {
-            Link( this )
-        })
     });
 </script>
 {% endblock %}
@@ -94,7 +84,7 @@
     <h3>Files</h3>
 
     <div class="upload">
-        <form action="/upload/" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <form action="{% url upload %}" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 210px;"/>
             <input type="hidden" name="h" value="{{ home_id }}">
             <input type="hidden" name="p" value="{{ path }}">
@@ -108,7 +98,7 @@
     <h2>Create</h2>
 
     <div class="upload">
-        <form action="/action/add/" method="GET" >
+        <form action="{% url action 'add' %}" method="GET" >
             <input type="text" name="n" size="32" style="margin: 5px 5px;">
             <input type="hidden" name="h" value="{{ home_id }}">
             <input type="hidden" name="p" value="{{ path }}">
@@ -130,7 +120,7 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_type_display }}link">
-            <a href="/browser/?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
+            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
         </li>
         {% endfor %}
     </ul>
@@ -141,7 +131,7 @@
 <div class="module" id="changelist">
 
     <table id="result_list" cellspacing="0">
-        <caption><a href="auth/" class="section">Files</a></caption>
+        <caption><a href="#" class="section">Files</a></caption>
         <thead>
         <tr>
             <th scope="col" class="sorted ascending" style="width: 70%;" >
@@ -161,29 +151,26 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td>
-                    <a href="/{% if item.class == 'file' %}download{% else %}browser{% endif %}/?h={{ home_id }}&amp;p={{ item.url }}"
+                    <a href="/{% if item.class == 'file' %}{% url download %}{% else %}{% url browser %}{% endif %}/?h={{ home_id }}&amp;p={{ item.url }}"
                        class="{{ item.class }}">
                         {{ item.name }}
                     </a>
+                    <span style="display:none;">
+                        { "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }
+                    </span>
                     <div style="float:right;">
                         {% if permission.edit %}
-                        <a class="rename" href="/action/rename/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Rename">
-                            <img src="/static/img/edit.png"/>
-                        </a>
-                        <a class="move" href="/action/move/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Move to other dir">
-                            <img src="/static/img/move.png"/>
-                        </a>
+                        <img class="rename" src="{{ STATIC_URL }}img/edit.png" title="Rename"/>
+                        <img class="move" src="{{ STATIC_URL }}img/move.png" title="Move to other dir"/>
                         {% endif %}
                         {% if permission.delete %}
-                        <a class="delete" href="/action/delete/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Create direct link">
-                            <img src="/static/img/delete.png"/>
-                        </a>
+                        <img class="delete" src="{{ STATIC_URL }}img/delete.png" title="Delete"/>
                         {% endif %}
-                        <a href="/download/?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >
+                        <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url }}" title="Download" >
                             <img src="/static/img/down.png"/>
                         </a>
-                        <a class="link" href="/action/link/?h={{ home_id }}&amp;p={{ item.url }}" onclick="return false;" title="Create direct link">
-                            <img src="/static/img/link.png"/>
+                        <a class="link" href="{% url action 'link' %}?h={{ home_id }}&amp;p={{ item.url }}" title="Create direct link">
+                            <img src="{{ STATIC_URL }}img/link.png"/>
                         </a>
                     </div>
                 </td>
