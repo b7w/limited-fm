@@ -151,7 +151,7 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td>
-                    <a href="/{% if item.class == 'file' %}{% url download %}{% else %}{% url browser %}{% endif %}/?h={{ home_id }}&amp;p={{ item.url }}"
+                    <a href="{% if item.class == 'file' %}{% url download %}{% else %}{% url browser %}{% endif %}?h={{ home_id }}&amp;p={{ item.url }}"
                        class="{{ item.class }}">
                         {{ item.name }}
                     </a>

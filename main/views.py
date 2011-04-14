@@ -19,7 +19,6 @@ from django.utils.log import logger
 
 def Index( request ):
     user = get_user( request )
-    logger.info( 'Index page test' )
     if not user:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
@@ -51,19 +50,25 @@ def Browser( request ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     home_id, path = get_params( request )
-    logger.debug( 'Br: ' + path )
-    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
-    history = MHistory.objects.\
-              select_related( 'user' ).\
-              only( 'lib', 'type', 'message', 'path', 'user__username' ).\
-              filter( lib=home_id ).\
-              order_by( '-id' )[0:5]
+    try:
+        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
-    patharr = split_path( path )
+        history = MHistory.objects.\
+                  select_related( 'user' ).\
+                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  filter( lib=home_id ).\
+                  order_by( '-id' )[0:5]
 
-    Storage = FileStorage( FileLib.lib.path )
-    files = Storage.listdir( path )
+        patharr = split_path( path )
+
+        File = FileStorage( FileLib.lib.path )
+        files = File.listdir( path )
+
+    except MHome.DoesNotExist:
+        raise Http404("No such file lib or you don't have permissions")
+    except StorageError as e:
+        raise Http404( e )
 
     return render( request, "browser.html",
                    {

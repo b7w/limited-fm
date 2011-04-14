@@ -120,6 +120,9 @@ class FileStorage( object ):
         return os.path.isdir( self.abspath( name ) )
 
     def listdir(self, path, hidden=False):
+        if not (self.exists( path ) and self.isdir( path ) ):
+            raise StorageError( "path '%s' doesn't exist or it isn't a directory" % path )
+
         tmp = os.listdir( self.abspath( path ) )
         files = []
         if not hidden:
