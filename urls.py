@@ -11,17 +11,11 @@ urlpatterns = patterns('',
     # Serve static
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes':True}),
 
+    url(r'^', include('limited.urls') ),
+
+    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'limited/login.html' }, name='login' ),
+    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout' ),
+
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^$', 'main.views.Index', name='index' ),
-    url(r'^browser/$', 'main.views.Browser', name='browser' ),
-    url(r'^action/(?P<command>\w+)/$', 'main.views.Action', name='action' ),
-
-    url(r'^download/$', 'main.views.Download', name='download' ),
-    url(r'^link/(?P<hash>\w+)/$', 'main.views.Link', name='link' ),
-    url(r'^upload/$', 'main.views.Upload', name='upload' ),
-
-    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login' ),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout' ),
 )

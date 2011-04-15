@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "limited/base.html" %}
 
 {% block media %}
 <script type="text/javascript">
@@ -138,18 +138,18 @@
 <div class="module" id="changelist">
 
     <table id="result_list" cellspacing="0">
-        <caption><a href="#" class="section">Files</a></caption>
+        <caption><a href="browser.html#" class="section">Files</a></caption>
         <thead>
         <tr>
             <th scope="col" class="sorted ascending" style="width: 70%;" >
                 Pk
             </th>
             <th scope="col">
-                <a href="#">
+                <a href="browser.html#">
                     Size
                 </a></th>
             <th scope="col" >
-                <a href="#">
+                <a href="browser.html#">
                     Time
                 </a></th>
         </tr>
@@ -171,14 +171,14 @@
                     </span>
                     <div style="float:right;">
                         {% if permission.edit %}
-                        <img class="rename" src="{{ STATIC_URL }}img/edit.png" title="Rename"/>
-                        <img class="move" src="{{ STATIC_URL }}img/move.png" title="Move to other dir"/>
+                        <img class="rename" src="{{ STATIC_URL }}limited/img/edit.png" title="Rename"/>
+                        <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
                         {% endif %}
                         {% if permission.delete %}
-                        <img class="delete" src="{{ STATIC_URL }}img/delete.png" title="Delete"/>
+                        <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Delete"/>
                         {% endif %}
                         <a class="link" href="{% url action 'link' %}?h={{ home_id }}&amp;p={{ item.url }}" title="Create direct link">
-                            <img src="{{ STATIC_URL }}img/link.png"/>
+                            <img src="{{ STATIC_URL }}limited/img/link.png"/>
                         </a>
                     </div>
                 </td>
@@ -189,15 +189,15 @@
 
         {% if files|length == 0 %}
             <tr class="row1">
-               <td><a href="#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
             </tr>
            <tr class="row2">
-                <td><a href="#">There is no any files or folders</a></td>
+                <td><a href="browser.html#">There is no any files or folders</a></td>
                 <td class="nowrap"></td>
                 <td class="nowrap"></td>
             </tr>
            <tr class="row1">
-               <td><a href="#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
             </tr>
         {% endif %}
 

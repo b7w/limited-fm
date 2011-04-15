@@ -10,10 +10,10 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from main.storage import FileStorage, StorageError
-from main.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from main.controls import get_user, get_params, Downloads
-from main.utils import split_path, HttpResponseReload
+from limited.storage import FileStorage, StorageError
+from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
+from limited.controls import get_user, get_params, Downloads
+from limited.utils import split_path, HttpResponseReload
 
 from django.utils.log import logger
 
@@ -36,7 +36,7 @@ def Index( request ):
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
-    return render( request, "index.html",
+    return render( request, "limited/index.html",
                    {
                        'history': history,
                        'FileLibs': FileLibs,
@@ -70,7 +70,7 @@ def Browser( request ):
     except StorageError as e:
         raise Http404( e )
 
-    return render( request, "browser.html",
+    return render( request, "limited/browser.html",
                    {
                        'path': path,
                        'patharr': patharr,

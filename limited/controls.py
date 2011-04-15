@@ -3,12 +3,12 @@ import zipfile
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
 
-from main.models import MHome
+from limited.models import MHome
 
 # Get authenticated user
 # or anonymous user if he had any FileLibs
 # or None
-from main.storage import FileStorage
+from limited.storage import FileStorage
 
 def get_user( request ):
     if request.user.is_authenticated( ):

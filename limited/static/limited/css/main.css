@@ -259,7 +259,7 @@ tfoot td {
     color: #666;
     padding: 2px 5px;
     font-size: 11px;
-    background: #e1e1e1 url(/static/img/nav-bg.gif) top left repeat-x;
+    background: #e1e1e1 url(../img/nav-bg.gif) top left repeat-x;
     border-left: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
@@ -323,11 +323,11 @@ table thead th.sorted a {
 }
 
 table thead th.ascending a {
-    background: url(/static/img/arrow-up.gif) right .4em no-repeat;
+    background: url(..limited/img/arrow-up.gif) right .4em no-repeat;
 }
 
 table thead th.descending a {
-    background: url(/static/img/arrow-down.gif) right .4em no-repeat;
+    background: url(/limited/static/limited/img/arrow-down.gif) right .4em no-repeat;
 }
 
 /* ORDERABLE TABLES */
@@ -338,7 +338,7 @@ table.orderable tbody tr td:hover {
 
 table.orderable tbody tr td:first-child {
     padding-left: 14px;
-    background-image: url(/static/img/nav-bg-grabber.gif);
+    background-image: url(/limited/static/limited/img/nav-bg-grabber.gif);
     background-repeat: repeat-y;
 }
 
@@ -368,7 +368,7 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 /* FORM BUTTONS */
 
 .button, input[type=submit], input[type=button], .submit-row input {
-    background: white url(/static/img/nav-bg.gif) bottom repeat-x;
+    background: white url(../img/nav-bg.gif) bottom repeat-x;
     padding: 3px 5px;
     color: black;
     border: 1px solid #bbb;
@@ -377,31 +377,31 @@ input[type=text], input[type=password], textarea, select, .vTextField {
 }
 
 .button:active, input[type=submit]:active, input[type=button]:active {
-    background-image: url(/static/img/nav-bg-reverse.gif);
+    background-image: url(/static/limited/img/nav-bg-reverse.gif);
     background-position: top;
 }
 
 .button[disabled], input[type=submit][disabled], input[type=button][disabled] {
-    background-image: url(/static/img/nav-bg.gif);
+    background-image: url(/limited/static/limited/img/nav-bg.gif);
     background-position: bottom;
     opacity: 0.4;
 }
 
 .button.default, input[type=submit].default, .submit-row input.default {
     border: 2px solid #5b80b2;
-    background: #7CA0C7 url(/static/img/default-bg.gif) bottom repeat-x;
+    background: #7CA0C7 url(../limited/img/default-bg.gif) bottom repeat-x;
     font-weight: bold;
     color: white;
     float: right;
 }
 
 .button.default:active, input[type=submit].default:active {
-    background-image: url(/static/img/default-bg-reverse.gif);
+    background-image: url(/limited/static/limited/img/default-bg-reverse.gif);
     background-position: top;
 }
 
 .button[disabled].default, input[type=submit][disabled].default, input[type=button][disabled].default {
-    background-image: url(/static/img/default-bg.gif);
+    background-image: url(../limited/img/default-bg.gif);
     background-position: bottom;
     opacity: 0.4;
 }
@@ -441,7 +441,7 @@ input[type=text], input[type=password], textarea, select, .vTextField {
     font-size: 11px;
     text-align: left;
     font-weight: bold;
-    background: #7CA0C7 url(/static/img/default-bg.gif) top left repeat-x;
+    background: #7CA0C7 url(../img/default-bg.gif) top left repeat-x;
     color: white;
 }
 
@@ -464,15 +464,15 @@ ul.messagelist li {
     margin: 0 0 3px 0;
     border-bottom: 1px solid #ddd;
     color: #666;
-    background: #ffc url(/static/img/icon_success.gif) 5px .3em no-repeat;
+    background: #ffc url(/limited/static/limited/img/icon_success.gif) 5px .3em no-repeat;
 }
 
 ul.messagelist li.warning {
-    background-image: url(/static/img/icon_alert.gif);
+    background-image: url(/limited/static/limited/img/icon_alert.gif);
 }
 
 ul.messagelist li.error {
-    background-image: url(/static/img/icon_error.gif);
+    background-image: url(/limited/static/limited/img/icon_error.gif);
 }
 
 .errornote {
@@ -482,7 +482,7 @@ ul.messagelist li.error {
     margin: 0 0 3px 0;
     border: 1px solid red;
     color: red;
-    background: #ffc url(/static/img/icon_error.gif) 5px .3em no-repeat;
+    background: #ffc url(/limited/static/limited/img/icon_error.gif) 5px .3em no-repeat;
 }
 
 .errorlist li {
@@ -491,7 +491,7 @@ ul.messagelist li.error {
     padding: 4px 5px 4px 25px;
     margin: 0 0 3px 0;
     border: 1px solid red;
-    background: url(/static/img/icon_alert.gif) 5px .3em no-repeat;
+    background: url(/limited/static/limited/img/icon_alert.gif) 5px .3em no-repeat;
 }
 
 .errorlist li a {
@@ -518,7 +518,7 @@ div.system-message p.system-message-title {
     padding: 4px 5px 4px 25px;
     margin: 0;
     color: red;
-    background: #ffc url(/static/img/icon_error.gif) 5px .3em no-repeat;
+    background: #ffc url(/limited/static/limited/img/icon_error.gif) 5px .3em no-repeat;
 }
 
 .description {
@@ -529,7 +529,7 @@ div.system-message p.system-message-title {
 /* BREADCRUMBS */
 
 div.breadcrumbs {
-    background: white url(/static/img/nav-bg-reverse.gif) 0 -10px repeat-x;
+    background: white url(../img/nav-bg-reverse.gif) 0 -10px repeat-x;
     padding: 4px 36px;
     font-size: 13px;
     font-weight: bold;
@@ -543,17 +543,17 @@ div.breadcrumbs {
 
 .addlink {
     padding-left: 12px;
-    background: url(/static/img/icon_addlink.gif) 0 .2em no-repeat;
+    background: url(../img/icon_addlink.gif) 0 .2em no-repeat;
 }
 
 .changelink {
     padding-left: 12px;
-    background: url(/static/img/icon_changelink.gif) 0 .2em no-repeat;
+    background: url(../img/icon_changelink.gif) 0 .2em no-repeat;
 }
 
 .deletelink {
     padding-left: 12px;
-    background: url(/static/img/icon_deletelink.gif) 0 .25em no-repeat;
+    background: url(../img/icon_deletelink.gif) 0 .25em no-repeat;
 }
 
 a.deletelink:link, a.deletelink:visited {
@@ -588,14 +588,14 @@ a.deletelink:hover {
 .object-tools li {
     display: block;
     float: left;
-    background: url(/static/img/tool-left.gif) 0 0 no-repeat;
+    background: url(/limited/static/limited/img/tool-left.gif) 0 0 no-repeat;
     padding: 0 0 0 8px;
     margin-left: 2px;
     height: 16px;
 }
 
 .object-tools li:hover {
-    background: url(/static/img/tool-left_over.gif) 0 0 no-repeat;
+    background: url(/limited/static/limited/img/tool-left_over.gif) 0 0 no-repeat;
 }
 
 .object-tools a:link, .object-tools a:visited {
@@ -604,29 +604,29 @@ a.deletelink:hover {
     color: white;
     padding: .1em 14px .1em 8px;
     height: 14px;
-    background: #999 url(/static/img/tool-right.gif) 100% 0 no-repeat;
+    background: #999 url(/limited/static/limited/img/tool-right.gif) 100% 0 no-repeat;
 }
 
 .object-tools a:hover, .object-tools li:hover a {
-    background: #5b80b2 url(/static/img/tool-right_over.gif) 100% 0 no-repeat;
+    background: #5b80b2 url(/limited/static/limited/img/tool-right_over.gif) 100% 0 no-repeat;
 }
 
 .object-tools a.viewsitelink, .object-tools a.golink {
-    background: #999 url(/static/img/tooltag-arrowright.gif) top right no-repeat;
+    background: #999 url(/limited/static/limited/img/tooltag-arrowright.gif) top right no-repeat;
     padding-right: 28px;
 }
 
 .object-tools a.viewsitelink:hover, .object-tools a.golink:hover {
-    background: #5b80b2 url(/static/img/tooltag-arrowright_over.gif) top right no-repeat;
+    background: #5b80b2 url(/limited/static/limited/img/tooltag-arrowright_over.gif) top right no-repeat;
 }
 
 .object-tools a.addlink {
-    background: #999 url(/static/img/tooltag-add.gif) top right no-repeat;
+    background: #999 url(/limited/static/limited/img/tooltag-add.gif) top right no-repeat;
     padding-right: 28px;
 }
 
 .object-tools a.addlink:hover {
-    background: #5b80b2 url(/static/img/tooltag-add_over.gif) top right no-repeat;
+    background: #5b80b2 url(/limited/static/limited/img/tooltag-add_over.gif) top right no-repeat;
 }
 
 /* OBJECT HISTORY */
@@ -732,7 +732,7 @@ table#change-history tbody th {
 }
 
 #content-related .module h2 {
-    background: #eee url(/static/img/nav-bg.gif) bottom left repeat-x;
+    background: #eee url(../img/nav-bg.gif) bottom left repeat-x;
     color: #666;
 }
 

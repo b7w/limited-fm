@@ -31,7 +31,7 @@ def split_path( path ):
 # Enumerate and create all permissions
 # For any count of columns in MPermission
 def LoadPermissions():
-    from main.models import MPermission
+    from limited.models import MPermission
 
     fields = MPermission.fields()
     count = len( fields )

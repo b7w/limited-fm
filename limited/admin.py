@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from main.models import MFileLib, MPermission, MHome, MHistory, MLink
+from limited.models import MFileLib, MPermission, MHome, MHistory, MLink
 
 
 class AdminFileLib( admin.ModelAdmin ):

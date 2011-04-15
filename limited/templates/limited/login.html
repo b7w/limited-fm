@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "limited/base.html" %}
 
 {% block panels %}
 <div class="module">
@@ -7,17 +7,17 @@
     <h3>About</h3>
     <ul class="actionlist">
         <li class="addlink">
-            <a href="#">FAQ</a>
+            <a href="login.html#">FAQ</a>
         </li>
          <li class="addlink">
-            <a href="#">Source code</a>
+            <a href="login.html#">Source code</a>
         </li>
     </ul>
 </div>    
 {% endblock %}
 
 {% block media %}
-<link rel="stylesheet" type="text/css" href="/static/css/login.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}limited/css/login.css" />
 {% endblock %}
 
 {% block main %}
