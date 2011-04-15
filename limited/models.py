@@ -102,3 +102,11 @@ class MLink( models.Model ):
 
     def __unicode__(self):
         return 'ID' + str( self.id ) + ': ' + str( self.path ) + ', ' + str( self.time )
+
+
+class LUser(User):
+    class Meta:
+        ordering = ["username"]
+        proxy = True
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'

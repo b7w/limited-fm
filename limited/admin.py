@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from limited.models import MFileLib, MPermission, MHome, MHistory, MLink
+from limited.models import MFileLib, MPermission, MHome, MHistory, MLink, LUser
 
 
 class AdminFileLib( admin.ModelAdmin ):
@@ -14,6 +14,7 @@ class AdminPermission( admin.ModelAdmin ):
     list_display = ( 'id', 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
     list_filter = ( 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
     ordering = ('id',)
+    
 
 admin.site.register( MPermission, AdminPermission )
 
@@ -87,3 +88,19 @@ class AdminLink( admin.ModelAdmin ):
     list_filter = ( 'time', )
 
 admin.site.register( MLink, AdminLink )
+
+
+class HomeInline( admin.TabularInline ):
+    model = MHome
+    raw_id_fields = ( "permission", )
+
+class AdminUser( admin.ModelAdmin ):
+    list_select_related = True
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
+    fieldsets = (
+    ('Main', { 'fields': ('username', 'password') }),
+    ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
+    )
+    inlines = [HomeInline, ]
+
+admin.site.register( LUser, AdminUser )
