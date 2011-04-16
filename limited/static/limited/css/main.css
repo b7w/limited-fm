@@ -464,15 +464,15 @@ ul.messagelist li {
     margin: 0 0 3px 0;
     border-bottom: 1px solid #ddd;
     color: #666;
-    background: #ffc url(/limited/static/limited/img/icon_success.gif) 5px .3em no-repeat;
+    background: #ffc url(../img/icon_success.gif) 5px .3em no-repeat;
 }
 
 ul.messagelist li.warning {
-    background-image: url(/limited/static/limited/img/icon_alert.gif);
+    background-image: url(../img/icon_alert.gif);
 }
 
 ul.messagelist li.error {
-    background-image: url(/limited/static/limited/img/icon_error.gif);
+    background-image: url(../img/icon_error.gif);
 }
 
 .errornote {

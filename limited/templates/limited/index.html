@@ -23,8 +23,8 @@
         {% for item in FileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="/browser/?h={{ item.lib.id }}">{{ item.lib.name }}</a></th>
-            <td><a href="auth/group/add/" class="addlink">Add</a></td>
-            <td><a href="auth/group/" class="changelink">Change</a></td>
+            <td><a href="/lib{{ item.lib.id }}/trash/"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
+            <td><a href="#"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
         </tr>
         {% endfor %}
     </table>

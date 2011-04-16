@@ -3,7 +3,6 @@
 {% block media %}
 <script type="text/javascript">
 
-
     function Notify( message ) {
         jQuery('.messagelist').append('<li class="info">'+message+'</li>');
     }
@@ -14,35 +13,19 @@
         jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
     }
 
-    function Trash( obj ) {
+    function Delete( obj ) {
 
         var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
         var flag = confirm("Do you realy want to delete " + jQuery.trim(data.name) + "?");
 
         if ( flag == true )
         {
-            link = '{% url action 'trash' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
+            link = '{% url action 'delete' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
             window.location = link;
         }
         else
         {
             NotifyWarning('Deleting canceled by user');
-        }
-    }
-
-    function Rename( obj ) {
-
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
-        var name = prompt( 'Enter new name', jQuery.trim(data.name) );
-
-        if (name!=null && name!="")
-        {
-
-            link = '{% url action 'rename' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
-            window.location = link;
-        }
-        else {
-            NotifyWarning('Rename canceled by user');
         }
     }
 
@@ -64,10 +47,7 @@
     jQuery(document).ready( function() {
 
         jQuery('.delete').click(function() {
-            Trash( this )
-        })
-        jQuery('.rename').click(function() {
-            Rename( this )
+            Delete( this )
         })
         jQuery('.move').click(function() {
             Move( this )
@@ -77,37 +57,6 @@
 {% endblock %}
 
 {% block panels %}
-{% if permission.upload %}
-<div class="module">
-    <h2>Upload</h2>
-
-    <h3>Files</h3>
-
-    <div class="upload">
-        <form action="{% url upload %}" method="post" enctype="multipart/form-data">{% csrf_token %}
-            <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 210px;"/>
-            <input type="hidden" name="h" value="{{ home_id }}">
-            <input type="hidden" name="p" value="{{ path }}">
-            <input type="submit" name="submit" value="Upload" style="margin: 5px 5px;">
-        </form>
-    </div>
-</div>
-{% endif %}
-{% if permission.edit %}
-<div class="module">
-    <h2>Create</h2>
-
-    <div class="upload">
-        <form action="{% url action 'add' %}" method="GET" >
-            <input type="text" name="n" size="32" style="margin: 5px 5px;">
-            <input type="hidden" name="h" value="{{ home_id }}">
-            <input type="hidden" name="p" value="{{ path }}">
-            <input type="submit" name="submit" value="Ok" style="margin: 5px 5px;">
-        </form>
-    </div>
-</div>
-{% endif %}
-
 <div class="module">
     <h2>Recent Actions</h2>
 
@@ -150,13 +99,8 @@
         <tbody>
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                {% if item.class == 'dir' %}
-                <td onclick="location.href='{% url browser %}?h={{ home_id }}&amp;p={{ item.url }}'">
-                {% else %}
                 <td>
-                {% endif %}
-                    <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url }}"
-                       class="{{ item.class }}">
+                    <a href="#" class="{{ item.class }}">
                         {{ item.name }}
                     </a>
                     <span style="display:none;">
@@ -164,12 +108,8 @@
                     </span>
                     <div style="float:right;">
                         {% if permission.edit %}
-                        <img class="rename" src="{{ STATIC_URL }}limited/img/edit.png" title="Rename"/>
                         <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
                         {% endif %}
-                        <a class="link" href="{% url action 'link' %}?h={{ home_id }}&amp;p={{ item.url }}" title="Create direct link">
-                            <img src="{{ STATIC_URL }}limited/img/link.png"/>
-                        </a>
                         {% if permission.delete %}
                         <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Delete"/>
                         {% endif %}

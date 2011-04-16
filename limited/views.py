@@ -82,6 +82,44 @@ def Browser( request ):
                        } )
 
 
+def Trash( request, id ):
+    user = get_user( request )
+    if not user:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+
+    home_id = int( id )
+    
+    try:
+        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+
+        history = MHistory.objects.\
+                  select_related( 'user' ).\
+                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  filter( lib=home_id ).\
+                  order_by( '-id' )[0:5]
+
+        patharr = split_path( 'Trash' )
+
+        File = FileStorage( FileLib.lib.path )
+        files = File.listdir( '.TrashBin' )
+
+    except MHome.DoesNotExist:
+        raise Http404("No such file lib or you don't have permissions")
+    except StorageError as e:
+        raise Http404( e )
+
+    return render( request, "limited/trash.html",
+                   {
+                       'path': '.TrashBin',
+                       'patharr': patharr,
+                       'history': history,
+                       'home_id': home_id,
+                       'home': FileLib.lib.name,
+                       'permission': FileLib.permission,
+                       'files': files,
+                       } )
+
+
 # Action add, delete, rename, movem link
 # GET 'h' - home id, 'p' - path
 def Action( request, command ):
@@ -112,7 +150,24 @@ def Action( request, command ):
         except PermissionError as e:
             messages.error( request, e )
 
+    # Delete from FS
     elif command == 'delete':
+        try:
+            if not FileLib.permission.delete:
+                raise PermissionError( u'You have no permission to delete' )
+            Storage.delete( path )
+            messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
+
+            history.type = MHistory.DELETE
+            history.message = "'%s' deleted" % Storage.path.name( path )
+            history.save( )
+        except StorageError as e:
+            messages.error( request, e )
+        except PermissionError as e:
+            messages.error( request, e )
+
+    # Move to special directory
+    elif command == 'trash':
         try:
             if not FileLib.permission.delete:
                 raise PermissionError( u'You have no permission to delete' )
