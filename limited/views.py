@@ -137,14 +137,21 @@ def Action( request, command ):
             if not FileLib.permission.edit:
                 raise PermissionError( u'You have no permission to create new directory' )
             name = request.GET['n']
-            dir = Storage.path.join( path, name )
-            Storage.mkdir( dir )
-            messages.success( request, "directory '%s' successfully created" % name )
-
-            history.type = MHistory.ADD
-            history.message = "dir '%s' created" % name
-            history.path = dir
-            history.save( )
+            # If it link - download it
+            # No any messages on success
+            if name.startswith('http://'):
+                Storage.download( path, name)
+                messages.success( request, "file '%s' added for upload" % name )
+            # Just create new directory
+            else:
+                dir = Storage.path.join( path, name )
+                Storage.mkdir( dir )
+                messages.success( request, "directory '%s' successfully created" % name )
+                history.message = "dir '%s' created" % name
+                history.type = MHistory.ADD
+                history.path = dir
+                history.save( )
+            
         except StorageError as e:
             messages.error( request, e )
         except PermissionError as e:

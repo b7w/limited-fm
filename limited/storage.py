@@ -3,6 +3,8 @@
 from datetime import datetime
 import os
 import shutil
+import threading
+import urllib
 
 class StorageError( Exception ):
     pass
@@ -22,10 +24,10 @@ class StoragePath( object ):
     #  join root and src and normalise it
     # Else return src
     def norm(self, root, src ):
-        if src.find('../') != -1 or src.find('./') != -1:
+        if src.find( '../' ) != -1 or src.find( './' ) != -1:
             path = self.join( root, src )
             path = os.path.normpath( path )
-            if path.find('../') != -1 or path.find('./') != -1:
+            if path.find( '../' ) != -1 or path.find( './' ) != -1:
                 raise StorageError( "Wrong path '%s'" % path )
         else:
             path = src
@@ -51,6 +53,25 @@ def ListFiles( root, dir='', array={ } ):
 
     return array
 
+# Download file from url in a thread.
+# So big files can be download without stopping django process
+# While downloading, file has name '[Download]{Name}'
+class DowloadThread( threading.Thread ):
+    def __init__(self, url, file, *args, **kwargs):
+        super( DowloadThread, self ).__init__( *args, **kwargs )
+        self.url = url
+        self.file = file
+
+    def run(self):
+        try:
+            path, name = os.path.split( self.file )
+            file = os.path.join( path, '[Download]'+name )
+            urllib.urlretrieve( self.url, file )
+            os.rename( file, self.file )
+        except Exception:
+            if os.path.exists( self.file ):
+                os.remove( self.file )
+
 
 class FileStorage( object ):
     def __init__(self, home ):
@@ -68,6 +89,12 @@ class FileStorage( object ):
             newfile.write( chunk )
 
         newfile.close( )
+
+    def download(self, path, url):
+        name = self.path.name( url )
+        file = self.path.join( self.abspath( path ), name )
+        thread = DowloadThread( url, file )
+        thread.start( );
 
     def mkdir(self, name):
         os.mkdir( self.abspath( name ) )
