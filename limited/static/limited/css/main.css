@@ -90,31 +90,10 @@ form {
     padding: 0;
 }
 
-fieldset {
-    margin: 0;
-    padding: 0;
-}
-
-hr {
-    clear: both;
-    color: #eee;
-    background-color: #eee;
-    height: 1px;
-    border: none;
-    margin: 0;
-    padding: 0;
-    font-size: 1px;
-    line-height: 1px;
-}
-
 /* TEXT STYLES & MODIFIERS */
 
 .mini {
     font-size: 10px;
-}
-
-p.mini {
-    margin-top: -3px;
 }
 
 .quiet, a.quiet:link, a.quiet:visited {
@@ -168,24 +147,6 @@ thead th {
 
 thead th:first-child {
     border-left: none !important;
-}
-
-
-fieldset table {
-    border-right: 1px solid #eee;
-}
-
-tr.row-label td {
-    font-size: 9px;
-    padding-top: 2px;
-    padding-bottom: 0;
-    border-bottom: none;
-    color: #666;
-    margin-top: -1px;
-}
-
-tr.alt {
-    background: #f6f6f6;
 }
 
 #changelist tr:hover {
@@ -342,14 +303,6 @@ div.breadcrumbs {
 .deletelink {
     padding-left: 12px;
     background: url(../img/icon_deletelink.gif) 0 .25em no-repeat;
-}
-
-a.deletelink:link, a.deletelink:visited {
-    color: #CC3434;
-}
-
-a.deletelink:hover {
-    color: #993333;
 }
 
 /* PAGE STRUCTURE */
