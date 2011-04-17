@@ -223,22 +223,6 @@ table thead th.descending a {
     background: url(../img/arrow-down.gif) right .4em no-repeat;
 }
 
-/* ORDERABLE TABLES */
-
-table.orderable tbody tr td:hover {
-    cursor: move;
-}
-
-table.orderable tbody tr td:first-child {
-    padding-left: 14px;
-    background-image: url(../img/nav-bg-grabber.gif);
-    background-repeat: repeat-y;
-}
-
-table.orderable-initalized .order-cell, body>tr>td.order-cell {
-    display: none;
-}
-
 /* FORM DEFAULTS */
 
 input, textarea, select, .form-row p {
@@ -332,11 +316,6 @@ ul.messagelist li.warning {
 
 ul.messagelist li.error {
     background-image: url(../img/icon_error.gif);
-}
-
-.description {
-    font-size: 12px;
-    padding: 5px 0 0 12px;
 }
 
 /* BREADCRUMBS */
