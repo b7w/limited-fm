@@ -7,17 +7,13 @@
     <h3>About</h3>
     <ul class="actionlist">
         <li class="addlink">
-            <a href="login.html#">FAQ</a>
+            <a href="#">FAQ</a>
         </li>
          <li class="addlink">
-            <a href="login.html#">Source code</a>
+            <a href="#">Source code</a>
         </li>
     </ul>
 </div>    
-{% endblock %}
-
-{% block media %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}limited/css/login.css" />
 {% endblock %}
 
 {% block main %}
@@ -25,11 +21,11 @@
     <h2>Login form</h2>
     <form action="{{ app_path }}" method="post" id="login-form" >{% csrf_token %}
         <div class="form-row">
-            {% if not form.this_is_the_login_form.errors %}{{ form.username.errors }}{% endif %}
+            {{ form.username.errors }}
             <label for="id_username" class="required">Username:</label> {{ form.username }}
         </div>
         <div class="form-row">
-            {% if not form.this_is_the_login_form.errors %}{{ form.password.errors }}{% endif %}
+            {{ form.password.errors }}
             <label for="id_password" class="required">Password:</label> {{ form.password }}
             <input type="hidden" name="this_is_the_login_form" value="1"/>
             <input type="hidden" name="next" value="{{ next|default:'/' }}"/>
