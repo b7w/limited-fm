@@ -137,6 +137,7 @@
             <th scope="col" class="sorted ascending" style="width: 70%;" >
                 Pk
             </th>
+            <th> Actions</th>
             <th scope="col">
                 <a href="browser.html#">
                     Size
@@ -159,6 +160,7 @@
                        class="{{ item.class }}">
                         {{ item.name }}
                     </a>
+                <td class="nowrap">
                     <span style="display:none;">
                         { "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }
                     </span>
@@ -174,6 +176,7 @@
                         <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Delete"/>
                         {% endif %}
                     </div>
+                </td>
                 </td>
                 <td class="nowrap">{{ item.size|filesizeformat }}</td>
                 <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
