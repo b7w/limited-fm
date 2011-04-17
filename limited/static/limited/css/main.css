@@ -225,7 +225,7 @@ table thead th.descending a {
 
 /* FORM DEFAULTS */
 
-input, textarea, select, .form-row p {
+input {
     margin: 2px 0;
     padding: 2px 3px;
     vertical-align: middle;
@@ -234,17 +234,13 @@ input, textarea, select, .form-row p {
     font-size: 11px;
 }
 
-textarea {
-    vertical-align: top !important;
-}
-
-input[type=text], input[type=password], textarea, select, .vTextField {
+input[type=text], input[type=password] {
     border: 1px solid #ccc;
 }
 
 /* FORM BUTTONS */
 
-.button, input[type=submit], input[type=button], .submit-row input {
+input[type=submit], .submit-row input {
     background: white url(../img/nav-bg.gif) bottom repeat-x;
     padding: 3px 5px;
     color: black;
