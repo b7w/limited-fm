@@ -781,3 +781,7 @@ ul.actionlist li.changelink {
     margin-bottom:10px;
 }
 
+.error-box {
+    margin: 20px;
+    color: blue;
+}

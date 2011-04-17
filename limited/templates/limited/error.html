@@ -1,0 +1,31 @@
+{% extends "limited/base.html" %}
+
+{% block panels %}
+<div class="module">
+    <h2>Information</h2>
+
+    <h3>About</h3>
+    <ul class="actionlist">
+        <li class="addlink">
+            <a href="login.html#">FAQ</a>
+        </li>
+         <li class="addlink">
+            <a href="login.html#">Source code</a>
+        </li>
+    </ul>
+</div>    
+{% endblock %}
+
+{% block media %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}limited/css/login.css" />
+{% endblock %}
+
+{% block main %}
+<div class="module">
+    <h2>Error box</h2>
+    <div class="error-box">
+        {{ message }}
+    </div>
+
+</div>
+{% endblock %}

@@ -15,8 +15,6 @@ from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
 from limited.controls import get_user, get_params, Downloads
 from limited.utils import split_path, HttpResponseReload
 
-from django.utils.log import logger
-
 def Index( request ):
     user = get_user( request )
     if not user:
@@ -28,7 +26,7 @@ def Index( request ):
     libs = []
     for i in FileLibs:
         libs.append( i.lib_id )
-    # SELECT Histories messages
+        # SELECT Histories messages
     # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
@@ -66,9 +64,9 @@ def Browser( request ):
         files = File.listdir( path )
 
     except MHome.DoesNotExist:
-        raise Http404("No such file lib or you don't have permissions")
+        return RenderError( request, "No such file lib or you don't have permissions" )
     except StorageError as e:
-        raise Http404( e )
+        return RenderError( request, e )
 
     return render( request, "limited/browser.html",
                    {
@@ -88,7 +86,7 @@ def Trash( request, id ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     home_id = int( id )
-    
+
     try:
         FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
@@ -104,9 +102,9 @@ def Trash( request, id ):
         files = File.listdir( '.TrashBin' )
 
     except MHome.DoesNotExist:
-        raise Http404("No such file lib or you don't have permissions")
+        raise Http404( "No such file lib or you don't have permissions" )
     except StorageError as e:
-        raise Http404( e )
+        return RenderError( request, e )
 
     return render( request, "limited/trash.html",
                    {
@@ -139,8 +137,8 @@ def Action( request, command ):
             name = request.GET['n']
             # If it link - download it
             # No any messages on success
-            if name.startswith('http://'):
-                Storage.download( path, name)
+            if name.startswith( 'http://' ):
+                Storage.download( path, name )
                 messages.success( request, "file '%s' added for upload" % name )
             # Just create new directory
             else:
@@ -151,7 +149,7 @@ def Action( request, command ):
                 history.type = MHistory.ADD
                 history.path = dir
                 history.save( )
-            
+
         except StorageError as e:
             messages.error( request, e )
         except PermissionError as e:
@@ -314,7 +312,7 @@ def Download( request ):
         response = Downloads( FileLib.lib.path, path )
 
         if not response:
-            raise Http404( 'No file or directory find' )
+            return RenderError( request, 'No file or directory find' )
 
         return response
 
@@ -334,6 +332,12 @@ def Link( request, hash ):
     Lib = MFileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
     response = Downloads( Lib.path, link.path )
     if not response:
-        raise Http404( 'No file or directory find' )
+        return RenderError( request, 'No file or directory find' )
 
     return response
+
+
+def RenderError( request, message ):
+    return render( request, "limited/error.html", {
+        'message': message,
+        } )
