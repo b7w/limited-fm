@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import logging
+from hashlib import md5
 import os
 import shutil
 import threading
 import urllib
+from django.core.cache import cache
+from django.utils.encoding import smart_str
+
+from django.utils.log import logger
 
 class StorageError( Exception ):
     pass
@@ -191,13 +197,25 @@ class FileStorage( object ):
         return array
 
     # return dir and files size
-    def size(self, name):
+    def size(self, name, dcache=True):
+
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
         if self.isdir( self.abspath( name ) ):
+            key = md5( smart_str( name ) ).hexdigest( )
+            size = cache.get( key )
+            if size :
+                logger.debug( "'"+ name +"' get from cache" )
+                logging.debug( "'"+ name +"' get from cache" )
+                return size
             size = 0
             for item in os.listdir( self.abspath( name ) ):
-                size += self.size( self.path.join( name, item ) )
+                # Do not cache sub dirs.
+                size += self.size( self.path.join( name, item ), dcache=False )
+            if dcache:
+                logger.debug( "'"+ name +"' set to cache" )
+                logging.debug( "'"+ name +"' set to cache" )
+                cache.set(key, size, 120)
             return size
 
     def url(self, name):
