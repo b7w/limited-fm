@@ -6,8 +6,9 @@ import hashlib
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render
+from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, StorageError
@@ -252,6 +253,11 @@ def Action( request, command ):
             history.save( )
         except PermissionError as e:
             messages.error( request, e )
+
+    elif command == 'size':
+        size = Storage.size( path, dir=True, cached=True )
+        size = filesizeformat( size )
+        return HttpResponse( size )
 
     #return render( request, "browser.html", {})
     return HttpResponseReload( request )

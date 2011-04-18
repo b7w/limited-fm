@@ -197,26 +197,23 @@ class FileStorage( object ):
         return array
 
     # return dir and files size
-    def size(self, name, dcache=True):
+    def size(self, name, dir=False, cached=True):
 
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
-        if self.isdir( self.abspath( name ) ):
+
+        if dir and self.isdir( self.abspath( name ) ):
             key = md5( smart_str( name ) ).hexdigest( )
-            size = cache.get( key )
-            if size :
-                logger.debug( "'"+ name +"' get from cache" )
-                logging.debug( "'"+ name +"' get from cache" )
-                return size
-            size = 0
+            size = cache.get( key ) or 0
+            if size : return size
+
             for item in os.listdir( self.abspath( name ) ):
-                # Do not cache sub dirs.
-                size += self.size( self.path.join( name, item ), dcache=False )
-            if dcache:
-                logger.debug( "'"+ name +"' set to cache" )
-                logging.debug( "'"+ name +"' set to cache" )
-                cache.set(key, size, 120)
+                file = self.path.join( name, item )
+                size += self.size( file, dir=True )
+
+            if cached: cache.set(key, size, 120)
             return size
+        return 0
 
     def url(self, name):
         return name
