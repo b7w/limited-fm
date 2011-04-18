@@ -190,8 +190,15 @@ class FileStorage( object ):
 
         return array
 
+    # return dir and files size
     def size(self, name):
-        return os.path.getsize( self.abspath( name ) )
+        if self.isfile( self.abspath( name ) ):
+            return os.path.getsize( self.abspath( name ) )
+        if self.isdir( self.abspath( name ) ):
+            size = 0
+            for item in os.listdir( self.abspath( name ) ):
+                size += self.size( self.path.join( name, item ) )
+            return size
 
     def url(self, name):
         return name
