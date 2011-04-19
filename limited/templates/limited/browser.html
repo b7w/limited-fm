@@ -157,25 +157,23 @@
         </caption>
         <thead>
         <tr>
-            <th style="display:none;"></th>
+            <th class="hide" ></th>
             <th scope="col" class="sorted ascending" style="width: 70%;" >
-                Pk
+                <a href="#">Pk</a>
             </th>
             <th> Actions</th>
             <th scope="col" style="width: 7%;">
-                <a href="browser.html#">
-                    Size
-                </a></th>
+                <a href="browser.html#">Size</a>
+            </th>
             <th scope="col" >
-                <a href="browser.html#">
-                    Time
-                </a></th>
+                <a href="#">Time</a>
+            </th>
         </tr>
         </thead>
         <tbody>
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td class="info" style="display:none;">{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
+                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
                 <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url }}'">
                     {% if item.class == 'dir' %}
                     <a href="{% url browser %}?h={{ home_id }}&amp;p={{ item.url }}" class="{{ item.class }}">{{ item.name }}</a>
@@ -195,7 +193,6 @@
                         {% endif %}
                     </div>
                 </td>
-                </td>
                 <td class="nowrap size">{% if item.size == 0 %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
                 <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
             </tr>
@@ -203,15 +200,17 @@
 
         {% if files|length == 0 %}
             <tr class="row1">
-               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
-           <tr class="row2">
-                <td><a href="browser.html#">There is no any files or folders</a></td>
-                <td class="nowrap"></td>
-                <td class="nowrap"></td>
+            <tr class="row2">
+                <td class="hide"></td>
+                <td><a href="#">There is no any files or folders</a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
-           <tr class="row1">
-               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+            <tr class="row1">
+                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
         {% endif %}
 
