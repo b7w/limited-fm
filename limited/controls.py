@@ -1,5 +1,6 @@
 import tempfile
 import zipfile
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
 
@@ -14,7 +15,7 @@ def get_user( request ):
     if request.user.is_authenticated( ):
         return request.user
 
-    elif request.user.is_anonymous( ):
+    elif request.user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         Anonymous = User.objects.get( username__exact='Anonymous' )
         AnonymousLibs = MHome.objects.filter( user=Anonymous.id ).count( )
         if AnonymousLibs == 0:
