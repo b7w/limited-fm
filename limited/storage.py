@@ -7,6 +7,7 @@ import os
 import shutil
 import threading
 import urllib
+from zipfile import ZipFile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
 
@@ -103,6 +104,8 @@ class FileStorage( object ):
         thread.start( );
 
     def mkdir(self, name):
+        if self.exists( name ):
+            raise StorageError( "Directory '%s' already exists" % name )
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
@@ -214,6 +217,27 @@ class FileStorage( object ):
             if cached: cache.set(key, size, 120)
             return size
         return 0
+
+    def zip(self, path ):
+        file = self.abspath( path ) + '.zip'
+        file = self.available_name( file )
+        temp = open( file, mode='w' )
+        archive = ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
+        if self.isdir( path ):
+            dirname = self.path.name( path )
+            for abspath, name in self.listfiles( path ).items( ):
+                name = self.path.join( dirname, name )
+                archive.write( abspath, name )
+        if self.isfile( path ):
+            archive.write( self.abspath( path ), self.path.name( path ) )
+
+        archive.close( )
+        temp.seek( 0 )
+
+    def unzip(self, path ):
+        file = self.abspath( path )
+        zip = ZipFile( file )
+        zip.extractall( self.path.dirname( file ) )
 
     def url(self, name):
         return name

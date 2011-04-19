@@ -67,6 +67,13 @@
         window.location = link;
     }
 
+    function Zip( obj ) {
+        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
+
+        link = '{% url action 'zip' %}?h='+data.home+'&amp;p='+data.path;
+        window.location = link;
+    }
+
     function Size( obj ) {
         var data = jQuery.parseJSON( jQuery(obj).parent().children('.info').text() );
 
@@ -89,6 +96,9 @@
         })
         jQuery('.link').click(function() {
             Link( this )
+        })
+        jQuery('.zip').click(function() {
+            Zip( this )
         })
         jQuery('.size').click(function() {
             Size( this )
@@ -163,7 +173,7 @@
             </th>
             <th> Actions</th>
             <th scope="col" style="width: 7%;">
-                <a href="browser.html#">Size</a>
+                <a href="#">Size</a>
             </th>
             <th scope="col" >
                 <a href="#">Time</a>
@@ -183,6 +193,9 @@
                 </td>
                 <td class="nowrap">
                     <div class="align-right">
+                        {% if user.is_authenticated %}
+                        <img class="zip" src="{{ STATIC_URL }}limited/img/zip.png" title="Zip/unZip files and folders"/>
+                        {% endif %}
                         {% if permission.edit %}
                         <img class="rename" src="{{ STATIC_URL }}limited/img/edit.png" title="Rename"/>
                         <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>

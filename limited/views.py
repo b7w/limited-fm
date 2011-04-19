@@ -254,6 +254,15 @@ def Action( request, command ):
         except PermissionError as e:
             messages.error( request, e )
 
+    elif command == 'zip':
+        try:
+            if path.endswith('.zip'):
+                Storage.unzip( path )
+            else:
+                Storage.zip( path )
+        except PermissionError as e:
+            messages.error( request, e )
+
     elif command == 'size':
         size = Storage.size( path, dir=True, cached=True )
         size = filesizeformat( size )
