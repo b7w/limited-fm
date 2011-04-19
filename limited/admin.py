@@ -21,7 +21,7 @@ admin.site.register( MPermission, AdminPermission )
 
 class HomeForm( forms.ModelForm ):
     # Override 'permission' to set it readonly
-    perm_id = forms.CharField( widget=forms.TextInput( attrs={ 'readonly': 'readonly' } ) )
+    perm_id = forms.CharField( widget=forms.TextInput( attrs={ 'readonly': 'readonly' } ), required=False )
     perm = forms.MultipleChoiceField(
         choices=[(i, i) for i in MPermission.fields( )],
         widget=forms.CheckboxSelectMultiple,
