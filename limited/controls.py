@@ -3,6 +3,7 @@ import zipfile
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
+from django.utils.encoding import smart_str
 
 from limited.models import MHome
 
@@ -50,7 +51,7 @@ def Downloads( home, path ):
     if File.isfile( path ):
         #wrapper = FileWrapper( Storage.open( path ) )
         response = HttpResponse( File.open( path ).read( ), content_type='application/force-download' )
-        response['Content-Disposition'] = 'attachment; filename=%s' % File.path.name( path )
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( File.path.name( path ) )
         response['Content-Length'] = File.size( path )
 
     elif File.isdir( path ):
@@ -65,8 +66,7 @@ def Downloads( home, path ):
         temp.seek( 0 )
         #wrapper = FileWrapper(temp)
         response = HttpResponse( temp.read( ), content_type='application/zip' )
-        response['Content-Disposition'] = 'attachment; filename=%s.zip' % File.path.name( path ).encode(
-            'latin-1', 'replace' )
+        response['Content-Disposition'] = 'attachment; filename=%s.zip' % smart_str( File.path.name( path ) )
         response['Content-Length'] = temp.tell( )
 
     return response
