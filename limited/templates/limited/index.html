@@ -17,10 +17,11 @@
 {% endblock %}
 
 {% block main %}
+{% for name, lib in FileLibs.items %}
 <div class="module dashboard">
     <table>
-        <caption><a href="auth/" class="section">File libraries</a></caption>
-        {% for item in FileLibs %}
+        <caption><a href="#" class="section">{{ name }} file libraries</a></caption>
+        {% for item in lib %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="/browser/?h={{ item.lib.id }}">{{ item.lib.name }}</a></th>
             <td><a href="/lib{{ item.lib.id }}/trash/"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
@@ -29,4 +30,5 @@
         {% endfor %}
     </table>
 </div>
+{% endfor %}
 {% endblock %}

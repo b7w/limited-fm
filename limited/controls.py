@@ -17,9 +17,6 @@ def get_user( request ):
 
     elif request.user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         Anonymous = User.objects.get( username__exact='Anonymous' )
-        AnonymousLibs = MHome.objects.filter( user=Anonymous.id ).count( )
-        if AnonymousLibs == 0:
-            return None
         return Anonymous
 
 

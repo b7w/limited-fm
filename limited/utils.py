@@ -40,11 +40,9 @@ def LoadPermissions():
     data = [0 for x in rng]
 
     for i in range( 2 ** count ):
-        print i, data
         Pemm = MPermission( )
         for l in range( count ):
             setattr( Pemm, fields[l], data[l] )
-            print '. . .', fields[l], data[l]
         Pemm.save( )
 
         data[last] += 1

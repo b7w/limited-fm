@@ -1,6 +1,8 @@
 from datetime import timedelta, datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.query_utils import Q
 from django.utils import datetime_safe
 # Create your models here.
 
@@ -50,6 +52,28 @@ class MHome( models.Model ):
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
     permission = models.ForeignKey( MPermission, default=1 )
+
+    @classmethod
+    def SelectFileLibs(self, user ):
+        LibsDict = {}
+        LibsDict[user.username] = self.objects.select_related( 'lib' ).filter( user=user )
+
+        anon_id = settings.LIMITED_ANONYMOUS_ID
+        if settings.LIMITED_ANONYMOUS and user.id != anon_id:
+            LibsDict['Open'] = self.objects.select_related( 'lib' ).filter( user=anon_id )
+
+        return LibsDict
+
+    @classmethod
+    def SelectLib(self, user, lib):
+        FileLib = self.objects.select_related( 'lib' ).filter( lib__id=lib ).order_by('-permission')
+        anon_id = settings.LIMITED_ANONYMOUS_ID
+        if settings.LIMITED_ANONYMOUS and user.id != anon_id:
+            FileLib = FileLib.filter( Q(user=user) | Q(user=anon_id) )
+        else:
+            FileLib = FileLib.filter( user=anon_id )
+
+        return FileLib[0]
 
     class Meta:
         db_table = 'Home'

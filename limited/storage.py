@@ -7,7 +7,7 @@ import os
 import shutil
 import threading
 import urllib
-from zipfile import ZipFile
+import zipfile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
 
@@ -222,7 +222,7 @@ class FileStorage( object ):
         file = self.abspath( path ) + '.zip'
         file = self.available_name( file )
         temp = open( file, mode='w' )
-        archive = ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
+        archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
         if self.isdir( path ):
             dirname = self.path.name( path )
             for abspath, name in self.listfiles( path ).items( ):
@@ -236,7 +236,7 @@ class FileStorage( object ):
 
     def unzip(self, path ):
         file = self.abspath( path )
-        zip = ZipFile( file )
+        zip = zipfile.ZipFile( file )
         zip.extractall( self.path.dirname( file ) )
 
     def url(self, name):

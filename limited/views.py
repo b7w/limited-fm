@@ -6,6 +6,7 @@ import hashlib
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
+from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
@@ -21,13 +22,15 @@ def Index( request ):
     if not user:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    FileLibs = MHome.objects.select_related( 'lib' ).filter( user=user )
+    FileLibs = MHome.SelectFileLibs( user )
 
     # get ids for SELECT HAVE statement
     libs = []
-    for i in FileLibs:
-        libs.append( i.lib_id )
-        # SELECT Histories messages
+    for item in FileLibs.itervalues():
+        for i in item:
+            libs.append( i.lib_id )
+            
+    # SELECT Histories messages
     # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
@@ -51,7 +54,8 @@ def Browser( request ):
     home_id, path = get_params( request )
 
     try:
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+        #FileLib = MHome.objects.select_related( 'lib' ).get( Q(user=user) | Q(user=2), lib__id=home_id )
+        FileLib = MHome.SelectLib( user, home_id )
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -89,7 +93,7 @@ def Trash( request, id ):
     home_id = int( id )
 
     try:
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+        FileLib = MHome.SelectLib( user, home_id )
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -125,7 +129,7 @@ def Action( request, command ):
     home, path = get_params( request )
 
     user = get_user( request )
-    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+    FileLib = MHome.SelectLib( user, home )
     Storage = FileStorage( FileLib.lib.path )
 
     history = MHistory( user=user, lib=FileLib.lib )
@@ -283,7 +287,7 @@ def Upload( request ):
             lib_id = request.POST['h']
             path = request.POST['p']
 
-            FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
+            FileLib = MHome.SelectLib( user, home_id )
             if not FileLib.permission.upload:
                 raise PermissionError( u'You have no permission to upload' )
 
@@ -322,7 +326,7 @@ def Download( request ):
 
         home, path = get_params( request )
 
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+        FileLib = MHome.SelectLib( user, home_id )
 
         response = Downloads( FileLib.lib.path, path )
 
