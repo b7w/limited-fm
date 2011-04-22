@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import logging
 from hashlib import md5
 import os
 import shutil
 import threading
 import urllib
-from zipfile import ZipFile
+import zipfile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
-
-from django.utils.log import logger
 
 class StorageError( Exception ):
     pass
@@ -72,7 +69,7 @@ class DowloadThread( threading.Thread ):
     def run(self):
         try:
             path, name = os.path.split( self.file )
-            file = os.path.join( path, '[Download]'+name )
+            file = os.path.join( path, '[Download]' + name )
             urllib.urlretrieve( self.url, file )
             os.rename( file, self.file )
         except Exception:
@@ -201,20 +198,19 @@ class FileStorage( object ):
 
     # return dir and files size
     def size(self, name, dir=False, cached=True):
-
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
 
         if dir and self.isdir( self.abspath( name ) ):
             key = md5( smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
-            if size : return size
+            if size: return size
 
             for item in os.listdir( self.abspath( name ) ):
                 file = self.path.join( name, item )
                 size += self.size( file, dir=True )
 
-            if cached: cache.set(key, size, 120)
+            if cached: cache.set( key, size, 120 )
             return size
         return 0
 
@@ -222,7 +218,7 @@ class FileStorage( object ):
         file = self.abspath( path ) + '.zip'
         file = self.available_name( file )
         temp = open( file, mode='w' )
-        archive = ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
+        archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
         if self.isdir( path ):
             dirname = self.path.name( path )
             for abspath, name in self.listfiles( path ).items( ):
@@ -236,7 +232,7 @@ class FileStorage( object ):
 
     def unzip(self, path ):
         file = self.abspath( path )
-        zip = ZipFile( file )
+        zip = zipfile.ZipFile( file )
         zip.extractall( self.path.dirname( file ) )
 
     def url(self, name):
