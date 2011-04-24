@@ -319,7 +319,7 @@ div.breadcrumbs {
 }
 
 #content {
-    margin: 20px;
+    margin: 10px 20px;
 }
 
 #header {
@@ -341,6 +341,15 @@ div.breadcrumbs {
 #footer {
     clear: both;
     padding: 10px;
+}
+
+#copyright {
+    font-size: 11px;
+    color: #999;
+    margin: 5px;
+}
+#copyright a{
+    color: #999;
 }
 
 /* HEADER */
