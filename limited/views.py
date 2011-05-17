@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
+from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, StorageError
@@ -230,7 +231,7 @@ def Action( request, command ):
                 raise PermissionError( u'You have no permission to create links' )
                 # Get MaxAge
             #age = request.GET['a']
-            hash = hashlib.md5( path ).hexdigest( )[0:12]
+            hash = hashlib.md5( smart_str( path ) ).hexdigest( )[0:12]
             domain = Site.objects.get_current( ).domain
 
             # if links exists where hash and `time`+ `maxage` > NOW()
