@@ -5,3 +5,4 @@ settings.py
 .idea
 debug_toolbar
 static
+FileManager.ids

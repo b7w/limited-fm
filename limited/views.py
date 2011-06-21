@@ -28,7 +28,7 @@ def Index( request ):
     libs = []
     for i in FileLibs:
         libs.append( i.lib_id )
-        # SELECT Histories messages
+    # SELECT Histories messages
     # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
@@ -36,11 +36,10 @@ def Index( request ):
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
-    return render( request, "limited/index.html",
-                   {
-                       'history': history,
-                       'FileLibs': FileLibs,
-                       } )
+    return render( request, "limited/index.html", {
+        'history': history,
+        'FileLibs': FileLibs,
+        } )
 
 
 @csrf_exempt
@@ -70,16 +69,15 @@ def Browser( request ):
     except StorageError as e:
         return RenderError( request, e )
 
-    return render( request, "limited/browser.html",
-                   {
-                       'path': path,
-                       'patharr': patharr,
-                       'history': history,
-                       'home_id': home_id,
-                       'home': FileLib.lib.name,
-                       'permission': FileLib.permission,
-                       'files': files,
-                       } )
+    return render( request, "limited/browser.html", {
+        'path': path,
+        'patharr': patharr,
+        'history': history,
+        'home_id': home_id,
+        'home': FileLib.lib.name,
+        'permission': FileLib.permission,
+        'files': files,
+        } )
 
 
 def Trash( request, id ):
@@ -108,16 +106,15 @@ def Trash( request, id ):
     except StorageError as e:
         return RenderError( request, e )
 
-    return render( request, "limited/trash.html",
-                   {
-                       'path': '.TrashBin',
-                       'patharr': patharr,
-                       'history': history,
-                       'home_id': home_id,
-                       'home': FileLib.lib.name,
-                       'permission': FileLib.permission,
-                       'files': files,
-                       } )
+    return render( request, "limited/trash.html", {
+        'path': '.TrashBin',
+        'patharr': patharr,
+        'history': history,
+        'home_id': home_id,
+        'home': FileLib.lib.name,
+        'permission': FileLib.permission,
+        'files': files,
+        } )
 
 
 # Action add, delete, rename, movem link
@@ -147,10 +144,10 @@ def Action( request, command ):
                 dir = Storage.path.join( path, name )
                 Storage.mkdir( dir )
                 messages.success( request, "directory '%s' successfully created" % name )
-                history.message = "dir '%s' created" % name
-                history.type = MHistory.ADD
-                history.path = dir
-                history.save( )
+                #history.message = "dir '%s' created" % name
+                #history.type = MHistory.ADD
+                #history.path = dir
+                #history.save( )
 
         except StorageError as e:
             messages.error( request, e )
@@ -257,7 +254,7 @@ def Action( request, command ):
 
     elif command == 'zip':
         try:
-            if path.endswith('.zip'):
+            if path.endswith( '.zip' ):
                 Storage.unzip( path )
             else:
                 Storage.zip( path )

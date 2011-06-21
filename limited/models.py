@@ -1,11 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import datetime_safe
 # Create your models here.
 
 class PermissionError( Exception ):
     pass
+
 
 class MPermission( models.Model ):
     edit = models.BooleanField( default=False )
@@ -26,10 +26,10 @@ class MPermission( models.Model ):
 
     def __unicode__(self):
         name = 'ID' + str( self.id ) + ': '
-        fields = self.fields()
+        fields = self.fields( )
         for item in fields:
             bool = getattr( self, item )
-            name += item.capitalize() + ' ' + str(bool) + ', '
+            name += item.capitalize( ) + ' ' + str( bool ) + ', '
         return name
 
 
@@ -65,10 +65,10 @@ class MHistory( models.Model ):
     CHANGE = 2
     DELETE = 3
     ACTION = (
-    (ADD, 'add'),
-    (CHANGE, 'change'),
-    (DELETE, 'delete'),
-    )
+            (ADD, 'add'),
+            (CHANGE, 'change'),
+            (DELETE, 'delete'),
+        )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
@@ -89,11 +89,11 @@ class MLink( models.Model ):
     hash = models.CharField( max_length=12, null=False )
     lib = models.ForeignKey( MFileLib )
     path = models.CharField( max_length=256, null=False )
-    maxage = models.IntegerField( default=24*60*60, null=False )
+    maxage = models.IntegerField( default=24 * 60 * 60, null=False )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
     def expires(self):
-        return timedelta(seconds=self.maxage)
+        return timedelta( seconds=self.maxage )
 
     class Meta:
         db_table = 'Link'
@@ -104,7 +104,7 @@ class MLink( models.Model ):
         return 'ID' + str( self.id ) + ': ' + str( self.path ) + ', ' + str( self.time )
 
 
-class LUser(User):
+class LUser( User ):
     class Meta:
         ordering = ["username"]
         proxy = True

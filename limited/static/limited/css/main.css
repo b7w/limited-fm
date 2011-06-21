@@ -148,7 +148,6 @@ thead th {
     border-bottom: 1px solid #ddd;
 }
 
-
 thead th:first-child {
     border-left: none !important;
 }
@@ -348,7 +347,8 @@ div.breadcrumbs {
     color: #999;
     margin: 5px;
 }
-#copyright a{
+
+#copyright a {
     color: #999;
 }
 
@@ -452,7 +452,7 @@ ul.actionlist li.changelink {
 
 .upload {
     margin-left: 5px;
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
 .error-box {
@@ -493,4 +493,5 @@ ul.actionlist li.changelink {
     clear: both;
     padding: 1em 0 0 9.4em;
 }
+
 /* END LOGIN FORM */

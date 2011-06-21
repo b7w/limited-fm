@@ -1,4 +1,4 @@
-# Django settings for FileMamager project.
+# Django settings for FileManager project.
 
 import os
 
@@ -16,11 +16,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'Test_FileManager',                      # Or path to database file if using sqlite3.
-        'USER': 'BlackAdmin',                      # Not used with sqlite3.
-        'PASSWORD': 'PZ2GJBP4eaq4j9eF',                  # Not used with sqlite3.
-        'HOST': '172.17.1.5',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
+        'NAME': 'FileManager',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         'TEST_CHARSET': 'UTF8',
     }
 }
@@ -88,7 +88,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '5r5w*_h$$2oz2)j6l7(415*_3r8f%dauy4kw0*a8#^0av8&aee'
+SECRET_KEY = 'f0m4m_q#f@#sfo%_2&!ar)yce=bvprh-0)^b4dxjnpz)001!3b'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -108,7 +108,9 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH,"templates"),
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 INSTALLED_APPS = (
@@ -122,6 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'limited',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -146,3 +149,9 @@ LOGGING = {
         },
     }
 }
+
+LOGIN_URL = "/login/"
+
+# To allow Anonymous access
+# Need user "Anonymous" in DB
+LIMITED_ANONYMOUS = True
