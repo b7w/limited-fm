@@ -1,8 +1,12 @@
 syntax: glob
 
 settings.py
+
 *.pyc
+*.log
 .idea
+FileManager.ids
+
 debug_toolbar
 static
-FileManager.ids
+

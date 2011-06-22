@@ -1,6 +1,7 @@
 import tempfile
 import zipfile
 from django.conf import settings
+from django.core.servers.basehttp import FileWrapper
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
 from django.utils.encoding import smart_str
@@ -68,8 +69,9 @@ def Downloads( home, path ):
     response = None
 
     if File.isfile( path ):
-        #wrapper = FileWrapper( Storage.open( path ) )
-        response = HttpResponse( File.open( path ).read( ), content_type='application/force-download' )
+        wrapper = FileWrapper( File.open( path ) )
+        #wrapper = File.open( path ).read( )
+        response = HttpResponse( wrapper, content_type='application/force-download' )
         response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( File.path.name( path ) )
         response['Content-Length'] = File.size( path )
 
@@ -83,8 +85,9 @@ def Downloads( home, path ):
 
         archive.close( )
         temp.seek( 0 )
-        #wrapper = FileWrapper(temp)
-        response = HttpResponse( temp.read( ), content_type='application/zip' )
+        wrapper = FileWrapper(temp)
+        #wrapper = temp.read()
+        response = HttpResponse( wrapper, content_type='application/zip' )
         response['Content-Disposition'] = 'attachment; filename=%s.zip' % smart_str( File.path.name( path ) )
         response['Content-Length'] = temp.tell( )
 

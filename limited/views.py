@@ -2,6 +2,7 @@
 # Create your views here.
 from datetime import datetime
 import hashlib
+import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -16,6 +17,8 @@ from limited.storage import FileStorage, FileError
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
 from limited.controls import get_params, Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
+
+logger = logging.getLogger(__name__)
 
 def Index( request ):
     if not isUserCanView( request.user ):
@@ -119,12 +122,11 @@ def Trash( request, id ):
         'files': files,
         } )
 
-
 # Action add, delete, rename, movem link
 # GET 'h' - home id, 'p' - path
 def Action( request, command ):
     home, path = get_params( request )
-
+    
     FileLib = getFileLib( request.user, home)
     Storage = FileStorage( FileLib.lib.path )
 

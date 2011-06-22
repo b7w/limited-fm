@@ -186,11 +186,11 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
-                <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url }}'">
+                <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}'">
                     {% if item.class == 'dir' %}
-                    <a href="{% url browser %}?h={{ home_id }}&amp;p={{ item.url }}" class="{{ item.class }}">{{ item.name }}</a>
+                    <a href="{% url browser %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
                     {% else %}
-                    <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url }}" class="{{ item.class }}">{{ item.name }}</a>
+                    <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
                     {% endif %}
                 </td>
                 <td class="nowrap">
