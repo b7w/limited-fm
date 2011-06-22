@@ -151,7 +151,9 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_type_display }}link">
-            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
+            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message|safe }}</a>
+            <br/>
+            <span class="mini quiet">{{ item.user }}</span>
         </li>
         {% endfor %}
     </ul>

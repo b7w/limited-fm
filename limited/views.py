@@ -14,15 +14,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, StorageError
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from limited.controls import get_user, get_params, Downloads
+from limited.controls import get_params, Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
 
 def Index( request ):
-    user = get_user( request )
-    if not user:
+    if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    FileLibs = MHome.objects.select_related( 'lib' ).filter( user=user )
+    FileLibs = getFileLibs( request.user )
 
     # get ids for SELECT HAVE statement
     libs = []
@@ -36,22 +35,27 @@ def Index( request ):
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
+    AnonFileLibs = []
+    if not request.user.is_anonymous( ):
+        tmp = MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
+        AnonFileLibs = [ i for i in tmp if i.lib_id not in libs ]
+
     return render( request, "limited/index.html", {
         'history': history,
         'FileLibs': FileLibs,
+        'AnonFileLibs': AnonFileLibs,
         } )
 
 
 @csrf_exempt
 def Browser( request ):
-    user = get_user( request )
-    if not user:
+    if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     home_id, path = get_params( request )
 
     try:
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+        FileLib = getFileLib( request.user, home_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -81,14 +85,13 @@ def Browser( request ):
 
 
 def Trash( request, id ):
-    user = get_user( request )
-    if not user:
+    if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     home_id = int( id )
 
     try:
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+        FileLib = MHome.objects.select_related( 'lib' ).get( user=request.user, lib__id=home_id )
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -122,11 +125,10 @@ def Trash( request, id ):
 def Action( request, command ):
     home, path = get_params( request )
 
-    user = get_user( request )
-    FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+    FileLib = getFileLib( request.user, home)
     Storage = FileStorage( FileLib.lib.path )
 
-    history = MHistory( user=user, lib=FileLib.lib )
+    history = MHistory( lib=FileLib.lib )
     history.path = Storage.path.dirname( path )
     # GET 'n' - folder name
     if command == 'add':
@@ -161,7 +163,7 @@ def Action( request, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.delete( path )
             messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
-
+            history.user = request.user
             history.type = MHistory.DELETE
             history.message = "'%s' deleted" % Storage.path.name( path )
             history.save( )
@@ -177,7 +179,7 @@ def Action( request, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
-
+            history.user = request.user
             history.type = MHistory.DELETE
             history.message = "'%s' moved to trash" % Storage.path.name( path )
             history.save( )
@@ -194,7 +196,7 @@ def Action( request, command ):
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
-
+            history.user = request.user
             history.type = MHistory.CHANGE
             history.message = "'%s' renamed" % name
             history.save( )
@@ -212,7 +214,7 @@ def Action( request, command ):
             path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
-
+            history.user = request.user
             history.type = MHistory.CHANGE
             history.message = "'%s' moved" % Storage.path.name( path )
             history.path = path2
@@ -224,9 +226,7 @@ def Action( request, command ):
 
     elif command == 'link':
         try:
-            if user.is_anonymous( ):
-                raise PermissionError( u'You have no permission to create links' )
-                # Get MaxAge
+            # Get MaxAge
             #age = request.GET['a']
             hash = hashlib.md5( smart_str( path ) ).hexdigest( )[0:12]
             domain = Site.objects.get_current( ).domain
@@ -239,16 +239,19 @@ def Action( request, command ):
             exists( )
             # if exist and not expired
             if link:
-                messages.success( request, "link already exists 'http://%s/link/%s' " % (domain, hash) )
+                messages.success( request, "link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
             # else create new one
-            else:
+            elif not request.user.is_anonymous( ):
                 MLink( hash=hash, lib=FileLib.lib, path=path ).save( )
-                messages.success( request, "link successfully created to 'http://%s/link/%s' " % (domain, hash) )
+                messages.success( request, "link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
+                history.user = request.user
+                history.type = MHistory.ADD
+                history.message = "add link for '<a href=\"http://{0}/link/{1}\">{2}<a>'".format(domain, hash, Storage.path.name( path ))
+                history.path = Storage.path.dirname( path )
+                history.save( )
+            else:
+                raise PermissionError( u'You have no permission to create links' )
 
-            history.type = MHistory.ADD
-            history.message = "add link for '%s'" % Storage.path.name( path )
-            history.path = Storage.path.dirname( path )
-            history.save( )
         except PermissionError as e:
             messages.error( request, e )
 
@@ -276,12 +279,10 @@ def Action( request, command ):
 def Upload( request ):
     if request.method == 'POST':
         try:
-            user = get_user( request )
-
             lib_id = request.POST['h']
             path = request.POST['p']
 
-            FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=lib_id )
+            FileLib = getFileLib( request.user, lib_id)
             if not FileLib.permission.upload:
                 raise PermissionError( u'You have no permission to upload' )
 
@@ -290,7 +291,7 @@ def Upload( request ):
             files = request.FILES.getlist( 'files' )
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
-                history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
+                history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
                 history.message = "Uploaded %s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
@@ -301,7 +302,7 @@ def Upload( request ):
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
-                    history = MHistory( user=user, lib=FileLib.lib, type=MHistory.ADD, path=path )
+                    history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
                     history.message = "Uploaded '%s'" % file.name
                     history.save( )
         except PermissionError as e:
@@ -314,13 +315,12 @@ def Upload( request ):
 # GET 'h' - home id, 'p' - path
 def Download( request ):
     if request.method == 'GET':
-        user = get_user( request )
-        if not user:
+        if not isUserCanView( request.user ):
             return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
         home, path = get_params( request )
 
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home )
+        FileLib = getFileLib( request.user, home)
 
         response = Downloads( FileLib.lib.path, path )
 

@@ -22,7 +22,11 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_type_display }}link">
-            <a href="/browser/?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">in <b>{{ item.lib }}</b> by <b>{{ item.user }}</b></span>
+            <a href="/browser/?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message|safe}}</a>
+            <br/>
+            <span class="mini quiet">
+                in <b>{{ item.lib }}</b> by <b>{{ item.user }}</b>
+            </span>
         </li>
         {% endfor %}
     </ul>
@@ -32,7 +36,7 @@
 {% block main %}
 <div class="module dashboard">
     <table>
-        <caption><a href="auth/" class="section">File libraries</a></caption>
+        <caption><a href="#" class="section">{{ user.username|capfirst }} file libraries</a></caption>
         {% for item in FileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="/browser/?h={{ item.lib.id }}">{{ item.lib.name }}</a></th>
@@ -42,4 +46,19 @@
         {% endfor %}
     </table>
 </div>
+
+{% if AnonFileLibs|length > 0  %}
+<div class="module dashboard">
+    <table>
+        <caption><a href="#" class="section">Anonymous file libraries</a></caption>
+        {% for item in AnonFileLibs %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <th scope="row"><a href="/browser/?h={{ item.lib.id }}">{{ item.lib.name }}</a></th>
+            <td><a href="/lib{{ item.lib.id }}/trash/"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
+            <td><a href="#"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,27 +1,46 @@
 import tempfile
 import zipfile
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
 from django.utils.encoding import smart_str
 
 from limited.models import MHome
-
-# Get authenticated user
-# or anonymous user if he had any FileLibs
-# or None
 from limited.storage import FileStorage
 
-def get_user( request ):
-    if request.user.is_authenticated( ):
-        return request.user
 
-    elif request.user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        Anonymous = User.objects.get( username__exact='Anonymous' )
-        AnonymousLibs = MHome.objects.filter( user=Anonymous.id ).count( )
-        if AnonymousLibs == 0:
-            return None
-        return Anonymous
+# If user can view or need login
+def isUserCanView( user ):
+    if user.is_authenticated( ):
+        return True
+    elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
+        return True
+    return False
+
+
+# Get MHome plus related FileLib
+# depending on is_authenticated or not
+# and LIMITED_ANONYMOUS
+def getFileLib( user, home_id ):
+    if user.is_authenticated( ):
+        if settings.LIMITED_ANONYMOUS:
+            return MHome.objects.select_related( 'lib' ).\
+                filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=home_id)[0]
+        else:
+            return MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
+
+    elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
+        return MHome.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=home_id )
+
+
+# Get MHome plus related FileLib
+# depending on is_authenticated or not
+# and LIMITED_ANONYMOUS
+def getFileLibs( user ):
+    if user.is_authenticated( ):
+        return MHome.objects.select_related( 'lib' ).filter( user=user )
+    elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
+        return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
 
 
 # return GET params
