@@ -12,7 +12,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
-from limited.storage import FileStorage, StorageError
+from limited.storage import FileStorage, FileError
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
 from limited.controls import get_params, Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
@@ -70,7 +70,7 @@ def Browser( request ):
 
     except MHome.DoesNotExist:
         return RenderError( request, "No such file lib or you don't have permissions" )
-    except StorageError as e:
+    except FileError as e:
         return RenderError( request, e )
 
     return render( request, "limited/browser.html", {
@@ -106,7 +106,7 @@ def Trash( request, id ):
 
     except MHome.DoesNotExist:
         raise Http404( "No such file lib or you don't have permissions" )
-    except StorageError as e:
+    except FileError as e:
         return RenderError( request, e )
 
     return render( request, "limited/trash.html", {
@@ -151,7 +151,7 @@ def Action( request, command ):
                 #history.path = dir
                 #history.save( )
 
-        except StorageError as e:
+        except FileError as e:
             messages.error( request, e )
         except PermissionError as e:
             messages.error( request, e )
@@ -167,7 +167,7 @@ def Action( request, command ):
             history.type = MHistory.DELETE
             history.message = "'%s' deleted" % Storage.path.name( path )
             history.save( )
-        except StorageError as e:
+        except FileError as e:
             messages.error( request, e )
         except PermissionError as e:
             messages.error( request, e )
@@ -183,7 +183,7 @@ def Action( request, command ):
             history.type = MHistory.DELETE
             history.message = "'%s' moved to trash" % Storage.path.name( path )
             history.save( )
-        except StorageError as e:
+        except FileError as e:
             messages.error( request, e )
         except PermissionError as e:
             messages.error( request, e )
@@ -200,7 +200,7 @@ def Action( request, command ):
             history.type = MHistory.CHANGE
             history.message = "'%s' renamed" % name
             history.save( )
-        except StorageError as e:
+        except FileError as e:
             messages.error( request, e )
         except PermissionError as e:
             messages.error( request, e )
@@ -219,7 +219,7 @@ def Action( request, command ):
             history.message = "'%s' moved" % Storage.path.name( path )
             history.path = path2
             history.save( )
-        except StorageError as e:
+        except FileError as e:
             messages.error( request, e )
         except PermissionError as e:
             messages.error( request, e )

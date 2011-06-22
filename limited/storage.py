@@ -10,7 +10,8 @@ import zipfile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
 
-class StorageError( Exception ):
+# File Storage Error
+class FileError( Exception ):
     pass
 
 
@@ -32,7 +33,7 @@ class StoragePath( object ):
             path = self.join( root, src )
             path = os.path.normpath( path )
             if path.find( '../' ) != -1 or path.find( './' ) != -1:
-                raise StorageError( "Wrong path '%s'" % path )
+                raise FileError( "Wrong path '%s'" % path )
         else:
             path = src
 
@@ -60,16 +61,16 @@ def ListFiles( root, dir='', array={ } ):
 # Download file from url in a thread.
 # So big files can be download without stopping django process
 # While downloading, file has name '[Download]{Name}'
-class DowloadThread( threading.Thread ):
+class DownloadThread( threading.Thread ):
     def __init__(self, url, file, *args, **kwargs):
-        super( DowloadThread, self ).__init__( *args, **kwargs )
+        super( DownloadThread, self ).__init__( *args, **kwargs )
         self.url = url
         self.file = file
 
     def run(self):
         try:
             path, name = os.path.split( self.file )
-            file = os.path.join( path, '[Download]' + name )
+            file = os.path.join( path, '[Downloading]' + name )
             urllib.urlretrieve( self.url, file )
             os.rename( file, self.file )
         except Exception:
@@ -97,12 +98,12 @@ class FileStorage( object ):
     def download(self, path, url):
         name = self.path.name( url )
         file = self.path.join( self.abspath( path ), name )
-        thread = DowloadThread( url, file )
+        thread = DownloadThread( url, file )
         thread.start( );
 
     def mkdir(self, name):
         if self.exists( name ):
-            raise StorageError( "Directory '%s' already exists" % name )
+            raise FileError( "Directory '%s' already exists" % name )
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
@@ -114,11 +115,11 @@ class FileStorage( object ):
     def move(self, src, dst):
         src_dir = self.path.dirname( src )
         if src_dir == dst:
-            raise StorageError( "Moving to the same directory" )
+            raise FileError( "Moving to the same directory" )
         if not self.exists( src ):
-            raise StorageError( "'%s' not found" % src )
+            raise FileError( "'%s' not found" % src )
         if not self.exists( dst ):
-            raise StorageError( "'%s' not found" % dst )
+            raise FileError( "'%s' not found" % dst )
 
         name = self.path.name( src )
 
@@ -128,17 +129,17 @@ class FileStorage( object ):
 
     def rename(self, path, name):
         if '/' in name:
-            raise StorageError( "'%s' contains not supported symbols" % name )
+            raise FileError( "'%s' contains not supported symbols" % name )
         if not self.exists( path ):
-            raise StorageError( "'%s' not found" % path )
+            raise FileError( "'%s' not found" % path )
         new_path = self.path.join( self.path.dirname( path ), name )
         if self.exists( new_path ):
-            raise StorageError( u"'%s' already exist!" % name )
+            raise FileError( u"'%s' already exist!" % name )
         os.rename( self.abspath( path ), self.abspath( new_path ) )
 
     def totrash(self, name):
         if not self.exists( name ):
-            raise StorageError( '%s not found' % name )
+            raise FileError( '%s not found' % name )
         if not self.exists( '.TrashBin' ):
             self.mkdir( '.TrashBin' )
         self.move( name, '.TrashBin' )
@@ -154,7 +155,7 @@ class FileStorage( object ):
 
     def listdir(self, path, hidden=False):
         if not (self.exists( path ) and self.isdir( path ) ):
-            raise StorageError( "path '%s' doesn't exist or it isn't a directory" % path )
+            raise FileError( "path '%s' doesn't exist or it isn't a directory" % path )
 
         tmp = os.listdir( self.abspath( path ) )
         files = []
@@ -172,7 +173,7 @@ class FileStorage( object ):
                     'name': item,
                     'url': self.url( fullpath ),
                     'size': self.size( fullpath ),
-                    'time': self.created_time( fullpath ),
+                    'time': self.modified_time( fullpath ),
                     } )
 
         files = sorted( files, key=lambda strut: strut['name'] )
