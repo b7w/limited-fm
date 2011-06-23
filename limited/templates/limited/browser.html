@@ -1,88 +1,8 @@
 {% extends "limited/base.html" %}
 
 {% block media %}
+<script type='text/javascript' src='{{ STATIC_URL }}limited/js/actions.js'></script>
 <script type="text/javascript">
-
-
-    function Notify( message ) {
-        jQuery('.messagelist').append('<li class="info">'+message+'</li>');
-    }
-    function NotifyError( message ) {
-        jQuery('.messagelist').append('<li class="error">'+message+'</li>');
-    }
-    function NotifyWarning( message ) {
-        jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
-    }
-
-    function Trash( obj ) {
-
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
-        var flag = confirm("Do you realy want to delete " + jQuery.trim(data.name) + "?");
-
-        if ( flag == true )
-        {
-            link = '{% url action 'trash' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
-            window.location = link;
-        }
-        else
-        {
-            NotifyWarning('Deleting canceled by user');
-        }
-    }
-
-    function Rename( obj ) {
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
-        var name = prompt( 'Enter new name', jQuery.trim(data.name) );
-
-        if (name!=null && name!="")
-        {
-
-            link = '{% url action 'rename' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
-            window.location = link;
-        }
-        else {
-            NotifyWarning('Rename canceled by user');
-        }
-    }
-
-    function Move( obj ) {
-
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
-        var path2 = prompt( 'Enter new path', '' );
-
-        if (path2!=null && path2!="")
-        {
-            link = '{% url action 'move' %}?h='+data.home+'&amp;p='+data.path+'&amp;p2=' + path2;
-            window.location = link;
-        }
-        else {
-            NotifyWarning('Moving canceled by user');
-        }
-    }
-
-    function Link( obj ) {
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
-
-        link = '{% url action 'link' %}?h='+data.home+'&amp;p='+data.path;
-        window.location = link;
-    }
-
-    function Zip( obj ) {
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
-
-        link = '{% url action 'zip' %}?h='+data.home+'&amp;p='+data.path;
-        window.location = link;
-    }
-
-    function Size( obj ) {
-        var data = jQuery.parseJSON( jQuery(obj).parent().children('.info').text() );
-
-        link = '{% url action 'size' %}?h='+data.home+'&amp;p='+data.path;
-        jQuery.get( link, function( size ){
-           jQuery(obj).text( size );
-        });
-    }
-
     jQuery(document).ready( function() {
 
         jQuery('.delete').click(function() {
@@ -185,7 +105,7 @@
         <tbody>
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
+                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url|urlencode }}", "name": "{{ item.name }}" }</td>
                 <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}'">
                     {% if item.class == 'dir' %}
                     <a href="{% url browser %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
