@@ -84,11 +84,10 @@ def Downloads( home, path ):
             archive.write( abspath, name )
 
         archive.close( )
-        temp.seek( 0 )
-        wrapper = FileWrapper(temp)
-        #wrapper = temp.read()
+        wrapper = FileWrapper( temp )
         response = HttpResponse( wrapper, content_type='application/zip' )
         response['Content-Disposition'] = 'attachment; filename=%s.zip' % smart_str( File.path.name( path ) )
         response['Content-Length'] = temp.tell( )
+        temp.seek( 0 )
 
     return response
