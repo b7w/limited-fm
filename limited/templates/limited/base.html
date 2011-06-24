@@ -18,14 +18,18 @@
     <!-- Header -->
     <div id="header">
         <div id="branding">
-            <h1 id="site-name">File Manager Beta</h1>
+            <h1 id="site-name">File Manager Alpha</h1>
         </div>
 
         <div id="user-tools">
             Welcome,
-            <strong>{{ user.username|default:"Anonymous" }}{{ user.id }}</strong> |
+            <strong>{{ user.username|default:"Anonymous" }}</strong> |
             {% if user.is_authenticated %}
-            <a href="/admin/password_change/">Change password</a> | <a href="/logout/">Log out</a>
+                {% if user.is_staff %}
+                <a href="{% url admin:index %}">Administration</a> |
+                {% endif %}
+            <a href="/admin/password_change/">Change password</a> |
+            <a href="/logout/">Log out</a>
             {% else %}
             <a href="/login/">Log in</a>
             {% endif %}
