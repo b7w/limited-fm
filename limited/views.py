@@ -94,7 +94,7 @@ def Trash( request, id ):
     home_id = int( id )
 
     try:
-        FileLib = MHome.objects.select_related( 'lib' ).get( user=request.user, lib__id=home_id )
+        FileLib = getFileLib( request.user, home_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\

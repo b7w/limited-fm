@@ -15,7 +15,23 @@ function Trash( obj ) {
 
     if ( flag == true )
     {
-        link = "/action/trash/?h="+data.home+"&amp;p="+data.path+"&amp;n=" + encodeURIComponent(name);
+        var link = "/action/trash/?h="+data.home+"&amp;p="+data.path;
+        window.location = link;
+    }
+    else
+    {
+        NotifyWarning('Deleting canceled by user');
+    }
+}
+
+function Delete( obj ) {
+
+    var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
+    var flag = confirm("Do you realy want to delete " + jQuery.trim(data.name) + "?");
+
+    if ( flag == true )
+    {
+        var link = '/action/delete/?h='+data.home+'&amp;p='+data.path;
         window.location = link;
     }
     else
@@ -42,7 +58,7 @@ function Move( obj ) {
 
     var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
     var path2 = prompt( 'Enter new path', '' );
-
+    alert(data)
     if (path2!=null && path2!="")
     {
         var link = "/action/move/?h="+data.home+"&amp;p="+data.path+"&amp;p2=" + encodeURIComponent(path2);

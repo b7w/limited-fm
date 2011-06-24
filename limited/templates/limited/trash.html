@@ -1,58 +1,16 @@
 {% extends "limited/base.html" %}
 
 {% block media %}
+<script type='text/javascript' src='{{ STATIC_URL }}limited/js/actions.js'></script>
 <script type="text/javascript">
-
-    function Notify( message ) {
-        jQuery('.messagelist').append('<li class="info">'+message+'</li>');
-    }
-    function NotifyError( message ) {
-        jQuery('.messagelist').append('<li class="error">'+message+'</li>');
-    }
-    function NotifyWarning( message ) {
-        jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
-    }
-
-    function Delete( obj ) {
-
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
-        var flag = confirm("Do you realy want to delete " + jQuery.trim(data.name) + "?");
-
-        if ( flag == true )
-        {
-            link = '{% url action 'delete' %}?h='+data.home+'&amp;p='+data.path+'&amp;n=' + name;
-            window.location = link;
-        }
-        else
-        {
-            NotifyWarning('Deleting canceled by user');
-        }
-    }
-
-    function Move( obj ) {
-
-        var data = jQuery.parseJSON( jQuery(obj).parent().parent().children('span').text() );
-        var path2 = prompt( 'Enter new path', '' );
-
-        if (path2!=null && path2!="")
-        {
-            link = '{% url action 'move' %}?h='+data.home+'&amp;p='+data.path+'&amp;p2=' + path2;
-            window.location = link;
-        }
-        else {
-            NotifyWarning('Moving canceled by user');
-        }
-    }
-
     jQuery(document).ready( function() {
-
         jQuery('.delete').click(function() {
             Delete( this )
-        })
-        jQuery('.move').click(function() {
+        } )
+        jQuery( '.move' ).click( function() {
             Move( this )
-        })
-    });
+        } )
+    } );
 </script>
 {% endblock %}
 
@@ -69,7 +27,7 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_type_display }}link">
-            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
+            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message|safe }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
         </li>
         {% endfor %}
     </ul>
@@ -80,57 +38,59 @@
 <div class="module" id="changelist">
 
     <table id="result_list" cellspacing="0">
-        <caption><a href="browser.html#" class="section">Files</a></caption>
+        <caption>
+            <a href="/browser/?h={{ home_id }}" class="section">{{ home }}</a>
+        </caption>
         <thead>
         <tr>
+            <th class="hide" ></th>
             <th scope="col" class="sorted ascending" style="width: 70%;" >
-                Pk
+                <a href="#">Name</a>
             </th>
-            <th scope="col">
-                <a href="browser.html#">
-                    Size
-                </a></th>
+            <th> Actions</th>
+            <th scope="col" style="width: 7%;">
+                <a href="#">Size</a>
+            </th>
             <th scope="col" >
-                <a href="browser.html#">
-                    Time
-                </a></th>
+                <a href="#">Time</a>
+            </th>
         </tr>
         </thead>
         <tbody>
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td>
-                    <a href="#" class="{{ item.class }}">
-                        {{ item.name }}
-                    </a>
-                    <span style="display:none;">
-                        { "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }
-                    </span>
-                    <div style="float:right;">
+                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url|urlencode }}", "name": "{{ item.name }}" }</td>
+                <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}'">
+                    <a href="#" class="{{ item.class }}">{{ item.name }}</a>
+                </td>
+                <td class="nowrap">
+                    <div class="align-right">
                         {% if permission.edit %}
                         <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
                         {% endif %}
                         {% if permission.delete %}
-                        <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Delete"/>
+                        <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Move to trash"/>
                         {% endif %}
                     </div>
                 </td>
-                <td class="nowrap">{{ item.size|filesizeformat }}</td>
+                <td class="nowrap size">{% if item.size == 0 %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
                 <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
             </tr>
         {% endfor %}
 
         {% if files|length == 0 %}
             <tr class="row1">
-               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
-           <tr class="row2">
-                <td><a href="browser.html#">There is no any files or folders</a></td>
-                <td class="nowrap"></td>
-                <td class="nowrap"></td>
+            <tr class="row2">
+                <td class="hide"></td>
+                <td><a href="#">There is no any files or folders</a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
-           <tr class="row1">
-               <td><a href="browser.html#"></a></td><td class="nowrap"></td><td class="nowrap"></td>
+            <tr class="row1">
+                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
+                <td class="nowrap"></td><td class="nowrap"></td>
             </tr>
         {% endif %}
 
