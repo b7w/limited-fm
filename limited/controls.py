@@ -3,7 +3,7 @@ import zipfile
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.db.models.query_utils import Q
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from limited.models import MHome
@@ -42,23 +42,6 @@ def getFileLibs( user ):
         return MHome.objects.select_related( 'lib' ).filter( user=user )
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
-
-
-# return GET params
-# 'h' or Http404 and 'p' or ''
-# from request obj
-def get_params( request ):
-    if 'h' in request.GET:
-        home = int( request.GET['h'] )
-    else:
-        raise Http404( 'Bag http request' )
-
-    if 'p' in request.GET:
-        path = request.GET['p']
-    else:
-        path = ''
-
-    return ( home, path )
 
 
 # Return HttpResponse obj

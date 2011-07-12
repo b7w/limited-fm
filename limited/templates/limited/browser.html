@@ -35,9 +35,8 @@
     <h3>Files</h3>
 
     <div class="upload">
-        <form action="{% url upload %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <form action="{% url upload home_id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 210px;"/>
-            <input type="hidden" name="h" value="{{ home_id }}">
             <input type="hidden" name="p" value="{{ path }}">
             <input type="submit" name="submit" value="Upload" style="margin: 5px 5px;">
         </form>
@@ -49,9 +48,8 @@
     <h2>Create</h2>
 
     <div class="upload">
-        <form action="{% url action 'add' %}" method="GET" >
+        <form action="{% url action home_id 'add' %}" method="GET" >
             <input type="text" name="n" size="32" style="margin: 5px 5px;">
-            <input type="hidden" name="h" value="{{ home_id }}">
             <input type="hidden" name="p" value="{{ path }}">
             <input type="submit" name="submit" value="Ok" style="margin: 5px 5px;">
         </form>
@@ -71,7 +69,7 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_type_display }}link">
-            <a href="{% url browser %}?h={{ item.lib_id }}&amp;p={{ item.path }}">{{ item.message|safe }}</a>
+            <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.message|safe }}</a>
             <br/>
             <span class="mini quiet">{{ item.user }}</span>
         </li>
@@ -85,7 +83,7 @@
 
     <table id="result_list" cellspacing="0">
         <caption>
-            <a href="/browser/?h={{ home_id }}" class="section">{{ home }}</a>
+            <a href="{% url browser home_id %}" class="section">{{ home }}</a>
         </caption>
         <thead>
         <tr>
@@ -106,11 +104,11 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url|urlencode }}", "name": "{{ item.name }}" }</td>
-                <td ondblclick="location.href='{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}'">
+                <td ondblclick="location.href='{% url download home_id %}?p={{ item.url|urlencode }}'">
                     {% if item.class == 'dir' %}
-                    <a href="{% url browser %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
+                    <a href="{% url browser home_id %}?p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
                     {% else %}
-                    <a href="{% url download %}?h={{ home_id }}&amp;p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
+                    <a href="{% url download home_id %}?p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name }}</a>
                     {% endif %}
                 </td>
                 <td class="nowrap">

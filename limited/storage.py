@@ -96,6 +96,7 @@ class FileStorage( object ):
         newfile.close( )
 
     def download(self, path, url):
+        # TODO: fix problems with encoding
         name = self.path.name( url )
         file = self.path.join( self.abspath( path ), name )
         thread = DownloadThread( url, file )

@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, FileError
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from limited.controls import get_params, Downloads, getFileLib, isUserCanView, getFileLibs
+from limited.controls import Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
 
 logger = logging.getLogger(__name__)
@@ -51,11 +51,12 @@ def Index( request ):
 
 
 @csrf_exempt
-def Browser( request ):
+def Browser( request, id ):
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    home_id, path = get_params( request )
+    home_id = int( id )
+    path = request.GET.get('p', '')
 
     try:
         FileLib = getFileLib( request.user, home_id)
@@ -124,10 +125,11 @@ def Trash( request, id ):
 
 # Action add, delete, rename, movem link
 # GET 'h' - home id, 'p' - path
-def Action( request, command ):
-    home, path = get_params( request )
+def Action( request, id, command ):
+    home_id = int( id )
+    path = request.GET.get('p', '')
     
-    FileLib = getFileLib( request.user, home)
+    FileLib = getFileLib( request.user, home_id)
     Storage = FileStorage( FileLib.lib.path )
 
     history = MHistory( lib=FileLib.lib )
@@ -278,10 +280,10 @@ def Action( request, command ):
 # Files upload to
 # POST 'h' - home id, 'p' - path, 'files'
 @csrf_exempt
-def Upload( request ):
+def Upload( request, id ):
     if request.method == 'POST':
         try:
-            lib_id = request.POST['h']
+            lib_id = int(id)
             path = request.POST['p']
 
             FileLib = getFileLib( request.user, lib_id)
@@ -315,14 +317,15 @@ def Upload( request ):
 
 # Download files, folders whit checked permissions
 # GET 'h' - home id, 'p' - path
-def Download( request ):
+def Download( request, id ):
     if request.method == 'GET':
         if not isUserCanView( request.user ):
             return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-        home, path = get_params( request )
+        home_id = int( id )
+        path = request.GET.get('p', '')
 
-        FileLib = getFileLib( request.user, home)
+        FileLib = getFileLib( request.user, home_id)
 
         response = Downloads( FileLib.lib.path, path )
 
