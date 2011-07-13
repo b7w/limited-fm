@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 # Create your models here.
 
@@ -61,20 +62,50 @@ class MHome( models.Model ):
 
 
 class MHistory( models.Model ):
-    ADD = 1
-    CHANGE = 2
-    DELETE = 3
+    CREATE = 1
+    UPLOAD = 2
+    RENAME = 3
+    MOVE = 4
+    TRASH = 5
+    DELETE = 6
+    LINK = 7
     ACTION = (
-            (ADD, 'add'),
-            (CHANGE, 'change'),
+            (CREATE, 'create'),
+            (UPLOAD, 'upload'),
+            (RENAME, 'rename'),
+            (MOVE, 'move'),
+            (TRASH, 'trash'),
             (DELETE, 'delete'),
+            (LINK, 'link'),
+        )
+    image = (
+            (CREATE, 'add'),
+            (UPLOAD, 'add'),
+            (RENAME, 'change'),
+            (MOVE, 'change'),
+            (TRASH, 'delete'),
+            (DELETE, 'delete'),
+            (LINK, 'add'),
         )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
-    message = models.CharField( max_length=256, null=False )
+    name = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=True )
+    extra = models.CharField( max_length=256, null=True )
     time = models.DateTimeField( auto_now_add=True, null=False )
+
+    def get_image_type(self):
+        for key,val in self.image:
+            if key == self.type:
+                return val
+
+    def get_message(self):
+        return "{0}, {1}".format( self.name, self.get_type_display())
+    message = property(get_message)
+
+    def get_link(self):
+        return reverse('link', args=self.extra)
 
     class Meta:
         db_table = 'History'

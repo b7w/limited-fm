@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, FileError
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from limited.controls import get_params, Downloads, getFileLib, isUserCanView, getFileLibs
+from limited.controls import Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def Index( request ):
     # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
-              only( 'lib', 'type', 'message', 'path', 'user__username', 'lib__name' ).\
+              only( 'lib', 'type', 'name', 'path', 'extra', 'user__username', 'lib__name' ).\
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
@@ -51,18 +51,19 @@ def Index( request ):
 
 
 @csrf_exempt
-def Browser( request ):
+def Browser( request, id ):
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    home_id, path = get_params( request )
+    home_id = int( id )
+    path = request.GET.get('p', '')
 
     try:
         FileLib = getFileLib( request.user, home_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
                   filter( lib=home_id ).\
                   order_by( '-id' )[0:5]
 
@@ -72,8 +73,10 @@ def Browser( request ):
         files = File.listdir( path )
 
     except MHome.DoesNotExist:
+        logger.error( "Browser. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( home_id, path ) )
         return RenderError( request, "No such file lib or you don't have permissions" )
     except FileError as e:
+        logger.error( "Browser. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
         return RenderError( request, e )
 
     return render( request, "limited/browser.html", {
@@ -98,7 +101,7 @@ def Trash( request, id ):
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
                   filter( lib=home_id ).\
                   order_by( '-id' )[0:5]
 
@@ -108,8 +111,10 @@ def Trash( request, id ):
         files = File.listdir( '.TrashBin' )
 
     except MHome.DoesNotExist:
+        logger.error( "Trash. No such file lib or you don't have permissions. home_id:{0}".format( home_id ) )
         raise Http404( "No such file lib or you don't have permissions" )
     except FileError as e:
+        logger.error( "Trash. {0}. home_id:{1}".format( e, home_id ) )
         return RenderError( request, e )
 
     return render( request, "limited/trash.html", {
@@ -124,10 +129,11 @@ def Trash( request, id ):
 
 # Action add, delete, rename, movem link
 # GET 'h' - home id, 'p' - path
-def Action( request, command ):
-    home, path = get_params( request )
+def Action( request, id, command ):
+    home_id = int( id )
+    path = request.GET.get('p', '')
     
-    FileLib = getFileLib( request.user, home)
+    FileLib = getFileLib( request.user, home_id)
     Storage = FileStorage( FileLib.lib.path )
 
     history = MHistory( lib=FileLib.lib )
@@ -149,13 +155,15 @@ def Action( request, command ):
                 Storage.mkdir( dir )
                 messages.success( request, "directory '%s' successfully created" % name )
                 #history.message = "dir '%s' created" % name
-                #history.type = MHistory.ADD
+                #history.type = MHistory.CREATE
                 #history.path = dir
                 #history.save( )
 
         except FileError as e:
+            logger.error( "Action add. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
+            logger.error( "Action add. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     # Delete from FS
@@ -167,11 +175,13 @@ def Action( request, command ):
             messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
             history.user = request.user
             history.type = MHistory.DELETE
-            history.message = "'%s' deleted" % Storage.path.name( path )
+            history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
+            logger.error( "Action delete. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
+            logger.error( "Action delete. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     # Move to special directory
@@ -182,12 +192,14 @@ def Action( request, command ):
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
             history.user = request.user
-            history.type = MHistory.DELETE
-            history.message = "'%s' moved to trash" % Storage.path.name( path )
+            history.type = MHistory.TRASH
+            history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
+            logger.error( "Action trash. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
+            logger.error( "Action trash. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     # GET 'n' - new file name
@@ -199,12 +211,14 @@ def Action( request, command ):
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
             history.user = request.user
-            history.type = MHistory.CHANGE
-            history.message = "'%s' renamed" % name
+            history.type = MHistory.RENAME
+            history.name = name
             history.save( )
         except FileError as e:
+            logger.error( "Action rename. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
+            logger.error( "Action rename. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     # GET 'p2' - new directory path
@@ -217,13 +231,15 @@ def Action( request, command ):
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
             history.user = request.user
-            history.type = MHistory.CHANGE
-            history.message = "'%s' moved" % Storage.path.name( path )
+            history.type = MHistory.MOVE
+            history.name = Storage.path.name( path )
             history.path = path2
             history.save( )
         except FileError as e:
+            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
+            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     elif command == 'link':
@@ -247,14 +263,17 @@ def Action( request, command ):
                 MLink( hash=hash, lib=FileLib.lib, path=path ).save( )
                 messages.success( request, "link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
                 history.user = request.user
-                history.type = MHistory.ADD
-                history.message = "add link for '<a href=\"http://{0}/link/{1}\">{2}<a>'".format(domain, hash, Storage.path.name( path ))
+                history.type = MHistory.LINK
+                history.name = Storage.path.name( path )
+                history.extra = hash
                 history.path = Storage.path.dirname( path )
                 history.save( )
             else:
+                logger.error( "Action link. You have no permission to create links. home_id:{1}, path:{2}".format( e, home_id, path ) )
                 raise PermissionError( u'You have no permission to create links' )
 
         except PermissionError as e:
+            logger.error( "Action link. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     elif command == 'zip':
@@ -264,6 +283,7 @@ def Action( request, command ):
             else:
                 Storage.zip( path )
         except PermissionError as e:
+            logger.error( "Action zip. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
             messages.error( request, e )
 
     elif command == 'size':
@@ -278,10 +298,10 @@ def Action( request, command ):
 # Files upload to
 # POST 'h' - home id, 'p' - path, 'files'
 @csrf_exempt
-def Upload( request ):
+def Upload( request, id ):
     if request.method == 'POST':
         try:
-            lib_id = request.POST['h']
+            lib_id = int(id)
             path = request.POST['p']
 
             FileLib = getFileLib( request.user, lib_id)
@@ -294,7 +314,7 @@ def Upload( request ):
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
                 history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-                history.message = "Uploaded %s files" % len( files )
+                history.name = "%s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
@@ -305,9 +325,10 @@ def Upload( request ):
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
                     history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-                    history.message = "Uploaded '%s'" % file.name
+                    history.name = file.name
                     history.save( )
         except PermissionError as e:
+            logger.error( "Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     return HttpResponseReload( request )
@@ -315,18 +336,20 @@ def Upload( request ):
 
 # Download files, folders whit checked permissions
 # GET 'h' - home id, 'p' - path
-def Download( request ):
+def Download( request, id ):
     if request.method == 'GET':
         if not isUserCanView( request.user ):
             return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-        home, path = get_params( request )
+        home_id = int( id )
+        path = request.GET.get('p', '')
 
-        FileLib = getFileLib( request.user, home)
+        FileLib = getFileLib( request.user, home_id)
 
         response = Downloads( FileLib.lib.path, path )
 
         if not response:
+            logger.error( "Download. No file or directory find. home_id:{0}, path:{1}".format( home_id, path ) )
             return RenderError( request, 'No file or directory find' )
 
         return response
@@ -341,12 +364,14 @@ def Link( request, hash ):
            extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
            order_by( '-time' )[0:1]
     if len( link ) == 0:
+        logger.info("No link found by hash %s" % hash)
         raise Http404( 'We are sorry. But such object does not exists or link is out of time' )
     link = link[0]
 
     Lib = MFileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
     response = Downloads( Lib.path, link.path )
     if not response:
+        logger.error( "Link. No file or directory find. hash:{0}".format( hash ) )
         return RenderError( request, 'No file or directory find' )
 
     return response

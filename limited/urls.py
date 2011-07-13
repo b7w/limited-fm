@@ -3,11 +3,12 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('',
     url(r'^$', 'limited.views.Index', name='index' ),
-    url(r'^browser/$', 'limited.views.Browser', name='browser' ),
+    url(r'^lib(?P<id>\d+)/$', 'limited.views.Browser', name='browser' ),
     url(r'^lib(?P<id>\d+)/trash/$', 'limited.views.Trash', name='trash' ),
-    url(r'^action/(?P<command>\w+)/$', 'limited.views.Action', name='action' ),
+    url(r'^lib(?P<id>\d+)/action/(?P<command>\w+)/$', 'limited.views.Action', name='action' ),
 
-    url(r'^download/$', 'limited.views.Download', name='download' ),
+    url(r'^lib(?P<id>\d+)/download/$', 'limited.views.Download', name='download' ),
+    url(r'^lib(?P<id>\d+)/upload/$', 'limited.views.Upload', name='upload' ),
+    
     url(r'^link/(?P<hash>\w+)/$', 'limited.views.Link', name='link' ),
-    url(r'^upload/$', 'limited.views.Upload', name='upload' ),
 )
