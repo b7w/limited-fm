@@ -1,3 +1,5 @@
+import logging
+import re
 import tempfile
 import zipfile
 from django.conf import settings
@@ -74,3 +76,18 @@ def Downloads( home, path ):
         temp.seek( 0 )
 
     return response
+
+
+# Minimise long strings
+#  long name.ext -> {length}...ext
+#  or if fail long name - {length+2}
+def MinimizeString( str, length=32, ext=False):
+    if ext == True:
+        restr = r"^(.{%s}).*\.(\w+)$" % length
+        name_ext = re.match( restr, str )
+        if name_ext != None:
+            return "%s...%s" % name_ext.groups( )
+    if len(str) < length + 2:
+        return str
+    else:
+        return str[:length + 2] + "..."

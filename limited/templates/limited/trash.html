@@ -64,7 +64,7 @@
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url|urlencode }}", "name": "{{ item.name }}" }</td>
                 <td ondblclick="location.href='{% url download home_id %}?p={{ item.url|urlencode }}'">
-                    <a href="#" class="{{ item.class }}">{{ item.name }}</a>
+                    <a href="#" class="{{ item.class }}">{{ item.name|mini:"ext" }}</a>
                 </td>
                 <td class="nowrap">
                     <div class="align-right">
