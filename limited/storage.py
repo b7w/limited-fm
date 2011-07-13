@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from hashlib import md5
+import logging
 import os
 import shutil
 import threading
@@ -9,6 +10,8 @@ import urllib
 import zipfile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
+
+logger = logging.getLogger(__name__)
 
 # File Storage Error
 class FileError( Exception ):
@@ -73,7 +76,8 @@ class DownloadThread( threading.Thread ):
             file = os.path.join( path, '[Downloading]' + name )
             urllib.urlretrieve( self.url, file )
             os.rename( file, self.file )
-        except Exception:
+        except Exception as e:
+            logger.error( "DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
             if os.path.exists( self.file ):
                 os.remove( self.file )
 

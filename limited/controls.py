@@ -27,8 +27,11 @@ def isUserCanView( user ):
 def getFileLib( user, home_id ):
     if user.is_authenticated( ):
         if settings.LIMITED_ANONYMOUS:
-            return MHome.objects.select_related( 'lib' ).\
-                filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=home_id)[0]
+            home = MHome.objects.select_related( 'lib' ).\
+                filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=home_id)
+            if len(home) == 0:
+                raise  MHome.DoesNotExist
+            return home[0]
         else:
             return MHome.objects.select_related( 'lib' ).get( user=user, lib__id=home_id )
 
