@@ -1,4 +1,5 @@
 {% extends "limited/base.html" %}
+{% load limited_filters %}
 
 {% block media %}
 <script type='text/javascript' src='{{ STATIC_URL }}limited/js/actions.js'></script>
@@ -18,23 +19,9 @@
 {% endblock %}
 
 {% block panels %}
-<div class="module">
-    <h2>Recent Actions</h2>
 
-    {% if history|length != 0 %}
-    <h3>History</h3>
-    {% else %}
-    <h3>Nothig</h3>
-    {% endif %}
+{% include "limited/includes/history.html" %}
 
-    <ul class="actionlist">
-        {% for item in history %}
-        <li class="{{ item.get_type_display }}link">
-            <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.message|safe }}</a> <br/> <span class="mini quiet">{{ item.user }}</span>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
 {% endblock %}
 
 {% block main %}
@@ -82,19 +69,7 @@
         {% endfor %}
 
         {% if files|length == 0 %}
-            <tr class="row1">
-                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
-                <td class="nowrap"></td><td class="nowrap"></td>
-            </tr>
-            <tr class="row2">
-                <td class="hide"></td>
-                <td><a href="#">There is no any files or folders</a></td><td class="nowrap"></td>
-                <td class="nowrap"></td><td class="nowrap"></td>
-            </tr>
-            <tr class="row1">
-                <td class="hide"></td><td><a href="#"></a></td><td class="nowrap"></td>
-                <td class="nowrap"></td><td class="nowrap"></td>
-            </tr>
+            {% include "limited/includes/noitems.html" %}
         {% endif %}
 
         </tbody>

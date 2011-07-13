@@ -1,0 +1,24 @@
+{% load limited_filters %}
+<div class="module">
+    <h2>Recent Actions</h2>
+
+    {% if history|length != 0 %}
+    <h3>History</h3>
+    {% else %}
+    <h3>Nothig</h3>
+    {% endif %}
+
+    <ul class="actionlist">
+        {% for item in history %}
+        <li class="{{ item.get_image_type }}link">
+            <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.name|mini:"16" }} {{ item.get_type_display }}</a>
+            <br/>
+            <span class="mini quiet">{{ item.user }}
+            {% if item.get_type_display == "link" %}
+                | <a href="{% url link item.extra %}">follow the link</a>
+            {% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>

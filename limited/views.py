@@ -34,7 +34,7 @@ def Index( request ):
     # from all available libs    
     history = MHistory.objects.\
               select_related( 'user', 'lib' ).\
-              only( 'lib', 'type', 'message', 'path', 'user__username', 'lib__name' ).\
+              only( 'lib', 'type', 'name', 'path', 'extra', 'user__username', 'lib__name' ).\
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
@@ -63,7 +63,7 @@ def Browser( request, id ):
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
                   filter( lib=home_id ).\
                   order_by( '-id' )[0:5]
 
@@ -101,7 +101,7 @@ def Trash( request, id ):
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'message', 'path', 'user__username' ).\
+                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
                   filter( lib=home_id ).\
                   order_by( '-id' )[0:5]
 
@@ -155,7 +155,7 @@ def Action( request, id, command ):
                 Storage.mkdir( dir )
                 messages.success( request, "directory '%s' successfully created" % name )
                 #history.message = "dir '%s' created" % name
-                #history.type = MHistory.ADD
+                #history.type = MHistory.CREATE
                 #history.path = dir
                 #history.save( )
 
@@ -175,7 +175,7 @@ def Action( request, id, command ):
             messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
             history.user = request.user
             history.type = MHistory.DELETE
-            history.message = "'%s' deleted" % Storage.path.name( path )
+            history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
             logger.error( "Action delete. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
@@ -192,8 +192,8 @@ def Action( request, id, command ):
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
             history.user = request.user
-            history.type = MHistory.DELETE
-            history.message = "'%s' moved to trash" % Storage.path.name( path )
+            history.type = MHistory.TRASH
+            history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
             logger.error( "Action trash. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
@@ -211,8 +211,8 @@ def Action( request, id, command ):
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
             history.user = request.user
-            history.type = MHistory.CHANGE
-            history.message = "'%s' renamed" % name
+            history.type = MHistory.RENAME
+            history.name = name
             history.save( )
         except FileError as e:
             logger.error( "Action rename. {0}. home_id:{1}, path:{2}".format( e, home_id, path ) )
@@ -231,8 +231,8 @@ def Action( request, id, command ):
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
             history.user = request.user
-            history.type = MHistory.CHANGE
-            history.message = "'%s' moved" % Storage.path.name( path )
+            history.type = MHistory.MOVE
+            history.name = Storage.path.name( path )
             history.path = path2
             history.save( )
         except FileError as e:
@@ -263,8 +263,9 @@ def Action( request, id, command ):
                 MLink( hash=hash, lib=FileLib.lib, path=path ).save( )
                 messages.success( request, "link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
                 history.user = request.user
-                history.type = MHistory.ADD
-                history.message = "add link for '<a href=\"http://{0}/link/{1}\">{2}<a>'".format(domain, hash, Storage.path.name( path ))
+                history.type = MHistory.LINK
+                history.name = Storage.path.name( path )
+                history.extra = hash
                 history.path = Storage.path.dirname( path )
                 history.save( )
             else:
@@ -313,7 +314,7 @@ def Upload( request, id ):
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
                 history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-                history.message = "Uploaded %s files" % len( files )
+                history.name = "%s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
@@ -324,7 +325,7 @@ def Upload( request, id ):
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
                     history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
-                    history.message = "Uploaded '%s'" % file.name
+                    history.name = file.name
                     history.save( )
         except PermissionError as e:
             logger.error( "Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
