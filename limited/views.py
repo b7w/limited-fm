@@ -313,7 +313,7 @@ def Upload( request, id ):
             files = request.FILES.getlist( 'files' )
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
-                history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
+                history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
                 history.name = "%s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
@@ -324,11 +324,12 @@ def Upload( request, id ):
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
-                    history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.ADD, path=path )
+                    history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
                     history.name = file.name
                     history.save( )
         except PermissionError as e:
-            logger.error( "Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
+            dfiles = ["{0}:{1}".format(x.name,x.size) for x in files]
+            logger.error( "Upload. {0}. home_id:{1}, path:{2}, files:{3}".format( e, lib_id, path, dfiles ) )
             messages.error( request, e )
 
     return HttpResponseReload( request )
