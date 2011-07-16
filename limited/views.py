@@ -13,7 +13,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
-from limited.storage import FileStorage, FileError
+from limited.storage import FileStorage, FileError, FileNotExist
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
 from limited.controls import Downloads, getFileLib, isUserCanView, getFileLibs
 from limited.utils import split_path, HttpResponseReload
@@ -113,6 +113,8 @@ def Trash( request, id ):
     except MHome.DoesNotExist:
         logger.error( "Trash. No such file lib or you don't have permissions. home_id:{0}".format( home_id ) )
         raise Http404( "No such file lib or you don't have permissions" )
+    except FileNotExist as e:
+        return RenderError( request, "No any trash files" )
     except FileError as e:
         logger.error( "Trash. {0}. home_id:{1}".format( e, home_id ) )
         return RenderError( request, e )

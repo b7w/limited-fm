@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 class FileError( Exception ):
     pass
 
+# File not Found Storage Error
+class FileNotExist( FileError ):
+    pass
 
 class StoragePath( object ):
     def join(self, path, name ):
@@ -122,9 +125,9 @@ class FileStorage( object ):
         if src_dir == dst:
             raise FileError( "Moving to the same directory" )
         if not self.exists( src ):
-            raise FileError( "'%s' not found" % src )
+            raise FileNotExist( "'%s' not found" % src )
         if not self.exists( dst ):
-            raise FileError( "'%s' not found" % dst )
+            raise FileNotExist( "'%s' not found" % dst )
 
         name = self.path.name( src )
 
@@ -136,7 +139,7 @@ class FileStorage( object ):
         if '/' in name:
             raise FileError( "'%s' contains not supported symbols" % name )
         if not self.exists( path ):
-            raise FileError( "'%s' not found" % path )
+            raise FileNotExist( "'%s' not found" % path )
         new_path = self.path.join( self.path.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
@@ -144,7 +147,7 @@ class FileStorage( object ):
 
     def totrash(self, name):
         if not self.exists( name ):
-            raise FileError( '%s not found' % name )
+            raise FileNotExist( '%s not found' % name )
         if not self.exists( '.TrashBin' ):
             self.mkdir( '.TrashBin' )
         self.move( name, '.TrashBin' )
@@ -160,7 +163,7 @@ class FileStorage( object ):
 
     def listdir(self, path, hidden=False):
         if not (self.exists( path ) and self.isdir( path ) ):
-            raise FileError( "path '%s' doesn't exist or it isn't a directory" % path )
+            raise FileNotExist( "path '%s' doesn't exist or it isn't a directory" % path )
 
         tmp = os.listdir( self.abspath( path ) )
         files = []
