@@ -139,6 +139,8 @@ def Trash( request, id ):
         patharr = split_path( 'Trash' )
 
         File = FileStorage( FileLib.lib.path )
+        if not File.exists( ".TrashBin" ):
+            File.mkdir( ".TrashBin" )
         files = File.listdir( '.TrashBin' )
 
     except MHome.DoesNotExist:

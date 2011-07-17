@@ -116,7 +116,7 @@
         {% endfor %}
 
         {% if files|length == 0 %}
-            {% include "limited/includes/noitems.html" %}
+            {% include "limited/includes/noitems.html" with message="There is no any files or folders" %}
         {% endif %}
 
         </tbody>

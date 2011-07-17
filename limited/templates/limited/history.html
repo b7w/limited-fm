@@ -74,7 +74,7 @@
         {% endfor %}
 
         {% if history|length == 0 %}
-            {% include "limited/includes/noitems.html" %}
+            {% include "limited/includes/noitems.html" with message="There is no history" %}
         {% endif %}
 
         </tbody>
