@@ -79,13 +79,13 @@ class MHistory( models.Model ):
             (LINK, 'link'),
         )
     image = (
-            (CREATE, 'add'),
-            (UPLOAD, 'add'),
-            (RENAME, 'change'),
-            (MOVE, 'change'),
-            (TRASH, 'delete'),
+            (CREATE, 'create'),
+            (UPLOAD, 'create'),
+            (RENAME, 'rename'),
+            (MOVE, 'move'),
+            (TRASH, 'trash'),
             (DELETE, 'delete'),
-            (LINK, 'add'),
+            (LINK, 'create'),
         )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( MFileLib )
@@ -104,8 +104,18 @@ class MHistory( models.Model ):
         return "{0}, {1}".format( self.name, self.get_type_display())
     message = property(get_message)
 
+    def is_extra(self):
+        if self.extra:
+            return True
+        return False
+    
+    def get_extra(self):
+        if self.type == self.LINK:
+            return self.get_link()
+        return False
+
     def get_link(self):
-        return reverse('link', args=self.extra)
+        return reverse('link', args=[self.extra])
 
     class Meta:
         db_table = 'History'

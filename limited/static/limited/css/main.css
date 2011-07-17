@@ -292,20 +292,25 @@ div.breadcrumbs {
 }
 
 /* ACTION ICONS */
-
-.addlink {
-    padding-left: 12px;
-    background: url(../img/icon_addlink.gif) 0 .2em no-repeat;
+.create-act {
+    padding-left: 20px;
+    background: url(../img/create.png) 0 0.5em no-repeat;
 }
-
-.changelink {
-    padding-left: 12px;
-    background: url(../img/icon_changelink.gif) 0 .2em no-repeat;
+.rename-act {
+    padding-left: 20px;
+    background: url(../img/rename.png) 0 0.5em no-repeat;
 }
-
-.deletelink {
-    padding-left: 12px;
-    background: url(../img/icon_deletelink.gif) 0 .25em no-repeat;
+.move-act {
+    padding-left: 20px;
+    background: url(../img/move.png) 0 0.5em no-repeat;
+}
+.trash-act {
+    padding-left: 20px;
+    background: url(../img/trash.png) 0 0.5em no-repeat;
+}
+.delete-act {
+    padding-left: 20px;
+    background: url(../img/delete.png) 0 0.5em no-repeat;
 }
 
 /* PAGE STRUCTURE */
@@ -433,12 +438,6 @@ div.breadcrumbs {
 
 ul.actionlist li {
     list-style-type: none;
-}
-
-ul.actionlist li.changelink {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
 }
 
 .dir {

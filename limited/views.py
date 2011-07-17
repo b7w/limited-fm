@@ -90,6 +90,37 @@ def Browser( request, id ):
         } )
 
 
+def History( request, id ):
+
+    if not isUserCanView( request.user ):
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+
+    home_id = int( id )
+
+    try:
+        FileLib = getFileLib( request.user, home_id)
+
+        history = MHistory.objects.\
+                  select_related( 'user' ).\
+                  only( 'lib', 'type', 'name', 'path', 'extra', 'time', 'user__username' ).\
+                  filter( lib=home_id ).\
+                  order_by( '-id' )[0:30]
+
+        patharr = split_path( 'History' )
+
+    except MHome.DoesNotExist:
+        logger.error( "Browser. No such file lib or you don't have permissions. home_id:{0}".format( home_id ) )
+        return RenderError( request, "No such file lib or you don't have permissions" )
+
+    return render( request, "limited/history.html", {
+        'patharr': patharr,
+        'history': history,
+        'home_id': home_id,
+        'home': FileLib.lib.name,
+        'permission': FileLib.permission,
+        } )
+
+
 def Trash( request, id ):
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )

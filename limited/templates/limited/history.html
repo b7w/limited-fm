@@ -1,0 +1,83 @@
+{% extends "limited/base.html" %}
+{% load limited_filters %}
+
+{% block media %}
+<script type='text/javascript' src='{{ STATIC_URL }}limited/js/actions.js'></script>
+<script type="text/javascript">
+    jQuery(document).ready( function() {
+
+        jQuery('.delete').click(function() {
+            Trash( this )
+        })
+        jQuery('.rename').click(function() {
+            Rename( this )
+        })
+        jQuery('.move').click(function() {
+            Move( this )
+        })
+        jQuery('.link').click(function() {
+            Link( this )
+        })
+        jQuery('.zip').click(function() {
+            Zip( this )
+        })
+        jQuery('.size').click(function() {
+            Size( this )
+        })
+    });
+</script>
+{% endblock %}
+
+{% block panels %}
+
+    {% include "limited/includes/info.html" %}
+
+{% endblock %}
+
+{% block main %}
+<div class="module" id="changelist">
+
+    <table id="result_list" cellspacing="0">
+        <caption>
+            <a href="{% url browser home_id %}" class="section">{{ home }}</a>
+        </caption>
+        <thead>
+        <tr>
+            <th scope="col">
+                <a href="#">Type</a>
+            </th>
+            <th scope="col" style="width: 70%;" >
+                <a href="#">Path</a>
+            </th>
+            <th scope="col" >
+                <a href="#">User</a>
+            </th>
+            <th scope="col" >
+                <a href="#">Time</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in history %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
+                <td class="nowrap">
+                    <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{% if item.path %}/{{ item.path }}{% endif %}/{{ item.name }}</a>
+                    <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>
+                    {% if item.is_extra %}
+                    <a href="{{ item.get_extra|safe }}">{{ item.extra }}</a>
+                    {% endif %}
+                </td>
+                <td class="nowrap">{{ item.user|capfirst }}</td>
+                <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
+            </tr>
+        {% endfor %}
+
+        {% if history|length == 0 %}
+            {% include "limited/includes/noitems.html" %}
+        {% endif %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

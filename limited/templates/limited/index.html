@@ -1,21 +1,10 @@
 {% extends "limited/base.html" %}
 
 {% block panels %}
-<div class="module">
-    <h2>Information</h2>
 
-    <h3>About</h3>
-    <ul class="actionlist">
-        <li class="addlink">
-            <a href="#">FAQ</a>
-        </li>
-         <li class="addlink">
-            <a href="http://hg.isudo.ru/Projects/FileManager/">Source code</a>
-        </li>
-    </ul>
-</div>
-
-{% include "limited/includes/history.html" %}
+    {% include "limited/includes/info.html" %}
+    
+    {% include "limited/includes/history.html" %}
     
 {% endblock %}
 
@@ -27,7 +16,7 @@
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="{% url browser item.lib.id %}">{{ item.lib.name }}</a></th>
             <td><a href="{% url trash item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
-            <td><a href="#"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
+            <td><a href="{% url history item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -41,7 +30,7 @@
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="{% url browser item.lib_id %}">{{ item.lib.name }}</a></th>
             <td><a href="{% url trash item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
-            <td><a href="#"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
+            <td><a href="{% url history item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
         </tr>
         {% endfor %}
     </table>

@@ -5,6 +5,7 @@ urlpatterns = patterns('',
     url(r'^$', 'limited.views.Index', name='index' ),
     url(r'^lib(?P<id>\d+)/$', 'limited.views.Browser', name='browser' ),
     url(r'^lib(?P<id>\d+)/trash/$', 'limited.views.Trash', name='trash' ),
+    url(r'^lib(?P<id>\d+)/history/$', 'limited.views.History', name='history' ),
     url(r'^lib(?P<id>\d+)/action/(?P<command>\w+)/$', 'limited.views.Action', name='action' ),
 
     url(r'^lib(?P<id>\d+)/download/$', 'limited.views.Download', name='download' ),

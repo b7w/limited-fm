@@ -10,7 +10,7 @@ register = template.Library()
 # arg "int.(ext|noext)"
 # arg "(ext|noext)"
 # arg "int"
-def mini(value, arg=None):
+def mini( value, arg=None ):
     if arg != None:
         len, ext = re.match( r"^(\d+)?\.?(\w+)?$", arg ).groups( )
         if len != None and ext != None:
@@ -28,3 +28,6 @@ def mini(value, arg=None):
     return MinimizeString( value )
 
 register.filter('mini', mini)
+
+def upperfirst( value ):
+    return
