@@ -22,10 +22,23 @@
 
 {% block main %}
 <div class="module">
-    <h2>Error box</h2>
-    <div class="error-box">
-        {{ message }}
-    </div>
+
+    <table id="result_list" cellspacing="0">
+        <caption>
+            <a href="#" class="section">Error</a>
+        </caption>
+        <tbody>
+            <tr class="row1">
+                <td></td>
+            </tr>
+            <tr class="row2">
+                <td><a href="#" class="error">{{ message }}</a></td>
+            </tr>
+            <tr class="row1">
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
 
 </div>
 {% endblock %}

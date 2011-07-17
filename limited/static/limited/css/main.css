@@ -455,9 +455,10 @@ ul.actionlist li.changelink {
     margin-bottom: 10px;
 }
 
-.error-box {
-    margin: 20px;
-    color: blue;
+.error {
+    font-size: 18px;
+    padding: 20px;
+    line-height: 24px;
 }
 
 /* START LOGIN FORM */
