@@ -39,7 +39,9 @@
 
     <table id="result_list" cellspacing="0">
         <caption>
-            <a href="{% url browser home_id %}" class="section">{{ home }}</a>
+            <a href="{% url browser home_id %}" class="section space">Home</a>
+            <a href="{% url history home_id %}" class="section space">History</a>
+            <a href="{% url trash home_id %}" class="section">Trash</a>
         </caption>
         <thead>
         <tr>
@@ -60,7 +62,7 @@
         <tbody>
         {% for item in history %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
+                <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
                     <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{% joinpath "/" item.path item.name %}</a>
                     <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>

@@ -67,7 +67,9 @@
 
     <table id="result_list" cellspacing="0">
         <caption>
-            <a href="{% url browser home_id %}" class="section">{{ home }}</a>
+            <a href="{% url browser home_id %}" class="section space">Home</a>
+            <a href="{% url history home_id %}" class="section space">History</a>
+            <a href="{% url trash home_id %}" class="section">Trash</a>
         </caption>
         <thead>
         <tr>
