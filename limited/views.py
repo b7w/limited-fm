@@ -109,7 +109,7 @@ def History( request, id ):
         patharr = split_path( 'History' )
 
     except MHome.DoesNotExist:
-        logger.error( "Browser. No such file lib or you don't have permissions. home_id:{0}".format( home_id ) )
+        logger.error( "History. No such file lib or you don't have permissions. home_id:{0}".format( home_id ) )
         return RenderError( request, "No such file lib or you don't have permissions" )
 
     return render( request, "limited/history.html", {

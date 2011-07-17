@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import logging
 import re
+
 from django import template
 from limited.controls import MinimizeString
 
@@ -10,6 +10,7 @@ register = template.Library()
 # arg "int.(ext|noext)"
 # arg "(ext|noext)"
 # arg "int"
+@register.filter
 def mini( value, arg=None ):
     if arg != None:
         len, ext = re.match( r"^(\d+)?\.?(\w+)?$", arg ).groups( )
@@ -27,7 +28,28 @@ def mini( value, arg=None ):
                 return MinimizeString( value, ext=False )
     return MinimizeString( value )
 
-register.filter('mini', mini)
 
-def upperfirst( value ):
-    return
+# join paths by '/'
+# without adding first '/'
+@register.tag
+def joinpath(parser, token):
+    args = token.split_contents( )[1:]
+    return JoinPathNode(args)
+
+# template.Node class for joinpath tag
+class JoinPathNode( template.Node ):
+    def __init__(self, args):
+        self.args = [ template.Variable( x ) for x in args ]
+
+    def render(self, context):
+        path = ""
+        for item in self.args:
+            str = item.resolve(context)
+            if str:
+                if str.startswith('/'):
+                    path += str
+                else:
+                    path += '/' + str
+        if path.startswith('/'):
+            path = path[1:]
+        return path
