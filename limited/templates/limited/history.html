@@ -61,11 +61,11 @@
         {% for item in history %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
-                <td class="nowrap">
+                <td class="nowrap history">
                     <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{% if item.path %}/{{ item.path }}{% endif %}/{{ item.name }}</a>
                     <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>
                     {% if item.is_extra %}
-                    <a href="{{ item.get_extra|safe }}">{{ item.extra }}</a>
+                        {{ item.get_extra|safe }}
                     {% endif %}
                 </td>
                 <td class="nowrap">{{ item.user|capfirst }}</td>

@@ -108,14 +108,14 @@ class MHistory( models.Model ):
         if self.extra:
             return True
         return False
-    
+
     def get_extra(self):
         if self.type == self.LINK:
-            return self.get_link()
+            return "<a href=\"{0}\">direct link</a>".format( self.get_link( ) )
         return False
 
     def get_link(self):
-        return reverse('link', args=[self.extra])
+        return reverse( 'link', args=[self.extra] )
 
     class Meta:
         db_table = 'History'
