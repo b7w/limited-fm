@@ -11,7 +11,7 @@
     <ul class="actionlist">
         {% for item in history %}
         <li class="{{ item.get_image_type }}link">
-            <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.name|mini:"16" }} {{ item.get_type_display }}</a>
+            <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.name|mini:"16" }} &nbsp; {{ item.get_type_display }}</a>
             <br/>
             <span class="mini quiet">{{ item.user }}
             {% if item.get_type_display == "link" %}
