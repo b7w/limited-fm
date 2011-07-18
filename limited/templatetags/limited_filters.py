@@ -34,12 +34,17 @@ def mini( value, arg=None ):
 @register.tag
 def joinpath(parser, token):
     args = token.split_contents( )[1:]
-    return JoinPathNode(args)
+    if len(args) > 3:
+        if args[-2] == "as":
+            return JoinPathNode( args[0:-2], args[-1] )
+
+    return JoinPathNode( args )
 
 # template.Node class for joinpath tag
 class JoinPathNode( template.Node ):
-    def __init__(self, args):
+    def __init__(self, args, asvar=None ):
         self.args = [ template.Variable( x ) for x in args ]
+        self.asvar = asvar
 
     def render(self, context):
         path = ""
@@ -52,4 +57,7 @@ class JoinPathNode( template.Node ):
                     path += '/' + str
         if path.startswith('/'):
             path = path[1:]
+        if self.asvar != None:
+            context[self.asvar] = path
+            return ''
         return path

@@ -289,7 +289,7 @@ ul.messagelist li.error {
 /* BREADCRUMBS */
 
 div.breadcrumbs {
-    background: white url(../img/nav-bg-reverse.gif) 0 -10px repeat-x;
+    background: white url(../img/nav-bg.gif) repeat-x;
     padding: 4px 36px;
     font-size: 13px;
     font-weight: bold;
@@ -369,7 +369,7 @@ div.breadcrumbs {
 
 #header {
     background: #417690;
-    color: #ffc;
+    color: #dee6e9;
     overflow: hidden;
 }
 
@@ -386,7 +386,7 @@ div.breadcrumbs {
     font-size: 24px;
     margin: 8px 0;
     font-weight: normal;
-    color: #f4f379;
+    color: #fff;
 }
 
 #branding h2 {

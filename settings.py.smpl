@@ -173,3 +173,4 @@ LOGIN_URL = "/login/"
 # To allow Anonymous access
 # Need user "Anonymous" in DB
 LIMITED_ANONYMOUS = True
+LIMITED_ANONYMOUS_ID = 2

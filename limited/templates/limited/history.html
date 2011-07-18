@@ -64,7 +64,8 @@
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
-                    <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{% joinpath "/" item.path item.name %}</a>
+                    {% joinpath "/" item.path item.name as path%}
+                    <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{{ path|mini }}</a>
                     <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>
                     {% if item.is_extra %}
                         {{ item.get_extra|safe }}

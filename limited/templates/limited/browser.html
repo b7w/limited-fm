@@ -90,7 +90,7 @@
         {% for item in files %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url|urlencode }}", "name": "{{ item.name }}" }</td>
-                <td ondblclick="location.href='{% url download home_id %}?p={{ item.url|urlencode }}'">
+                <td class="nowrap" ondblclick="location.href='{% url download home_id %}?p={{ item.url|urlencode }}'">
                     {% if item.class == 'dir' %}
                     <a href="{% url browser home_id %}?p={{ item.url|urlencode }}" class="{{ item.class }}">{{ item.name|mini}}</a>
                     {% else %}

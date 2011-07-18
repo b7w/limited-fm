@@ -84,7 +84,7 @@ def Downloads( home, path ):
 # Minimise long strings
 #  long name.ext -> {length}...ext
 #  or if fail long name - {length}..
-def MinimizeString( str, length=32, ext=False):
+def MinimizeString( str, length=64, ext=False):
     if ext == True:
         restr = r"^(.{%s}).*\.(\w+)$" % length
         name_ext = re.match( restr, str )
