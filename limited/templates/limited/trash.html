@@ -58,10 +58,10 @@
                 <td class="nowrap">
                     <div class="align-right">
                         {% if permission.edit %}
-                        <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
+                        <div class="move icon move-icon float-left" title="Move to other dir"></div>
                         {% endif %}
                         {% if permission.delete %}
-                        <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Move to trash"/>
+                        <div class="delete icon delete-icon float-left" title="Move to trash"></div>
                         {% endif %}
                     </div>
                 </td>

@@ -62,7 +62,7 @@
         <tbody>
         {% for item in history %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
+                <td class="nowrap"><div class="zip icon {{ item.get_image_type }}-icon float-left" title="Zip/unZip files and folders">{{ item.get_type_display|capfirst }}</div></td>
                 <td class="nowrap history">
                     <a href="{% url browser home_id %}?p={{ item.path|urlencode }}" class="dir">{% joinpath "/" item.path item.name %}</a>
                     <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>

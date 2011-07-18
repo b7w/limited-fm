@@ -15,8 +15,8 @@
         {% for item in FileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="{% url browser item.lib.id %}">{{ item.lib.name }}</a></th>
-            <td><a href="{% url trash item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
-            <td><a href="{% url history item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
+            <td><a href="{% url trash item.lib_id %}" class="icon trash-icon">Trash</a></td>
+            <td><a href="{% url history item.lib_id %}" class="icon history-icon">History</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -29,8 +29,8 @@
         {% for item in AnonFileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
             <th scope="row"><a href="{% url browser item.lib_id %}">{{ item.lib.name }}</a></th>
-            <td><a href="{% url trash item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/trash.png"/> Trash</a></td>
-            <td><a href="{% url history item.lib_id %}"><img src="{{ STATIC_URL }}limited/img/history.png"/> History</a></td>
+            <td><a href="{% url trash item.lib_id %}" class="icon trash-icon">Trash</a></td>
+            <td><a href="{% url history item.lib_id %}" class="icon history-icon">History</a></td>
         </tr>
         {% endfor %}
     </table>

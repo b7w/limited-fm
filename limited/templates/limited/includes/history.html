@@ -10,7 +10,7 @@
 
     <ul class="actionlist">
         {% for item in history %}
-        <li class="{{ item.get_image_type }}-act">
+        <li class="action {{ item.get_image_type }}-act">
             <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.name|mini:"24" }}</a>
             <br/>
             <span class="mini quiet">{{ item.user }}

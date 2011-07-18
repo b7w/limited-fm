@@ -77,7 +77,7 @@
             <th scope="col" class="sorted ascending" style="width: 70%;" >
                 <a href="#">Name</a>
             </th>
-            <th> Actions</th>
+            <th style="width: 10%;"> Actions</th>
             <th scope="col" style="width: 7%;">
                 <a href="#">Size</a>
             </th>
@@ -98,17 +98,17 @@
                     {% endif %}
                 </td>
                 <td class="nowrap">
-                    <div class="align-right">
+                    <div class="nowrap" style="display: inline;">
                         {% if user.is_authenticated %}
-                        <img class="zip" src="{{ STATIC_URL }}limited/img/zip.png" title="Zip/unZip files and folders"/>
+                        <div class="zip icon zip-icon float-left" title="Zip/unZip files and folders"></div>
                         {% endif %}
                         {% if permission.edit %}
-                        <img class="rename" src="{{ STATIC_URL }}limited/img/rename.png" title="Rename"/>
-                        <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
+                        <div class="rename icon rename-icon float-left" title="Rename"></div>
+                        <div class="move icon move-icon float-left" title="Move to other dir"></div>
                         {% endif %}
-                        <img class="link" src="{{ STATIC_URL }}limited/img/create.png" title="Create direct link"/>
+                        <div class="link icon create-icon float-left" title="Create direct link"></div>
                         {% if permission.delete %}
-                        <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Move to trash"/>
+                        <div class="delete icon delete-icon float-left" title="Move to trash"></div>
                         {% endif %}
                     </div>
                 </td>

@@ -304,7 +304,7 @@ def Action( request, id, command ):
                 history.path = Storage.path.dirname( path )
                 history.save( )
             else:
-                logger.error( "Action link. You have no permission to create links. home_id:{1}, path:{2}".format( e, home_id, path ) )
+                logger.error( "Action link. You have no permission to create links. home_id:{0}, path:{1}".format( home_id, path ) )
                 raise PermissionError( u'You have no permission to create links' )
 
         except PermissionError as e:
