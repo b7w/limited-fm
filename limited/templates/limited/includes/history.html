@@ -14,9 +14,9 @@
             <a href="{% url browser item.lib_id %}?p={{ item.path }}">{{ item.name|mini:"16" }} {{ item.get_type_display }}</a>
             <br/>
             <span class="mini quiet">{{ item.user }}
-            {% if item.is_extra %}
+                {% if item.is_extra %}
                 | {{ item.get_extra|safe }}
-            {% endif %}
+                {% endif %}
             </span>
         </li>
         {% endfor %}

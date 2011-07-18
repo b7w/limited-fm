@@ -93,4 +93,4 @@ def MinimizeString( str, length=32, ext=False):
     if len(str) < length + 2:
         return str
     else:
-        return str[:length + 2] + "..."
+        return str[:length + 2] + ".."
