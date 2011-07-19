@@ -426,10 +426,14 @@ div.breadcrumbs {
 /* DASHBOARD */
 
 .dashboard  table th {
+    vertical-align: middle;
+    padding: 4px 5px;
     width: 100%;
 }
 
 .dashboard  table td {
+    vertical-align: middle;
+    padding: 4px 5px;
     white-space: nowrap;
 }
 

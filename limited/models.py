@@ -36,6 +36,7 @@ class MPermission( models.Model ):
 
 class MFileLib( models.Model ):
     name = models.CharField( max_length=64, null=False )
+    description = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=False )
 
     class Meta:
