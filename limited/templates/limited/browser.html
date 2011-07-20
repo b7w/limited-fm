@@ -99,16 +99,16 @@
                 </td>
                 <td class="nowrap">
                     <div class="align-right">
-                        {% if user.is_authenticated %}
-                        <img class="zip" src="{{ STATIC_URL }}limited/img/zip.png" title="Zip/unZip files and folders"/>
-                        {% endif %}
                         {% if permission.edit %}
+                        <img class="zip" src="{{ STATIC_URL }}limited/img/zip.png" title="Zip/unZip files and folders"/>
                         <img class="rename" src="{{ STATIC_URL }}limited/img/rename.png" title="Rename"/>
                         {% endif %}
                         {% if permission.move %}
                         <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
                         {% endif %}
+                        {% if permission.create %}
                         <img class="link" src="{{ STATIC_URL }}limited/img/create.png" title="Create direct link"/>
+                        {% endif %}
                         {% if permission.delete %}
                         <img class="delete" src="{{ STATIC_URL }}limited/img/delete.png" title="Move to trash"/>
                         {% endif %}

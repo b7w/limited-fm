@@ -160,6 +160,9 @@ thead th:first-child {
     border-left: none !important;
 }
 
+#changelist tbody tr {
+    height: 29px;
+}
 #changelist tr:hover {
     background-color: #FFC;
 }

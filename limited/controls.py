@@ -24,7 +24,7 @@ def isUserCanView( user ):
 # Get MHome plus related FileLib
 # depending on is_authenticated or not
 # and LIMITED_ANONYMOUS
-def getFileLib( user, lib_id ):
+def getHome( user, lib_id ):
     if user.is_authenticated( ):
         if user.is_superuser:
             home = MHome()
@@ -54,7 +54,7 @@ def getFileLib( user, lib_id ):
 # Get MHome plus related FileLib
 # depending on is_authenticated or not
 # and LIMITED_ANONYMOUS
-def getFileLibs( user ):
+def getHomes( user ):
     if user.is_authenticated( ):
         if user.is_superuser:
             homes = []
