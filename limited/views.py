@@ -210,7 +210,7 @@ def Action( request, id, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.delete( path )
             messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
-            history.user = request.user
+            history.user = FileLib.user
             history.type = MHistory.DELETE
             history.name = Storage.path.name( path )
             history.save( )
@@ -228,7 +228,7 @@ def Action( request, id, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
-            history.user = request.user
+            history.user = FileLib.user
             history.type = MHistory.TRASH
             history.name = Storage.path.name( path )
             history.save( )
@@ -247,7 +247,7 @@ def Action( request, id, command ):
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
-            history.user = request.user
+            history.user = FileLib.user
             history.type = MHistory.RENAME
             history.name = name
             history.save( )
@@ -267,7 +267,7 @@ def Action( request, id, command ):
             path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
-            history.user = request.user
+            history.user = FileLib.user
             history.type = MHistory.MOVE
             history.name = Storage.path.name( path )
             history.path = path2
@@ -299,7 +299,7 @@ def Action( request, id, command ):
             elif not request.user.is_anonymous( ):
                 MLink( hash=hash, lib=FileLib.lib, path=path ).save( )
                 messages.success( request, "link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
-                history.user = request.user
+                history.user = FileLib.user
                 history.type = MHistory.LINK
                 history.name = Storage.path.name( path )
                 history.extra = hash
@@ -350,7 +350,7 @@ def Upload( request, id ):
             files = request.FILES.getlist( 'files' )
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
-                history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
+                history = MHistory( user=FileLib.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
                 history.name = "%s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
@@ -361,7 +361,7 @@ def Upload( request, id ):
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
-                    history = MHistory( user=request.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
+                    history = MHistory( user=FileLib.user, lib=FileLib.lib, type=MHistory.UPLOAD, path=path )
                     history.name = file.name
                     history.save( )
         except PermissionError as e:
