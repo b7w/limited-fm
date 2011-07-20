@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import forms
+from django.contrib.auth.admin import UserAdmin
 
 from limited.models import MFileLib, MPermission, MHome, MHistory, MLink, LUser
 
@@ -94,7 +95,7 @@ class HomeInline( admin.TabularInline ):
     model = MHome
     raw_id_fields = ( "permission", )
 
-class AdminUser( admin.ModelAdmin ):
+class AdminUser( UserAdmin ):
     list_select_related = True
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
     fieldsets = (
@@ -102,5 +103,11 @@ class AdminUser( admin.ModelAdmin ):
     ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
     )
     inlines = [HomeInline, ]
+
+    # Need to remove inlines when adding object
+    def get_formsets(self, request, obj=None):
+        if obj == None:
+            return []
+        return super(UserAdmin, self).get_formsets(request, obj=None)
 
 admin.site.register( LUser, AdminUser )

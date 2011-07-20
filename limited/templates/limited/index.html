@@ -14,7 +14,7 @@
         <caption><a href="#" class="section">{{ user.username|capfirst }} file libraries</a></caption>
         {% for item in FileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
-            <th scope="row">
+            <th scope="row" onclick="location.href='{% url browser item.lib.id %}'">
                 <a href="{% url browser item.lib.id %}">{{ item.lib.name }}</a>
                 <br/>
                 <span class="mini quiet">{{ item.lib.description }}</span>
@@ -32,7 +32,7 @@
         <caption><a href="#" class="section">Anonymous file libraries</a></caption>
         {% for item in AnonFileLibs %}
         <tr class="{% cycle 'row1' 'row2' %}">
-            <th scope="row">
+            <th scope="row" onclick="location.href='{% url browser item.lib.id %}'">
                 <a href="{% url browser item.lib_id %}">{{ item.lib.name }}</a>
                 <br/>
                 <span class="mini quiet">{{ item.lib.description }}</span>
