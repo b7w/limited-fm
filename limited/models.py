@@ -16,9 +16,22 @@ class MPermission( models.Model ):
     upload = models.BooleanField( default=False )
     http_get = models.BooleanField( default=False )
 
+    # Return names of boolean fields ( not id )
+    # generated depending on the number of fields
     @classmethod
     def fields(self):
         return [k.name for k in self._meta.fields if k.name != 'id']
+
+    # Return all True
+    # generated depending on the number of fields
+    @classmethod
+    def Full(self):
+        fieldcount = len(self._meta.fields)-1
+        fields = self.fields()
+        perm = MPermission()
+        for l in range( fieldcount ):
+            setattr( perm, fields[l], True )
+        return perm
 
     class Meta:
         db_table = 'Permission'
@@ -96,6 +109,8 @@ class MHistory( models.Model ):
     extra = models.CharField( max_length=256, null=True )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
+    # Return image type
+    # depend of ACTION
     def get_image_type(self):
         for key,val in self.image:
             if key == self.type:
@@ -110,13 +125,13 @@ class MHistory( models.Model ):
             return True
         return False
 
+    # Return html for extra field
+    # depend of type
     def get_extra(self):
         if self.type == self.LINK:
-            return "<a href=\"{0}\">direct link</a>".format( self.get_link( ) )
+            link = reverse( 'link', args=[self.extra] )
+            return "<a href=\"{0}\">direct link</a>".format( link )
         return False
-
-    def get_link(self):
-        return reverse( 'link', args=[self.extra] )
 
     class Meta:
         db_table = 'History'

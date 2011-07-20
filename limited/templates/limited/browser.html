@@ -104,6 +104,8 @@
                         {% endif %}
                         {% if permission.edit %}
                         <img class="rename" src="{{ STATIC_URL }}limited/img/rename.png" title="Rename"/>
+                        {% endif %}
+                        {% if permission.move %}
                         <img class="move" src="{{ STATIC_URL }}limited/img/move.png" title="Move to other dir"/>
                         {% endif %}
                         <img class="link" src="{{ STATIC_URL }}limited/img/create.png" title="Create direct link"/>

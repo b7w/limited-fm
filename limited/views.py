@@ -21,10 +21,11 @@ from limited.utils import split_path, HttpResponseReload
 logger = logging.getLogger(__name__)
 
 def Index( request ):
-    if not isUserCanView( request.user ):
+    user = request.user
+    if not isUserCanView( user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    FileLibs = getFileLibs( request.user )
+    FileLibs = getFileLibs( user )
 
     # get ids for SELECT HAVE statement
     libs = []
@@ -39,9 +40,10 @@ def Index( request ):
               order_by( '-time' )[0:8]
 
     AnonFileLibs = []
-    if not request.user.is_anonymous( ):
-        tmp = MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
-        AnonFileLibs = [ i for i in tmp if i.lib_id not in libs ]
+    if not user.is_anonymous( ) and not user.is_superuser:
+        AnonFileLibs = MHome.objects.select_related( 'lib' )\
+            .filter( user=settings.LIMITED_ANONYMOUS_ID )\
+            .exclude( lib__in=libs )
 
     return render( request, "limited/index.html", {
         'history': history,
