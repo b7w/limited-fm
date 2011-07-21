@@ -38,6 +38,11 @@ def Index( request ):
             .filter( user=settings.LIMITED_ANONYMOUS_ID )\
             .exclude( lib__in=libs )
 
+    # append Anon user libs for history
+    for i in AnonHomes:
+        if i.lib_id not in libs:
+            libs.append( i.lib_id )
+
     # SELECT Histories messages
     # from all available libs    
     history = MHistory.objects.\
