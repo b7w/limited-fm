@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, FileError, FileNotExist
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from limited.controls import Downloads, getHome, isUserCanView, getHomes
+from limited.controls import Downloads, getHome, isUserCanView, getHomes, getUser
 from limited.utils import split_path, HttpResponseReload
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,13 @@ def Index( request ):
     libs = []
     for i in Homes:
         libs.append( i.lib_id )
+
+    AnonHomes = []
+    if not user.is_anonymous( ) and not user.is_superuser:
+        AnonHomes = MHome.objects.select_related( 'lib' )\
+            .filter( user=settings.LIMITED_ANONYMOUS_ID )\
+            .exclude( lib__in=libs )
+
     # SELECT Histories messages
     # from all available libs    
     history = MHistory.objects.\
@@ -38,12 +45,6 @@ def Index( request ):
               only( 'lib', 'type', 'name', 'path', 'extra', 'user__username', 'lib__name' ).\
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
-
-    AnonHomes = []
-    if not user.is_anonymous( ) and not user.is_superuser:
-        AnonHomes = MHome.objects.select_related( 'lib' )\
-            .filter( user=settings.LIMITED_ANONYMOUS_ID )\
-            .exclude( lib__in=libs )
 
     return render( request, "limited/index.html", {
         'history': history,
@@ -171,6 +172,7 @@ def Action( request, id, command ):
     path = request.GET.get('p', '')
     
     Home = getHome( request.user, lib_id)
+    user = getUser( request.user )
     Storage = FileStorage( Home.lib.path )
 
     history = MHistory( lib=Home.lib )
@@ -210,7 +212,7 @@ def Action( request, id, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.delete( path )
             messages.success( request, "'%s' successfully deleted" % Storage.path.name( path ) )
-            history.user = Home.user
+            history.user = user
             history.type = MHistory.DELETE
             history.name = Storage.path.name( path )
             history.save( )
@@ -228,7 +230,7 @@ def Action( request, id, command ):
                 raise PermissionError( u'You have no permission to delete' )
             Storage.totrash( path )
             messages.success( request, "'%s' successfully moved to trash" % Storage.path.name( path ) )
-            history.user = Home.user
+            history.user = user
             history.type = MHistory.TRASH
             history.name = Storage.path.name( path )
             history.save( )
@@ -247,7 +249,7 @@ def Action( request, id, command ):
             name = request.GET['n']
             Storage.rename( path, name )
             messages.success( request, "'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
-            history.user = Home.user
+            history.user = user
             history.type = MHistory.RENAME
             history.name = name
             history.save( )
@@ -267,7 +269,7 @@ def Action( request, id, command ):
             path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
             Storage.move( path, path2 )
             messages.success( request, "'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
-            history.user = Home.user
+            history.user = user
             history.type = MHistory.MOVE
             history.name = Storage.path.name( path )
             history.path = path2
@@ -299,7 +301,7 @@ def Action( request, id, command ):
             elif not request.user.is_anonymous( ):
                 MLink( hash=hash, lib=Home.lib, path=path ).save( )
                 messages.success( request, "link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
-                history.user = Home.user
+                history.user = user
                 history.type = MHistory.LINK
                 history.name = Storage.path.name( path )
                 history.extra = hash
@@ -345,12 +347,13 @@ def Upload( request, id ):
             if not home.permission.upload:
                 raise PermissionError( u'You have no permission to upload' )
 
+            user = getUser( request.user )
             Storage = FileStorage( home.lib.path )
 
             files = request.FILES.getlist( 'files' )
             # if files > 3 just send message 'Uploaded N files'
             if len( files ) > 3:
-                history = MHistory( user=home.user, lib=home.lib, type=MHistory.UPLOAD, path=path )
+                history = MHistory( user=user, lib=home.lib, type=MHistory.UPLOAD, path=path )
                 history.name = "%s files" % len( files )
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
@@ -361,7 +364,7 @@ def Upload( request, id ):
                 for file in files:
                     fool_path = Storage.path.join( path, file.name )
                     Storage.save( fool_path, file )
-                    history = MHistory( user=home.user, lib=home.lib, type=MHistory.UPLOAD, path=path )
+                    history = MHistory( user=user, lib=home.lib, type=MHistory.UPLOAD, path=path )
                     history.name = file.name
                     history.save( )
         except PermissionError as e:

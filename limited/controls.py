@@ -3,6 +3,7 @@ import re
 import tempfile
 import zipfile
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.servers.basehttp import FileWrapper
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
@@ -66,6 +67,13 @@ def getHomes( user ):
             return MHome.objects.select_related( 'lib' ).filter( user=user )
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
+
+
+# Return normal User obj for anon
+def getUser( user ):
+    if user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
+        return User.objects.get( id=settings.LIMITED_ANONYMOUS_ID )
+    return user
 
 
 # Return HttpResponse obj
