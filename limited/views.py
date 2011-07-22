@@ -185,7 +185,7 @@ def Action( request, id, command ):
     # GET 'n' - folder name
     if command == 'add':
         try:
-            if not Home.permission.edit:
+            if not Home.permission.create:
                 raise PermissionError( u'You have no permission to create new directory' )
             name = request.GET['n']
             # If it link - download it
@@ -293,12 +293,12 @@ def Action( request, id, command ):
             hash = hashlib.md5( smart_str( path ) ).hexdigest( )[0:12]
             domain = Site.objects.get_current( ).domain
 
-            # if links exists where hash and `time`+ `maxage` > NOW()
+            # TODO: if links exists where hash and `time`+ `maxage` > NOW()
             # +! work only with MySQL
-            link = MLink.objects.filter( hash=hash ).\
-            extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
-            order_by( '-time' ).\
-            exists( )
+            # extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
+            link = MLink.objects.filter( hash=hash )\
+            .order_by( '-time' )\
+            .exists( )
             # if exist and not expired
             if link:
                 messages.success( request, "link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )

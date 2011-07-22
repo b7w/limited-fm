@@ -1,6 +1,7 @@
 import os
 from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
+from django.utils.http import urlquote
 
 
 class HttpResponseReload( HttpResponse ):
@@ -40,11 +41,9 @@ def LoadPermissions():
     data = [0 for x in rng]
 
     for i in range( 2 ** count ):
-        print i, data
         Pemm = MPermission( )
         for l in range( count ):
             setattr( Pemm, fields[l], data[l] )
-            print '. . .', fields[l], data[l]
         Pemm.save( )
 
         data[last] += 1
@@ -54,11 +53,14 @@ def LoadPermissions():
                 data[j - 1] += 1
 
 
-def UrlGET( **kwargs ):
+# Create string with http params
+#  from id=1,name='user',..
+#  to   ?id=1&name=user
+def UrlParametrs( **kwargs ):
     str = None
-    for key,val in kwargs.items():
+    for key, val in kwargs.items( ):
         if not str: str = '?'
-        else: str += '&amp;'
-        str += '%s=%s' % (key,val)
+        else: str += '&'
+        str += '%s=%s' % (key, urlquote( val ))
 
     return str

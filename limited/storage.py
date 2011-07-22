@@ -118,7 +118,10 @@ class FileStorage( object ):
         return self.path.join( self.home, name )
 
     def delete(self, name):
-        os.remove( self.abspath( name ) )
+        if self.isdir( name ):
+            shutil.rmtree( self.abspath( name ) )
+        else:
+            os.remove( self.abspath( name ) )
 
     def move(self, src, dst):
         src_dir = self.path.dirname( src )

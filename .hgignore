@@ -1,6 +1,6 @@
 syntax: glob
 
-settings.py
+settings*.py
 
 *.pyc
 *.log
@@ -8,5 +8,6 @@ settings.py
 FileManager.ids
 
 debug_toolbar
+extra
 static
 
