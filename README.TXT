@@ -57,3 +57,10 @@ associate members, file libs and permission you can
 in http://domain.com/admin/limited/mhome/
 
 also you can look libs per user in http://domain.com/admin/limited/luser/
+
+[[ Test ]]
+
+Tests better to run in sqlite without debug_toolbar and other helpers.
+They can rais errors and sqlite is much faster and safer to test
+just copy settings and run smth like that
+    python manage.py test limited --settings=settings2
