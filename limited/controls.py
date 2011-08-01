@@ -118,9 +118,9 @@ def Downloads( home, path ):
     return response
 
 
-def MinimizeString( str, length=64, ext=False):
+def truncate_path( str, length=64, ext=False):
     """
-    Minimise long strings.
+    Truncate long path. if ext=True the path extensions will not deleted
 
     long name.ext -> {length}...ext
     or if fail long name - {length}..
@@ -129,8 +129,11 @@ def MinimizeString( str, length=64, ext=False):
         restr = r"^(.{%s}).*\.(\w+)$" % length
         name_ext = re.match( restr, str )
         if name_ext != None:
-            return "%s...%s" % name_ext.groups( )
+            #return "%s..%s" % name_ext.groups( )
+            filename = name_ext.group(1).strip()
+            fileext = name_ext.group(2).strip()
+            return "{0}..{1}".format( filename, fileext )
     if len(str) < length:
         return str
     else:
-        return str[:length] + ".."
+        return str[:length].strip() + ".."

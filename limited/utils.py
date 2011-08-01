@@ -1,6 +1,9 @@
 import os
+
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
+from django.utils.datastructures import SortedDict
 from django.utils.http import urlquote
 
 
@@ -24,19 +27,19 @@ def split_path( path ):
         /root/path1/path2 ->
         root:/root, path1:/root/path2, path2:/root/path1/path2
     """
-    def __split_path( path, data ):
+    def _split_path( path, data ):
         name = os.path.basename( path )
         if name != '':
             newpath = os.path.dirname( path )
-            data = __split_path( newpath, data )
-            data.append( (name, path) )
+            data = _split_path( newpath, data )
+            data[name] = path
             return data
         return data
 
-    return __split_path( path, [] )
+    return _split_path( path, SortedDict() )
 
 
-def LoadPermissions( using=None ):
+def load_permissions( using=None ):
     """
     Enumerate and create all permissions
     For any count of columns in MPermission
@@ -62,7 +65,10 @@ def LoadPermissions( using=None ):
                 data[j - 1] += 1
 
 
-def UrlParametrs( **kwargs ):
+# Create string with http params
+#  from id=1,name='user',..
+#  to   ?id=1&name=user
+def url_params( **kwargs ):
     """
     Create string with http params
 
@@ -78,3 +84,18 @@ def UrlParametrs( **kwargs ):
         str += '%s=%s' % (key, urlquote( val ))
 
     return str
+
+
+def urlbilder( name, *args, **kwargs ):
+    """
+    Create link with http params
+
+    Sample usage::
+
+        from name,id=1,name='user',..
+        to   /url/name/../?id=1&name=user
+    """
+    if kwargs:
+        return reverse( name, args=args ) + url_params( **kwargs )
+    else:
+        return reverse( name, args=args )

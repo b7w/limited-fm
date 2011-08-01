@@ -5,7 +5,7 @@ from django.core.management.color import no_style
 from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
 from limited.models import MPermission
-from limited.utils import LoadPermissions
+from limited.utils import load_permissions
 
 class Command( NoArgsCommand ):
     help = "Flush Permissons table and generat new data for any count of columns in MPermission"
@@ -45,7 +45,7 @@ Are you sure you want to do this?
                 for sql in sql_list:
                     cursor.execute( sql )
                 print "Permissions flushed."
-                transaction.commit_on_success( using=db )( LoadPermissions )( using=db )
+                transaction.commit_on_success( using=db )( load_permissions )( using=db )
                 print "%s permissions loaded." % MPermission.objects.count( )
             except Exception, e:
                 transaction.rollback_unless_managed( using=db )
@@ -55,7 +55,7 @@ Are you sure you want to do this?
             transaction.commit_unless_managed( using=db )
 
         else:
-            print "Cancelled."        
+            print "Cancelled."
         
         
         

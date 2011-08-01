@@ -1,17 +1,44 @@
 # -*- coding: utf-8 -*-
 
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from limited.controls import truncate_path
 
 from limited.models import MFileLib, MPermission
 from limited.storage import FileStorage
-from limited.utils import UrlParametrs
+from limited.utils import split_path,urlbilder
+
 
 class CodeTest( TestCase ):
-    def test_LoadPermissions(self):
+    def test_load_permissions(self):
+        print
+        print '# Management output start'
         call_command( 'loadpermissions', interactive=False )
+        print '# Management end'
+        print
         assert MPermission.objects.count( ) == 2 ** len( MPermission.fields( ) )
+
+    def test_urlbilder(self):
+        assert urlbilder( 'action', 2, "add" ) == "/lib2/action/add/"
+        assert urlbilder( 'link', "hxhxhxhxhx", r='2' ) == "/link/hxhxhxhxhx/?r=2"
+        assert urlbilder( 'link', "habr", r='/path/' ) == "/link/habr/?r=/path/"
+        assert urlbilder( 'action', 2, "add", p='test', n='new dir' ) == "/lib2/action/add/?p=test&n=new%20dir"
+
+    def test_split_path(self):
+        assert split_path( '' ) == {}
+        assert split_path( '/root' ) == {'root':'/root'}
+        assert split_path( '/root/path1' ) == {'root':'/root', 'path1':'/root/path1'}
+        assert split_path( '/root/path1/path2' ) == {'root':'/root', 'path1':'/root/path1', 'path2':'/root/path1/path2'}
+        # test rigth order
+        assert split_path( '/c/b/a' ) == {'c':'/c', 'b':'/c/b', 'a':'/c/b/a'}
+
+    def test_truncate_path(self):
+        assert truncate_path( 'mordovia forever, karapusi must die' ) == 'mordovia forever, karapusi must die'
+        assert truncate_path( 'mordovia forever, karapusi must die', 18 ) == 'mordovia forever,..'
+        assert truncate_path( 'mordovia forever, karapusi must die', 20 ).__len__() == 22
+        assert truncate_path( 'mordovia forever, karapusi must die', 20, True ).__len__() == 22
+        assert truncate_path( 'very long file name.bigext', 20, True ).__len__() == 22
+        assert truncate_path( 'very long file name.txt', 10, True) == 'very long..txt'
 
 
 class ViewsTest( TestCase ):
@@ -75,7 +102,7 @@ class ViewsTest( TestCase ):
 
         self.client.login( username='B7W', password='root' )
         resp = self.client.get( '/' )
-        self.assertEqual( resp.status_code, 200 )
+        assert resp.status_code == 200
         assert 1 in [x.id for x in resp.context['history']]
         assert 2 in [x.id for x in resp.context['history']]
         assert 3 in [x.id for x in resp.context['history']]
@@ -90,50 +117,63 @@ class ViewsTest( TestCase ):
         lib = MFileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.path )
         # add True
-        link = reverse( 'action', args=[lib.id, 'add'] ) + UrlParametrs( p='test', n='new dir' )
+        link = urlbilder( 'action', lib.id, "add", p='test', n='new dir' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'created' in [m.message for m in list( resp.context['messages'] )][0]
         storage.delete( storage.path.join( 'test', 'new dir' ) )
         # delete False
-        link = reverse( 'action', args=[lib.id, 'delete'] ) + UrlParametrs( p='test/Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "delete", p='test/Фото 070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # trash False
-        link = reverse( 'action', args=[lib.id, 'trash'] ) + UrlParametrs( p='test/Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "trash", p='test/Фото 070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # rename False
-        link = reverse( 'action', args=[lib.id, 'rename'] ) + UrlParametrs( p='test/Фото 070.jpg', n='Фото070.jpg' )
+        link = urlbilder( 'action', lib.id, "rename", p='test/Фото 070.jpg', n='Фото070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # move False
-        link = reverse( 'action', args=[lib.id, 'move'] ) + UrlParametrs( p='test/Фото 070.jpg', n='/' )
+        link = urlbilder( 'action', lib.id, "move", p='test/Фото 070.jpg', n='/' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # link True
-        link = reverse( 'action', args=[lib.id, 'link'] ) + UrlParametrs( p='test/Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "link", p='test/Фото 070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'link' in [m.message for m in list( resp.context['messages'] )][0]
         # zip False
-        link = reverse( 'action', args=[lib.id, 'zip'] ) + UrlParametrs( p='test/Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "zip", p='test/Фото 070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # size very simple dir test
-        link = reverse( 'action', args=[lib.id, 'size'] ) + UrlParametrs( p='debug_toolbar' )
+        link = urlbilder( 'action', lib.id, "size", p='debug_toolbar' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert '672.5 KB' in resp.content
+
+    def test_Path_Arr(self):
+        """
+        Test ``class="breadcrumbs"`` in html or ``patharr`` in template interpretation.
+
+        The order is not important because we already check it in ``CodeTest.test_split_path``
+        """
+        link = urlbilder( 'browser', 1, p='limited/templatetags' )
+        resp = self.client.get( link )
+        assert '<a href="/">#Home</a>' in resp.content
+        assert '<a href="/lib1/">FileManager</a>' in resp.content
+        assert '<a href="/lib1/?p=limited">limited</a>' in resp.content
+        assert 'templatetags' in resp.content

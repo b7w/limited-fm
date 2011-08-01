@@ -43,7 +43,7 @@
             › <a href="{% url browser home_id %}">{{ home }}</a>
         {% endif %}
 
-        {% for key,value in patharr %}
+        {% for key,value in patharr.iteritems %}
             {% if not forloop.last %}
             › <a href="{% url browser home_id %}?p={{ value }}">{{ key }}</a>
             {% else %}

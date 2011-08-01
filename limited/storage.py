@@ -10,6 +10,7 @@ import urllib
 import zipfile
 from django.core.cache import cache
 from django.utils.encoding import smart_str
+from django.utils.http import urlquote
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +231,7 @@ class FileStorage( object ):
             return os.path.getsize( self.abspath( name ) )
 
         if dir and self.isdir( self.abspath( name ) ):
-            key = md5( smart_str( name ) ).hexdigest( )
+            key = md5( 'storage.size' + smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
             if size: return size
 
@@ -264,7 +265,7 @@ class FileStorage( object ):
         zip.extractall( self.path.dirname( file ) )
 
     def url(self, name):
-        return name
+        return urlquote(name)
 
     def available_name(self, path):
         # if file exists add [i] to file name
