@@ -21,6 +21,11 @@ from limited.utils import split_path, HttpResponseReload
 logger = logging.getLogger(__name__)
 
 def Index( request ):
+    """
+    Index page with list of available libs for user and history widget
+
+    template :template:`limited/index.html`
+    """
     user = request.user
     if not isUserCanView( user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
@@ -60,6 +65,11 @@ def Index( request ):
 
 @csrf_exempt
 def Browser( request, id ):
+    """
+    Main browser and history widget
+
+    template :template:`limited/browser.html`
+    """
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
@@ -99,7 +109,11 @@ def Browser( request, id ):
 
 
 def History( request, id ):
+    """
+    Fool history browser
 
+    template :template:`limited/history.html`
+    """
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
@@ -130,6 +144,11 @@ def History( request, id ):
 
 
 def Trash( request, id ):
+    """
+    Trash folder browser, with only move and delete actions and root directory
+    
+    template :template:`limited/trash.html`
+    """
     if not isUserCanView( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
@@ -170,9 +189,12 @@ def Trash( request, id ):
         'files': files,
         } )
 
-# Action add, delete, rename, movem link
-# GET 'h' - home id, 'p' - path
+
 def Action( request, id, command ):
+    """
+    Action add, delete, rename, movem link
+    GET 'h' - home id, 'p' - path
+    """
     lib_id = int( id )
     path = request.GET.get('p', '')
     
@@ -342,10 +364,12 @@ def Action( request, id, command ):
     return HttpResponseReload( request )
 
 
-# Files upload to
-# POST 'h' - home id, 'p' - path, 'files'
 @csrf_exempt
 def Upload( request, id ):
+    """
+    Files upload to
+    POST 'h' - home id, 'p' - path, 'files'
+    """
     if request.method == 'POST':
         try:
             lib_id = int(id)
@@ -383,9 +407,11 @@ def Upload( request, id ):
     return HttpResponseReload( request )
 
 
-# Download files, folders whit checked permissions
-# GET 'h' - home id, 'p' - path
 def Download( request, id ):
+    """
+    Download files, folders whit checked permissions
+    GET 'h' - home id, 'p' - path
+    """
     if request.method == 'GET':
         if not isUserCanView( request.user ):
             return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
@@ -404,8 +430,11 @@ def Download( request, id ):
         return response
 
 
-# If link exist Download whitout any permission
 def Link( request, hash ):
+    """
+    If link exist Download whitout any permission
+    """
+    
     # Filter kinks where hash and `time`+ `maxage` > NOW()
     # if len == 0 send error
     # +! work only with MySQL
@@ -427,6 +456,9 @@ def Link( request, hash ):
 
 
 def RenderError( request, message ):
+    """
+    Just link for template :template:`limited/error.html`
+    """
     return render( request, "limited/error.html", {
         'message': message,
         } )

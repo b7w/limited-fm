@@ -6,12 +6,16 @@ from limited.controls import MinimizeString
 
 register = template.Library()
 
-# Minimize file path
-# arg "int.(ext|noext)"
-# arg "(ext|noext)"
-# arg "int"
+
 @register.filter
 def mini( value, arg=None ):
+    """
+    Minimize/truncate file path. Can cut extensions or not.
+    
+    * arg:  "int.(ext|noext)"
+    * arg:  "(ext|noext)"
+    * arg:  "int"
+    """
     if arg != None:
         len, ext = re.match( r"^(\d+)?\.?(\w+)?$", arg ).groups( )
         if len != None and ext != None:
@@ -29,10 +33,17 @@ def mini( value, arg=None ):
     return MinimizeString( value )
 
 
-# join paths by '/'
-# without adding first '/'
 @register.tag
 def joinpath(parser, token):
+    """
+    Join paths by '/', without adding first '/'.
+    can save result in variable in such way ``as name``
+
+    Sample usage::
+    
+        {% joinpath "/" item.path item.name as path %}
+        {{ path|mini }}
+    """
     args = token.split_contents( )[1:]
     if len(args) > 3:
         if args[-2] == "as":
@@ -40,8 +51,11 @@ def joinpath(parser, token):
 
     return JoinPathNode( args )
 
-# template.Node class for joinpath tag
+
 class JoinPathNode( template.Node ):
+    """
+    ``Template.Node`` class for ``joinpath`` tag
+    """
     def __init__(self, args, asvar=None ):
         self.args = [ template.Variable( x ) for x in args ]
         self.asvar = asvar

@@ -13,11 +13,17 @@ class HttpResponseReload( HttpResponse ):
         self['Location'] = iri_to_uri( referer or "/" )
 
 
-# Split path for folders name
-# with path fot this name
-#   example: /root/path1/path2
-#       root:/root, path1:/root/path2, path2:/root/path1/path2
+
 def split_path( path ):
+    """
+    Split path for folders name
+    with path fot this name
+
+    Example::
+
+        /root/path1/path2 ->
+        root:/root, path1:/root/path2, path2:/root/path1/path2
+    """
     def __split_path( path, data ):
         name = os.path.basename( path )
         if name != '':
@@ -29,9 +35,12 @@ def split_path( path ):
 
     return __split_path( path, [] )
 
-# Enumerate and create all permissions
-# For any count of columns in MPermission
+
 def LoadPermissions():
+    """
+    Enumerate and create all permissions
+    For any count of columns in MPermission
+    """
     from limited.models import MPermission
 
     fields = MPermission.fields()
@@ -53,10 +62,15 @@ def LoadPermissions():
                 data[j - 1] += 1
 
 
-# Create string with http params
-#  from id=1,name='user',..
-#  to   ?id=1&name=user
 def UrlParametrs( **kwargs ):
+    """
+    Create string with http params
+
+    Sample usage::
+
+        from id=1,name='user',..
+        to   ?id=1&name=user
+    """
     str = None
     for key, val in kwargs.items( ):
         if not str: str = '?'

@@ -13,8 +13,10 @@ from limited.models import MHome, MFileLib, MPermission
 from limited.storage import FileStorage
 
 
-# If user can view or need login
 def isUserCanView( user ):
+    """
+    If user can view or need login
+    """
     if user.is_authenticated( ):
         return True
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
@@ -22,10 +24,12 @@ def isUserCanView( user ):
     return False
 
 
-# Get MHome plus related FileLib
-# depending on is_authenticated or not
-# and LIMITED_ANONYMOUS
 def getHome( user, lib_id ):
+    """
+    Get MHome plus related FileLib
+    depending on is_authenticated or not
+    and LIMITED_ANONYMOUS
+    """
     if user.is_authenticated( ):
         if user.is_superuser:
             home = MHome()
@@ -52,10 +56,12 @@ def getHome( user, lib_id ):
         return MHome.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
 
 
-# Get MHome plus related FileLib
-# depending on is_authenticated or not
-# and LIMITED_ANONYMOUS
 def getHomes( user ):
+    """
+    Get MHome plus related FileLib
+    depending on is_authenticated or not
+    and LIMITED_ANONYMOUS
+    """
     if user.is_authenticated( ):
         if user.is_superuser:
             homes = []
@@ -69,17 +75,21 @@ def getHomes( user ):
         return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
 
 
-# Return normal User obj for anon
 def getUser( user ):
+    """
+    Return normal User obj for anon
+    """
     if user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         return User.objects.get( id=settings.LIMITED_ANONYMOUS_ID )
     return user
 
 
-# Return HttpResponse obj
-# with file attachment
-# or zip temp folder attachment
 def Downloads( home, path ):
+    """
+    Return HttpResponse obj
+    with file attachment
+    or zip temp folder attachment
+    """
     File = FileStorage( home )
     response = None
 
@@ -108,10 +118,13 @@ def Downloads( home, path ):
     return response
 
 
-# Minimise long strings
-#  long name.ext -> {length}...ext
-#  or if fail long name - {length}..
 def MinimizeString( str, length=64, ext=False):
+    """
+    Minimise long strings.
+
+    long name.ext -> {length}...ext
+    or if fail long name - {length}..
+    """
     if ext == True:
         restr = r"^(.{%s}).*\.(\w+)$" % length
         name_ext = re.match( restr, str )
