@@ -13,12 +13,16 @@ from django.utils.encoding import smart_str
 
 logger = logging.getLogger(__name__)
 
-# File Storage Error
 class FileError( Exception ):
+    """
+    File Storage Error
+    """
     pass
 
-# File not Found Storage Error
 class FileNotExist( FileError ):
+    """
+    File not Found Storage Error
+    """
     pass
 
 class StoragePath( object ):
@@ -31,10 +35,12 @@ class StoragePath( object ):
     def dirname(self, path):
         return os.path.dirname( path )
 
-    # If src include '../' or './'
-    #  join root and src and normalise it
-    # Else return src
     def norm(self, root, src ):
+        """
+        If src include '../' or './'
+          join root and src and normalise it
+        Else return src
+        """
         if src.find( '../' ) != -1 or src.find( './' ) != -1:
             path = self.join( root, src )
             path = os.path.normpath( path )
@@ -48,9 +54,12 @@ class StoragePath( object ):
             path = path[1:]
         return path
 
-# List files recursive
-# Return dict { abspath : path from root }
+
 def ListFiles( root, dir='', array={ } ):
+    """
+    List files recursive.
+    Return dict { abspath : path from root }
+    """
     absdir = os.path.join( root, dir )
     for name in os.listdir( absdir ):
         fullpath = os.path.join( absdir, name )
@@ -64,10 +73,13 @@ def ListFiles( root, dir='', array={ } ):
 
     return array
 
-# Download file from url in a thread.
-# So big files can be download without stopping django process
-# While downloading, file has name '[Download]{Name}'
+
 class DownloadThread( threading.Thread ):
+    """
+    Download file from url in a thread.
+    So big files can be download without stopping django process
+    While downloading, file has name '[Download]{Name}'
+    """
     def __init__(self, url, file, *args, **kwargs):
         super( DownloadThread, self ).__init__( *args, **kwargs )
         self.url = url
@@ -188,9 +200,11 @@ class FileStorage( object ):
         files = sorted( files, key=lambda strut: strut['class'] )
         return files
 
-    # List files recursive
-    # Return dict { abspath : path from root }
     def listfiles(self, path, dir='', array={ } ):
+        """
+        List files recursive.
+        Return dict { abspath : path from root }
+        """
         root = self.abspath( path )
         absdir = os.path.join( root, dir )
         for name in os.listdir( absdir ):
@@ -205,8 +219,10 @@ class FileStorage( object ):
 
         return array
 
-    # return dir and files size
     def size(self, name, dir=False, cached=True):
+        """
+        return dir and files size
+        """
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
 
