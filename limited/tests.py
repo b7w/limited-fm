@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from limited.models import MFileLib
+from django.test import TestCase
+
+from limited.models import MFileLib, MPermission
 from limited.storage import FileStorage
 from limited.utils import UrlParametrs
 
+class CodeTest( TestCase ):
+    def test_LoadPermissions(self):
+        call_command( 'loadpermissions', interactive=False )
+        assert MPermission.objects.count( ) == 2 ** len( MPermission.fields( ) )
 
-class SimpleTest( TestCase ):
+
+class ViewsTest( TestCase ):
     fixtures = ['dump.json']
 
     def test_Admin_Homes(self):

@@ -36,7 +36,7 @@ def split_path( path ):
     return __split_path( path, [] )
 
 
-def LoadPermissions():
+def LoadPermissions( using=None ):
     """
     Enumerate and create all permissions
     For any count of columns in MPermission
@@ -53,7 +53,7 @@ def LoadPermissions():
         Pemm = MPermission( )
         for l in range( count ):
             setattr( Pemm, fields[l], data[l] )
-        Pemm.save( )
+        Pemm.save( using=using )
 
         data[last] += 1
         for j in reversed( rng ):
