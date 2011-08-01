@@ -13,7 +13,7 @@ from limited.models import MHome, MFileLib, MPermission
 from limited.storage import FileStorage
 
 
-def isUserCanView( user ):
+def is_login_need( user ):
     """
     If user can view or need login
     """
@@ -24,7 +24,7 @@ def isUserCanView( user ):
     return False
 
 
-def getHome( user, lib_id ):
+def get_home( user, lib_id ):
     """
     Get MHome plus related FileLib
     depending on is_authenticated or not
@@ -56,7 +56,7 @@ def getHome( user, lib_id ):
         return MHome.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
 
 
-def getHomes( user ):
+def get_homes( user ):
     """
     Get MHome plus related FileLib
     depending on is_authenticated or not
@@ -75,7 +75,7 @@ def getHomes( user ):
         return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
 
 
-def getUser( user ):
+def get_user( user ):
     """
     Return normal User obj for anon
     """
@@ -84,7 +84,7 @@ def getUser( user ):
     return user
 
 
-def Downloads( home, path ):
+def file_response( home, path ):
     """
     Return HttpResponse obj
     with file attachment

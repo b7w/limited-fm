@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, FileError, FileNotExist
 from limited.models import MHome, MHistory, PermissionError, MLink, MFileLib
-from limited.controls import Downloads, getHome, isUserCanView, getHomes, getUser
+from limited.controls import file_response, get_home, is_login_need, get_homes, get_user
 from limited.utils import split_path, HttpResponseReload
 
 logger = logging.getLogger(__name__)
@@ -27,10 +27,10 @@ def Index( request ):
     template :template:`limited/index.html`
     """
     user = request.user
-    if not isUserCanView( user ):
+    if not is_login_need( user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    Homes = getHomes( user )
+    Homes = get_homes( user )
 
     # get ids for SELECT HAVE statement
     libs = []
@@ -70,14 +70,14 @@ def Browser( request, id ):
 
     template :template:`limited/browser.html`
     """
-    if not isUserCanView( request.user ):
+    if not is_login_need( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
     path = request.GET.get('p', '')
 
     try:
-        Home = getHome( request.user, lib_id)
+        Home = get_home( request.user, lib_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -114,13 +114,13 @@ def History( request, id ):
 
     template :template:`limited/history.html`
     """
-    if not isUserCanView( request.user ):
+    if not is_login_need( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
 
     try:
-        Home = getHome( request.user, lib_id)
+        Home = get_home( request.user, lib_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -149,13 +149,13 @@ def Trash( request, id ):
     
     template :template:`limited/trash.html`
     """
-    if not isUserCanView( request.user ):
+    if not is_login_need( request.user ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
 
     try:
-        Home = getHome( request.user, lib_id)
+        Home = get_home( request.user, lib_id)
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -198,8 +198,8 @@ def Action( request, id, command ):
     lib_id = int( id )
     path = request.GET.get('p', '')
     
-    Home = getHome( request.user, lib_id)
-    user = getUser( request.user )
+    Home = get_home( request.user, lib_id)
+    user = get_user( request.user )
     Storage = FileStorage( Home.lib.path )
 
     history = MHistory( lib=Home.lib )
@@ -375,12 +375,12 @@ def Upload( request, id ):
             lib_id = int(id)
             path = request.POST['p']
 
-            home = getHome( request.user, lib_id)
+            home = get_home( request.user, lib_id)
             if not home.permission.upload:
                 raise PermissionError( u'You have no permission to upload' )
 
-            user = getUser( request.user )
-            Storage = FileStorage( home.lib.path )
+            user = get_user( request.user )
+            storage = FileStorage( home.lib.path )
 
             files = request.FILES.getlist( 'files' )
             # if files > 3 just send message 'Uploaded N files'
@@ -388,14 +388,14 @@ def Upload( request, id ):
                 history = MHistory( user=user, lib=home.lib, type=MHistory.UPLOAD, path=path )
                 history.name = "%s files" % len( files )
                 for file in files:
-                    fool_path = Storage.path.join( path, file.name )
-                    Storage.save( fool_path, file )
+                    fool_path = storage.path.join( path, file.name )
+                    storage.save( fool_path, file )
                 history.save( )
             # else create message for each file
             else:
                 for file in files:
-                    fool_path = Storage.path.join( path, file.name )
-                    Storage.save( fool_path, file )
+                    fool_path = storage.path.join( path, file.name )
+                    storage.save( fool_path, file )
                     history = MHistory( user=user, lib=home.lib, type=MHistory.UPLOAD, path=path )
                     history.name = file.name
                     history.save( )
@@ -413,15 +413,15 @@ def Download( request, id ):
     GET 'h' - home id, 'p' - path
     """
     if request.method == 'GET':
-        if not isUserCanView( request.user ):
+        if not is_login_need( request.user ):
             return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
         lib_id = int( id )
         path = request.GET.get('p', '')
 
-        Home = getHome( request.user, lib_id)
+        Home = get_home( request.user, lib_id)
 
-        response = Downloads( Home.lib.path, path )
+        response = file_response( Home.lib.path, path )
 
         if not response:
             logger.error( "Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, smart_str(path) ) )
@@ -447,7 +447,7 @@ def Link( request, hash ):
     link = link[0]
 
     Lib = MFileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
-    response = Downloads( Lib.path, link.path )
+    response = file_response( Lib.path, link.path )
     if not response:
         logger.error( "Link. No file or directory find. hash:{0}".format( hash ) )
         return RenderError( request, 'No file or directory find' )
