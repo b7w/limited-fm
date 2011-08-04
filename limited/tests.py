@@ -115,7 +115,7 @@ class ViewsTest( TestCase ):
         with  ID5: Edit False, Move False, Delete False, Create True, Upload False, Http_get False,
         """
         lib = MFileLib.objects.get( name='FileManager' )
-        storage = FileStorage( lib.path )
+        storage = FileStorage( lib.get_path() )
         # add True
         link = urlbilder( 'action', lib.id, "add", p='test', n='new dir' )
         resp = self.client.get( link, follow=True )

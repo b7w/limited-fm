@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
-from django.utils.encoding import smart_str, smart_unicode
+from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
 from limited.storage import FileStorage, FileError, FileNotExist
@@ -77,7 +77,7 @@ def Browser( request, id ):
     path = request.GET.get('p', '')
 
     try:
-        Home = get_home( request.user, lib_id)
+        Home = get_home( request.user, lib_id )
 
         history = MHistory.objects.\
                   select_related( 'user' ).\
@@ -87,14 +87,15 @@ def Browser( request, id ):
 
         patharr = split_path( path )
 
-        File = FileStorage( Home.lib.path )
+        logger.debug( Home.lib.get_path() )
+        File = FileStorage( Home.lib.get_path() )
         files = File.listdir( path )
 
     except MHome.DoesNotExist:
-        logger.error( u"Browser. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, smart_str(path) ) )
+        logger.error( u"Browser. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
     except FileError as e:
-        logger.error( u"Browser. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+        logger.error( u"Browser. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
         return RenderError( request, e )
 
     return render( request, u"limited/browser.html", {
@@ -165,7 +166,7 @@ def Trash( request, id ):
 
         patharr = split_path( 'Trash' )
 
-        File = FileStorage( Home.lib.path )
+        File = FileStorage( Home.lib.get_path() )
         if not File.exists( u".TrashBin" ):
             File.mkdir( u".TrashBin" )
         files = File.listdir( u".TrashBin" )
@@ -200,7 +201,7 @@ def Action( request, id, command ):
     
     Home = get_home( request.user, lib_id)
     user = get_user( request.user )
-    Storage = FileStorage( Home.lib.path )
+    Storage = FileStorage( Home.lib.get_path() )
 
     history = MHistory( lib=Home.lib )
     history.path = Storage.path.dirname( path )
@@ -226,10 +227,10 @@ def Action( request, id, command ):
                 #history.save( )
 
         except FileError as e:
-            logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
-            logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Delete from FS
@@ -244,10 +245,10 @@ def Action( request, id, command ):
             history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
-            logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
-            logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Move to special directory
@@ -262,10 +263,10 @@ def Action( request, id, command ):
             history.name = Storage.path.name( path )
             history.save( )
         except FileError as e:
-            logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
-            logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'n' - new file name
@@ -284,7 +285,7 @@ def Action( request, id, command ):
             logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
-            logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_unicode(path) ) )
+            logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'p2' - new directory path
@@ -302,10 +303,10 @@ def Action( request, id, command ):
             history.path = path2
             history.save( )
         except FileError as e:
-            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except PermissionError as e:
-            logger.error( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     elif command == u"link":
@@ -335,11 +336,11 @@ def Action( request, id, command ):
                 history.path = Storage.path.dirname( path )
                 history.save( )
             else:
-                logger.error( u"Action link. You have no permission to create links. home_id:{0}, path:{0}".format( lib_id, smart_str(path) ) )
+                logger.error( u"Action link. You have no permission to create links. home_id:{0}, path:{0}".format( lib_id, path ) )
                 raise PermissionError( u"You have no permission to create links" )
 
         except PermissionError as e:
-            logger.errorlogger.error( u"Action link. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.errorlogger.error( u"Action link. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     elif command == u"zip":
@@ -352,7 +353,7 @@ def Action( request, id, command ):
             else:
                 Storage.zip( path )
         except PermissionError as e:
-            logger.error( u"Action zip. {0}. home_id:{1}, path:{2}".format( e, lib_id, smart_str(path) ) )
+            logger.error( u"Action zip. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     elif command == u"size":
@@ -380,7 +381,7 @@ def Upload( request, id ):
                 raise PermissionError( u"You have no permission to upload" )
 
             user = get_user( request.user )
-            storage = FileStorage( home.lib.path )
+            storage = FileStorage( home.lib.get_path() )
 
             files = request.FILES.getlist( u'files' )
             # if files > 3 just send message 'Uploaded N files'
@@ -401,7 +402,7 @@ def Upload( request, id ):
                     history.save( )
         except PermissionError as e:
             dfiles = [u"{0}:{1}".format(x.name,x.size) for x in files]
-            logger.error( u"Upload. {0}. home_id:{1}, path:{2}, files:{3}".format( e, lib_id, smart_str(path), dfiles ) )
+            logger.error( u"Upload. {0}. home_id:{1}, path:{2}, files:{3}".format( e, lib_id, path, dfiles ) )
             messages.error( request, e )
 
     return HttpResponseReload( request )
@@ -421,10 +422,10 @@ def Download( request, id ):
 
         Home = get_home( request.user, lib_id)
 
-        response = file_response( Home.lib.path, path )
+        response = file_response( Home.lib.get_path(), path )
 
         if not response:
-            logger.error( u"Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, smart_str(path) ) )
+            logger.error( u"Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, path ) )
             return RenderError( request, u"No file or directory find" )
 
         return response
@@ -447,7 +448,7 @@ def Link( request, hash ):
     link = link[0]
 
     Lib = MFileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
-    response = file_response( Lib.path, link.path )
+    response = file_response( Lib.get_path(), link.path )
     if not response:
         logger.error( u"Link. No file or directory find. hash:{0}".format( hash ) )
         return RenderError( request, u"No file or directory find" )

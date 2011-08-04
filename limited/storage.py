@@ -227,11 +227,12 @@ class FileStorage( object ):
         """
         return dir and files size
         """
+        logger.debug( self.abspath( name ) )
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
 
         if dir and self.isdir( self.abspath( name ) ):
-            key = md5( u"storage.size" + smart_str( name ) ).hexdigest( )
+            key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
             if size: return size
 

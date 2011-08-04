@@ -1,8 +1,12 @@
 from datetime import timedelta
+import os
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
 from django.db import models
 # Create your models here.
+from limited.storage import StoragePath
 
 class PermissionError( Exception ):
     pass
@@ -48,9 +52,14 @@ class MPermission( models.Model ):
 
 
 class MFileLib( models.Model ):
+    validators = [ RegexValidator(r"^\w+.*$","Path can start only with letter or namber" ), ]
+
     name = models.CharField( max_length=64, null=False )
     description = models.CharField( max_length=256, null=False )
-    path = models.CharField( max_length=256, null=False )
+    path = models.CharField( max_length=256, null=False, validators=validators )
+
+    def get_path(self):
+        return StoragePath().join( settings.LIMITED_ROOT_PATH, self.path )
 
     class Meta:
         db_table = 'FileLib'

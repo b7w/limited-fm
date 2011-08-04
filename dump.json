@@ -1020,7 +1020,7 @@
         "pk": 1, 
         "model": "limited.mfilelib", 
         "fields": {
-            "path": "./", 
+            "path": "",
             "name": "FileManager", 
             "description": "FileManager running files"
         }
@@ -1029,7 +1029,7 @@
         "pk": 2, 
         "model": "limited.mfilelib", 
         "fields": {
-            "path": "./test", 
+            "path": "test",
             "name": "Test", 
             "description": "FM Test dir"
         }

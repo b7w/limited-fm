@@ -1,4 +1,5 @@
 import os
+from django.core.exceptions import ValidationError
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -65,9 +66,6 @@ def load_permissions( using=None ):
                 data[j - 1] += 1
 
 
-# Create string with http params
-#  from id=1,name='user',..
-#  to   ?id=1&name=user
 def url_params( **kwargs ):
     """
     Create string with http params

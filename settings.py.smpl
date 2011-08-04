@@ -174,3 +174,7 @@ LOGIN_URL = "/login/"
 # Need user "Anonymous" in DB
 LIMITED_ANONYMOUS = True
 LIMITED_ANONYMOUS_ID = 2
+
+# Root path to witch
+# MFileLib.path will be added
+LIMITED_ROOT_PATH = "/home/user"

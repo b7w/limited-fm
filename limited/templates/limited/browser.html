@@ -114,7 +114,7 @@
                         {% endif %}
                     </div>
                 </td>
-                <td class="nowrap size">{% if item.size == 0 %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
+                <td class="nowrap size">{% if item.class == 'dir' %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
                 <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
             </tr>
         {% endfor %}
