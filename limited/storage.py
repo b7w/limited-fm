@@ -46,7 +46,7 @@ class StoragePath( object ):
             path = self.join( root, src )
             path = os.path.normpath( path )
             if path.find( '../' ) != -1 or path.find( './' ) != -1:
-                raise FileError( "Wrong path '%s'" % path )
+                raise FileError( u"Wrong path '%s'" % path )
         else:
             path = src
 
@@ -89,11 +89,11 @@ class DownloadThread( threading.Thread ):
     def run(self):
         try:
             path, name = os.path.split( self.file )
-            file = os.path.join( path, '[Downloading]' + name )
+            file = os.path.join( path, u"[Downloading]" + name )
             urllib.urlretrieve( self.url, file )
             os.rename( file, self.file )
         except Exception as e:
-            logger.error( "DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
+            logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
             if os.path.exists( self.file ):
                 os.remove( self.file )
 
@@ -124,7 +124,7 @@ class FileStorage( object ):
 
     def mkdir(self, name):
         if self.exists( name ):
-            raise FileError( "Directory '%s' already exists" % name )
+            raise FileError( u"Directory '%s' already exists" % name )
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
@@ -139,11 +139,11 @@ class FileStorage( object ):
     def move(self, src, dst):
         src_dir = self.path.dirname( src )
         if src_dir == dst:
-            raise FileError( "Moving to the same directory" )
+            raise FileError( u"Moving to the same directory" )
         if not self.exists( src ):
-            raise FileNotExist( "'%s' not found" % src )
+            raise FileNotExist( u"'%s' not found" % src )
         if not self.exists( dst ):
-            raise FileNotExist( "'%s' not found" % dst )
+            raise FileNotExist( u"'%s' not found" % dst )
 
         name = self.path.name( src )
 
@@ -153,9 +153,9 @@ class FileStorage( object ):
 
     def rename(self, path, name):
         if '/' in name:
-            raise FileError( "'%s' contains not supported symbols" % name )
+            raise FileError( u"'%s' contains not supported symbols" % name )
         if not self.exists( path ):
-            raise FileNotExist( "'%s' not found" % path )
+            raise FileNotExist( u"'%s' not found" % path )
         new_path = self.path.join( self.path.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
@@ -163,10 +163,10 @@ class FileStorage( object ):
 
     def totrash(self, name):
         if not self.exists( name ):
-            raise FileNotExist( '%s not found' % name )
-        if not self.exists( '.TrashBin' ):
-            self.mkdir( '.TrashBin' )
-        self.move( name, '.TrashBin' )
+            raise FileNotExist( u"%s not found" % name )
+        if not self.exists( u".TrashBin" ):
+            self.mkdir( u".TrashBin"  )
+        self.move( name, u".TrashBin"  )
 
     def exists(self, name):
         return os.path.exists( self.abspath( name ) )
@@ -179,7 +179,7 @@ class FileStorage( object ):
 
     def listdir(self, path, hidden=False):
         if not (self.exists( path ) and self.isdir( path ) ):
-            raise FileNotExist( "path '%s' doesn't exist or it isn't a directory" % path )
+            raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
 
         tmp = os.listdir( self.abspath( path ) )
         files = []
@@ -231,7 +231,7 @@ class FileStorage( object ):
             return os.path.getsize( self.abspath( name ) )
 
         if dir and self.isdir( self.abspath( name ) ):
-            key = md5( 'storage.size' + smart_str( name ) ).hexdigest( )
+            key = md5( u"storage.size" + smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
             if size: return size
 
@@ -244,7 +244,7 @@ class FileStorage( object ):
         return 0
 
     def zip(self, path ):
-        file = self.abspath( path ) + '.zip'
+        file = self.abspath( path ) + u".zip"
         file = self.available_name( file )
         temp = open( file, mode='w' )
         archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
@@ -262,7 +262,12 @@ class FileStorage( object ):
     def unzip(self, path ):
         file = self.abspath( path )
         zip = zipfile.ZipFile( file )
-        zip.extractall( self.path.dirname( file ) )
+        # To lazy to do converting
+        # maybe chardet help later
+        try:
+            zip.extractall( self.path.dirname( file ) )
+        except UnicodeDecodeError as e:
+            raise FileError( u"Unicode decode error, try unzip yourself" )
 
     def url(self, name):
         return urlquote(name)

@@ -12,8 +12,8 @@ class HttpResponseReload( HttpResponse ):
 
     def __init__(self, request):
         HttpResponse.__init__( self )
-        referer = request.META.get( 'HTTP_REFERER' )
-        self['Location'] = iri_to_uri( referer or "/" )
+        referer = request.META.get( u"HTTP_REFERER" )
+        self[u"Location"] = iri_to_uri( referer or "/" )
 
 
 
@@ -81,7 +81,7 @@ def url_params( **kwargs ):
     for key, val in kwargs.items( ):
         if not str: str = '?'
         else: str += '&'
-        str += '%s=%s' % (key, urlquote( val ))
+        str += u"%s=%s" % (key, urlquote( val ))
 
     return str
 

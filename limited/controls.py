@@ -96,9 +96,9 @@ def file_response( home, path ):
     if File.isfile( path ):
         wrapper = FileWrapper( File.open( path ) )
         #wrapper = File.open( path ).read( )
-        response = HttpResponse( wrapper, content_type='application/force-download' )
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( File.path.name( path ) )
-        response['Content-Length'] = File.size( path )
+        response = HttpResponse( wrapper, content_type=u"application/force-download" )
+        response[u"Content-Disposition"] = u"attachment; filename=%s" % smart_str( File.path.name( path ) )
+        response[u"Content-Length"] = File.size( path )
 
     elif File.isdir( path ):
         temp = tempfile.TemporaryFile( )
@@ -110,9 +110,9 @@ def file_response( home, path ):
 
         archive.close( )
         wrapper = FileWrapper( temp )
-        response = HttpResponse( wrapper, content_type='application/zip' )
-        response['Content-Disposition'] = 'attachment; filename=%s.zip' % smart_str( File.path.name( path ) )
-        response['Content-Length'] = temp.tell( )
+        response = HttpResponse( wrapper, content_type=u"application/zip" )
+        response[u"Content-Disposition"] = u"attachment; filename=%s.zip" % smart_str( File.path.name( path ) )
+        response[u"Content-Length"] = temp.tell( )
         temp.seek( 0 )
 
     return response
@@ -132,8 +132,8 @@ def truncate_path( str, length=64, ext=False):
             #return "%s..%s" % name_ext.groups( )
             filename = name_ext.group(1).strip()
             fileext = name_ext.group(2).strip()
-            return "{0}..{1}".format( filename, fileext )
+            return u"{0}..{1}".format( filename, fileext )
     if len(str) < length:
         return str
     else:
-        return str[:length].strip() + ".."
+        return str[:length].strip() + u".."

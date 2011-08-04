@@ -46,7 +46,7 @@ def joinpath(parser, token):
     """
     args = token.split_contents( )[1:]
     if len(args) > 3:
-        if args[-2] == "as":
+        if args[-2] == u"as":
             return JoinPathNode( args[0:-2], args[-1] )
 
     return JoinPathNode( args )
