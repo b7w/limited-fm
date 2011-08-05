@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin
+from django.utils.dateformat import format
 
 from limited.models import FileLib, Permission, Home, History, Link, LUser
 
@@ -87,6 +88,9 @@ admin.site.register( History, AdminHistory )
 class AdminLink( admin.ModelAdmin ):
     list_display = ( 'path', 'lib', 'hash', 'expires', 'time', )
     list_filter = ( 'time', )
+
+    def expires(self, obj):
+        return format( obj.expires(), "N j, Y, P" )
 
 admin.site.register( Link, AdminLink )
 

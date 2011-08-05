@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from django.core.management import call_command
+from django.template import Token, TOKEN_BLOCK
+from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
+from django.utils.html import escape
 from limited.controls import truncate_path
 
-from limited.models import FileLib, Permission
+from limited.models import FileLib, Permission, History, Link, Home
 from limited.storage import FileStorage
-from limited.utils import split_path,urlbilder
+from limited.templatetags.limited_filters import truncatepath, joinpath
+from limited.utils import split_path, urlbilder
 
 
 class CodeTest( TestCase ):
+    fixtures = ['dump.json']
+    
     def test_load_permissions(self):
         print
         print '# Management output start'
@@ -39,6 +48,96 @@ class CodeTest( TestCase ):
         assert truncate_path( 'mordovia forever, karapusi must die', 20, True ).__len__() == 22
         assert truncate_path( 'very long file name.bigext', 20, True ).__len__() == 22
         assert truncate_path( 'very long file name.txt', 10, True) == 'very long..txt'
+        
+    def test_filter_truncate_path(self):
+        assert truncatepath( 'test case '*8 ).__len__() == 64+2
+        assert truncatepath( 'test case '*8 , '32' ).__len__() == 32+2
+        
+        assert truncatepath( 'test case '*8 + '.ext' , 'ext' ).endswith('..ext') == True
+        assert truncatepath( 'test case '*8 + '.ext' , 'ext' ).__len__() == 64+2+3
+        assert truncatepath( 'test case '*8 + '.ext' , 'noext' ).endswith('..') == True
+        assert truncatepath( 'test case '*8 + '.ext' , 'noext' ).__len__() == 64+2
+        
+        assert truncatepath( 'test case '*8 + '.ext' , '32.ext' ).endswith('..ext') == True
+        assert truncatepath( 'test case '*8 + '.ext' , '32.ext' ).__len__() == 32+2+3
+        assert truncatepath( 'test case '*8 + '.ext' , '32.noext' ).endswith('..') == True
+        assert truncatepath( 'test case '*8 + '.ext' , '32.noext' ).__len__() == 32+2
+
+    def test_tag_joinpath(self):
+        token = Token( TOKEN_BLOCK, "{% 'path' 'path2'" )
+        node = joinpath( None, token )
+        assert [ item.resolve( {} ) for item in node.args ] == [ 'path', 'path2' ]
+        assert node.asvar == None
+
+        token = Token( TOKEN_BLOCK, "{% 'path' 'path2' as var" )
+        node = joinpath( None, token )
+        context = { 'var' : 'xxx', }
+        assert [ item.resolve( context ) for item in node.args ] == [ 'path', 'path2' ]
+        assert node.asvar == 'var'
+
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% 'path' 'path2' 'file'" ) )
+        assert node.render( {} ) == 'path/path2/file'
+
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% '/path' 'path2' 'file'" ) )
+        assert node.render( {} ) == 'path/path2/file'
+
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% 'path' 'path2/path3' 'file'" ) )
+        assert node.render( {} ) == 'path/path2/path3/file'
+
+        context = { }
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% 'path' 'path2' 'file' as path" ) )
+        assert node.render( context ) == ''
+        assert context['path'] == 'path/path2/file'
+
+        context = { 'var' : 'xxx', }
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% '/path' var 'file'" ) )
+        assert node.render( context ) == 'path/xxx/file'
+        
+        context = { 'var' : 'xxx', }
+        node = joinpath( None, Token( TOKEN_BLOCK, "{% '/path' var 'file' as path" ) )
+        assert node.render( context ) == ''
+        assert context['path'] == 'path/xxx/file'
+
+    def test_Model_Permission(self):
+        assert Permission.fields().__len__() == 6, "It seems you add permission, correct tests right now"
+        assert Permission.fields() == ['edit', 'move', 'delete', 'create', 'upload', 'http_get']
+        assert Permission.Full( ) == Permission( edit=True, move=True, delete=True, create=True, upload=True, http_get=True )
+
+    def test_Model_FileLib(self):
+        for valid in FileLib.validators:
+            self.assertRaises( ValidationError, valid, '/home' )
+        for valid in FileLib.validators:
+            self.assertRaises( ValidationError, valid, './home' )
+
+        lib = FileLib.objects.get( id=2 )
+        assert lib.get_path( '/root/' ) == '/root/test'
+        assert lib.get_path( '/root' ) == '/root/test'
+
+    def test_Model_Home(self):
+        pass
+    
+    def test_Model_History(self):
+        history = History.objects.get( id=1 )
+        assert history.get_type_display() == 'upload'
+        assert history.get_image_type() == 'create'
+        assert history.is_extra() == False
+        assert history.get_extra() == None
+        
+        history = History.objects.get( id=2 )
+        assert history.get_type_display() == 'rename'
+        assert history.get_image_type() == 'rename'
+        assert history.is_extra() == False
+        assert history.get_extra() == None
+        
+        history = History.objects.get( id=3 )
+        assert history.get_type_display() == 'link'
+        assert history.get_image_type() == 'create'
+        assert history.is_extra() == True
+        assert history.get_extra() == '<a href=\"/link/a142a8d1442b/\">direct link</a>'
+
+    def test_Model_Link(self):
+        link = Link.objects.get( id=1 )
+        assert link.expires() == datetime(2011, 6, 27, 15, 25, 24)
 
 
 class ViewsTest( TestCase ):
@@ -80,6 +179,142 @@ class ViewsTest( TestCase ):
         assert resp.context['AnonHomes'].__len__( ) == 1
         assert resp.context['AnonHomes'][0].lib.name == 'FileManager'
 
+    def test_Admin_Trash(self):
+        """
+        Test Trash of file libs for Admin
+        """
+        lib = FileLib.objects.get( name='FileManager' )
+        storage = FileStorage( lib.get_path() )
+        if storage.exists( u".TrashBin" ):
+            storage.remove( u".TrashBin" )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert storage.exists( u".TrashBin" )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 1
+
+        resp = self.client.get( urlbilder( 'trash', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_Anon_Trash(self):
+        """
+        Test Trash of file libs for Anonymous
+        """
+        self.assertTrue( self.client.login( username='admin', password='root' ) )
+        lib = FileLib.objects.get( name='FileManager' )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 1
+
+        resp = self.client.get( urlbilder( 'trash', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_User_Trash(self):
+        """
+        Test Trash of file libs for User
+        """
+        assert self.client.login( username='B7W', password='root' )
+        lib = FileLib.objects.get( name='FileManager' )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['files'].__len__( ) == 1
+
+        resp = self.client.get( urlbilder( 'trash', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_Admin_History(self):
+        """
+        Test History of History for Admin
+        """
+        lib = FileLib.objects.get( name='FileManager' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 3
+
+        resp = self.client.get( urlbilder( 'history', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_Anon_History(self):
+        """
+        Test History of History for Anonymous
+        """
+        self.assertTrue( self.client.login( username='admin', password='root' ) )
+        lib = FileLib.objects.get( name='FileManager' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 3
+
+        resp = self.client.get( urlbilder( 'history', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_User_History(self):
+        """
+        Test History of History for User
+        """
+        assert self.client.login( username='B7W', password='root' )
+        lib = FileLib.objects.get( name='FileManager' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 0
+
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert resp.status_code == 200
+        assert resp.context['history'].__len__( ) == 3
+
+        resp = self.client.get( urlbilder( 'history', 10 ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+
+    def test_Login(self):
+        """
+        Test login page and redirect to login page
+        """
+        resp = self.client.get( urlbilder( 'login' ) )
+        assert resp.status_code == 200
+
+    def test_Dosnt_Exists(self):
+        """
+        Test Error doesn't exist of file or FileLib
+        """
+        lib = FileLib.objects.get( name='Test' )
+        resp = self.client.get( urlbilder( 'browser', lib.id, p="None" ) )
+        assert resp.status_code == 200
+        assert escape( u"path 'None' doesn't exist or it isn't a directory" ) in unicode(resp.content, errors='ignore')
+
+        resp = self.client.get( urlbilder( 'browser', 10, p="None" ) )
+        assert resp.status_code == 200
+        assert escape( u"No such file lib or you don't have permissions" ) in unicode(resp.content, errors='ignore')
+        
     def test_Index_History_Widget(self):
         """
         Test that for Anonymous, Users, Admin
@@ -122,7 +357,7 @@ class ViewsTest( TestCase ):
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'created' in [m.message for m in list( resp.context['messages'] )][0]
-        storage.delete( storage.path.join( 'test', 'new dir' ) )
+        storage.remove( storage.path.join( 'test', 'new dir' ) )
         # delete False
         link = urlbilder( 'action', lib.id, "delete", p='test/Фото 070.jpg' )
         resp = self.client.get( link, follow=True )
@@ -163,7 +398,8 @@ class ViewsTest( TestCase ):
         link = urlbilder( 'action', lib.id, "size", p='debug_toolbar' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
-        assert '672.5 KB' in resp.content
+        size = filesizeformat( storage.size( 'debug_toolbar', dir=True, cached=False ) )
+        assert size == resp.content.strip()
 
     def test_Path_Arr(self):
         """

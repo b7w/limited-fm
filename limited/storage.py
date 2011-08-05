@@ -130,7 +130,7 @@ class FileStorage( object ):
     def abspath(self, name):
         return self.path.join( self.home, name )
 
-    def delete(self, name):
+    def remove(self, name):
         if self.isdir( name ):
             shutil.rmtree( self.abspath( name ) )
         else:

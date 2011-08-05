@@ -1,11 +1,11 @@
 from datetime import timedelta
-import os
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-# Create your models here.
+
 from limited.storage import StoragePath
 
 class PermissionError( Exception ):
@@ -57,15 +57,17 @@ class FileLib( models.Model ):
     description = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=False, validators=validators )
 
-    def get_path(self):
-        return StoragePath().join( settings.LIMITED_ROOT_PATH, self.path )
+    def get_path(self, root=None ):
+        if root == None:
+            root = settings.LIMITED_ROOT_PATH
+        return StoragePath().join( root, self.path )
 
     class Meta:
         verbose_name = 'File Lib'
         verbose_name_plural = 'File Libs'
 
     def __unicode__(self):
-        return 'ID' + str( self.id ) + ': ' + str( self.name )
+        return u'ID' + unicode( self.id ) + u': ' + unicode( self.name )
 
 
 class Home( models.Model ):
@@ -78,7 +80,7 @@ class Home( models.Model ):
         verbose_name_plural = 'Home'
 
     def __unicode__(self):
-        return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
+        return u'ID' + unicode( self.id ) + u': ' + unicode( self.user ) + u', ' + unicode( self.lib )
 
 
 class History( models.Model ):
@@ -122,10 +124,6 @@ class History( models.Model ):
             if key == self.type:
                 return val
 
-    def get_message(self):
-        return "{0}, {1}".format( self.name, self.get_type_display())
-    message = property(get_message)
-
     def is_extra(self):
         if self.extra:
             return True
@@ -136,15 +134,15 @@ class History( models.Model ):
     def get_extra(self):
         if self.type == self.LINK:
             link = reverse( 'link', args=[self.extra] )
-            return "<a href=\"{0}\">direct link</a>".format( link )
-        return False
+            return u"<a href=\"{0}\">direct link</a>".format( link )
+        return None
 
     class Meta:
         verbose_name = 'History'
         verbose_name_plural = 'History'
 
     def __unicode__(self):
-        return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
+        return u'ID' + unicode( self.id ) + u': ' + unicode( self.user ) + u', ' + unicode( self.lib )
 
 
 class Link( models.Model ):
@@ -155,14 +153,14 @@ class Link( models.Model ):
     time = models.DateTimeField( auto_now_add=True, null=False )
 
     def expires(self):
-        return timedelta( seconds=self.maxage )
+        return self.time + timedelta( seconds=self.maxage )
 
     class Meta:
         verbose_name = 'Link'
         verbose_name_plural = 'Links'
 
     def __unicode__(self):
-        return 'ID' + str( self.id ) + ': ' + str( self.path ) + ', ' + str( self.time )
+        return u'ID' + unicode( self.id ) + u': ' + unicode( self.path ) + u', ' + unicode( self.time )
 
 
 class LUser( User ):

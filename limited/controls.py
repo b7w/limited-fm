@@ -13,17 +13,6 @@ from limited.models import Home, FileLib, Permission
 from limited.storage import FileStorage
 
 
-def is_login_need( user ):
-    """
-    If user can view or need login
-    """
-    if user.is_authenticated( ):
-        return True
-    elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return True
-    return False
-
-
 def get_home( user, lib_id ):
     """
     Get Home plus related FileLib

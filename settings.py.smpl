@@ -175,6 +175,6 @@ LOGIN_URL = "/login/"
 LIMITED_ANONYMOUS = True
 LIMITED_ANONYMOUS_ID = 2
 
-# Root path to witch
+# Absolute root path to witch
 # FileLib.path will be added
 LIMITED_ROOT_PATH = "/home/user"

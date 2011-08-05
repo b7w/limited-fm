@@ -7,7 +7,8 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.utils.encoding import smart_str
@@ -16,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from limited.storage import FileStorage, FileError, FileNotExist
 from limited.models import Home, History, Link, FileLib
 from limited.models import PermissionError
-from limited.controls import file_response, get_home, is_login_need, get_homes, get_user
+from limited.controls import file_response, get_home, get_homes, get_user
 from limited.utils import split_path, HttpResponseReload
 
 logger = logging.getLogger(__name__)
@@ -28,8 +29,6 @@ def IndexView( request ):
     template :template:`limited/index.html`
     """
     user = request.user
-    if not is_login_need( user ):
-        return HttpResponseRedirect( u"%s?next=%s" % (settings.LOGIN_URL, request.path) )
 
     Homes = get_homes( user )
 
@@ -71,9 +70,6 @@ def FilesView( request, id ):
 
     template :template:`limited/browser.html`
     """
-    if not is_login_need( request.user ):
-        return HttpResponseRedirect( u"%s?next=%s" % (settings.LOGIN_URL, request.path) )
-
     lib_id = int( id )
     path = request.GET.get('p', '')
 
@@ -91,7 +87,7 @@ def FilesView( request, id ):
         File = FileStorage( home.lib.get_path() )
         files = File.listdir( path )
 
-    except Home.DoesNotExist:
+    except ObjectDoesNotExist:
         logger.error( u"Browser. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
     except FileError as e:
@@ -115,13 +111,10 @@ def HistoryView( request, id ):
 
     template :template:`limited/history.html`
     """
-    if not is_login_need( request.user ):
-        return HttpResponseRedirect( u"%s?next=%s" % (settings.LOGIN_URL, request.path) )
-
     lib_id = int( id )
 
     try:
-        Home = get_home( request.user, lib_id)
+        home = get_home( request.user, lib_id)
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -131,7 +124,7 @@ def HistoryView( request, id ):
 
         patharr = split_path( u"History" )
 
-    except Home.DoesNotExist:
+    except ObjectDoesNotExist:
         logger.error( u"History. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
 
@@ -139,8 +132,8 @@ def HistoryView( request, id ):
         'patharr': patharr,
         'history': history,
         'home_id': lib_id,
-        'home': Home.lib.name,
-        'permission': Home.permission,
+        'home': home.lib.name,
+        'permission': home.permission,
         } )
 
 
@@ -150,13 +143,10 @@ def TrashView( request, id ):
     
     template :template:`limited/trash.html`
     """
-    if not is_login_need( request.user ):
-        return HttpResponseRedirect( u"%s?next=%s" % (settings.LOGIN_URL, request.path) )
-
     lib_id = int( id )
 
     try:
-        Home = get_home( request.user, lib_id)
+        home = get_home( request.user, lib_id)
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -166,16 +156,14 @@ def TrashView( request, id ):
 
         patharr = split_path( 'Trash' )
 
-        File = FileStorage( Home.lib.get_path() )
+        File = FileStorage( home.lib.get_path() )
         if not File.exists( u".TrashBin" ):
             File.mkdir( u".TrashBin" )
         files = File.listdir( u".TrashBin" )
 
-    except Home.DoesNotExist:
+    except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
-        raise Http404( u"No such file lib or you don't have permissions" )
-    except FileNotExist as e:
-        return RenderError( request, u"No any trash files" )
+        return RenderError( request, u"No such file lib or you don't have permissions" )
     except FileError as e:
         logger.error( u"Trash. {0}. home_id:{1}".format( e, lib_id ) )
         return RenderError( request, e )
@@ -185,8 +173,8 @@ def TrashView( request, id ):
         'patharr': patharr,
         'history': history,
         'home_id': lib_id,
-        'home': Home.lib.name,
-        'permission': Home.permission,
+        'home': home.lib.name,
+        'permission': home.permission,
         'files': files,
         } )
 
@@ -199,16 +187,16 @@ def ActionView( request, id, command ):
     lib_id = int( id )
     path = request.GET.get('p', '')
     
-    Home = get_home( request.user, lib_id)
+    home = get_home( request.user, lib_id)
     user = get_user( request.user )
-    Storage = FileStorage( Home.lib.get_path() )
+    Storage = FileStorage( home.lib.get_path() )
 
-    history = History( lib=Home.lib )
+    history = History( lib=home.lib )
     history.path = Storage.path.dirname( path )
     # GET 'n' - folder name
     if command == u"add":
         try:
-            if not Home.permission.create:
+            if not home.permission.create:
                 raise PermissionError( u"You have no permission to create new directory" )
             name = request.GET['n']
             # If it link - download it
@@ -236,9 +224,9 @@ def ActionView( request, id, command ):
     # Delete from FS
     elif command == u"delete":
         try:
-            if not Home.permission.delete:
+            if not home.permission.delete:
                 raise PermissionError( u'You have no permission to delete' )
-            Storage.delete( path )
+            Storage.remove( path )
             messages.success( request, u"'%s' successfully deleted" % Storage.path.name( path ) )
             history.user = user
             history.type = History.DELETE
@@ -254,7 +242,7 @@ def ActionView( request, id, command ):
     # Move to special directory
     elif command == u"trash":
         try:
-            if not Home.permission.delete:
+            if not home.permission.delete:
                 raise PermissionError( u"You have no permission to delete" )
             Storage.totrash( path )
             messages.success( request, u"'%s' successfully moved to trash" % Storage.path.name( path ) )
@@ -272,7 +260,7 @@ def ActionView( request, id, command ):
     # GET 'n' - new file name
     elif command == u"rename":
         try:
-            if not Home.permission.edit:
+            if not home.permission.edit:
                 raise PermissionError( u"You have no permission to rename" )
             name = request.GET['n']
             Storage.rename( path, name )
@@ -291,7 +279,7 @@ def ActionView( request, id, command ):
     # GET 'p2' - new directory path
     elif command == u"move":
         try:
-            if not Home.permission.move:
+            if not home.permission.move:
                 raise PermissionError( u"You have no permission to move" )
             path2 = request.GET['p2']
             path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
@@ -326,8 +314,8 @@ def ActionView( request, id, command ):
             if link:
                 messages.success( request, u"link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
             # else create new one
-            elif Home.permission.create:
-                Link( hash=hash, lib=Home.lib, path=path ).save( )
+            elif home.permission.create:
+                Link( hash=hash, lib=home.lib, path=path ).save( )
                 messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
                 history.user = user
                 history.type = History.LINK
@@ -345,7 +333,7 @@ def ActionView( request, id, command ):
 
     elif command == u"zip":
         try:
-            if not Home.permission.edit:
+            if not home.permission.edit:
                 raise PermissionError( u"You have no permission to zip" )
 
             if path.endswith( u".zip" ):
@@ -414,15 +402,12 @@ def DownloadView( request, id ):
     GET 'h' - home id, 'p' - path
     """
     if request.method == u"GET":
-        if not is_login_need( request.user ):
-            return HttpResponseRedirect( u"%s?next=%s" % (settings.LOGIN_URL, request.path) )
-
         lib_id = int( id )
         path = request.GET.get('p', '')
 
-        Home = get_home( request.user, lib_id)
+        home = get_home( request.user, lib_id)
 
-        response = file_response( Home.lib.get_path(), path )
+        response = file_response( home.lib.get_path(), path )
 
         if not response:
             logger.error( u"Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, path ) )
