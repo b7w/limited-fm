@@ -9,7 +9,7 @@ from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
-from limited.models import MHome, MFileLib, MPermission
+from limited.models import Home, FileLib, Permission
 from limited.storage import FileStorage
 
 
@@ -26,22 +26,22 @@ def is_login_need( user ):
 
 def get_home( user, lib_id ):
     """
-    Get MHome plus related FileLib
+    Get Home plus related FileLib
     depending on is_authenticated or not
     and LIMITED_ANONYMOUS
     """
     if user.is_authenticated( ):
         if user.is_superuser:
-            home = MHome()
-            home.lib = MFileLib.objects.get( id=lib_id )
-            home.permission = MPermission.Full()
+            home = Home()
+            home.lib = FileLib.objects.get( id=lib_id )
+            home.permission = Permission.Full()
             return home
         elif settings.LIMITED_ANONYMOUS:
-            home = MHome.objects.select_related( 'lib', 'permission' ).\
+            home = Home.objects.select_related( 'lib', 'permission' ).\
                 filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=lib_id)
             length = len(home)
             if length == 0:
-                raise MHome.DoesNotExist
+                raise Home.DoesNotExist
             # if len==2 than we have Anon and User permission
             # so we need to get User once
             elif length == 2:
@@ -50,29 +50,29 @@ def get_home( user, lib_id ):
                 # else: return home[0]
             return home[0]
         else:
-            return MHome.objects.select_related( 'lib', 'permission' ).get( user=user, lib__id=lib_id )
+            return Home.objects.select_related( 'lib', 'permission' ).get( user=user, lib__id=lib_id )
 
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return MHome.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
+        return Home.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
 
 
 def get_homes( user ):
     """
-    Get MHome plus related FileLib
+    Get Home plus related FileLib
     depending on is_authenticated or not
     and LIMITED_ANONYMOUS
     """
     if user.is_authenticated( ):
         if user.is_superuser:
             homes = []
-            libs = MFileLib.objects.all( ).distinct( )
+            libs = FileLib.objects.all( ).distinct( )
             for item in libs:
-                homes.append( MHome( lib=item ) )
+                homes.append( Home( lib=item ) )
             return homes
         else:
-            return MHome.objects.select_related( 'lib' ).filter( user=user )
+            return Home.objects.select_related( 'lib' ).filter( user=user )
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
+        return Home.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
 
 
 def get_user( user ):

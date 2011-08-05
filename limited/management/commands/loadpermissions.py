@@ -4,11 +4,11 @@ from django.core.management.base import NoArgsCommand, CommandError
 from django.core.management.color import no_style
 from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
-from limited.models import MPermission
+from limited.models import Permission
 from limited.utils import load_permissions
 
 class Command( NoArgsCommand ):
-    help = "Flush Permissons table and generat new data for any count of columns in MPermission"
+    help = "Flush Permissons table and generat new data for any count of columns in Permission"
 
     option_list = NoArgsCommand.option_list + (
         make_option( '--noinput', action='store_false', dest='interactive', default=True,
@@ -25,7 +25,7 @@ class Command( NoArgsCommand ):
 
         self.style = no_style( )
 
-        sql_list = connection.ops.sql_flush( self.style, [MPermission._meta.db_table],
+        sql_list = connection.ops.sql_flush( self.style, [Permission._meta.db_table],
                                              connection.introspection.sequence_list( ) )
 
         if interactive:
@@ -46,7 +46,7 @@ Are you sure you want to do this?
                     cursor.execute( sql )
                 print "Permissions flushed."
                 transaction.commit_on_success( using=db )( load_permissions )( using=db )
-                print "%s permissions loaded." % MPermission.objects.count( )
+                print "%s permissions loaded." % Permission.objects.count( )
             except Exception, e:
                 transaction.rollback_unless_managed( using=db )
                 print "Rollback."

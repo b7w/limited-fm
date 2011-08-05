@@ -250,7 +250,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -262,7 +262,7 @@
     }, 
     {
         "pk": 2, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -274,7 +274,7 @@
     }, 
     {
         "pk": 3, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -286,7 +286,7 @@
     }, 
     {
         "pk": 4, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -298,7 +298,7 @@
     }, 
     {
         "pk": 5, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -310,7 +310,7 @@
     }, 
     {
         "pk": 6, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -322,7 +322,7 @@
     }, 
     {
         "pk": 7, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -334,7 +334,7 @@
     }, 
     {
         "pk": 8, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -346,7 +346,7 @@
     }, 
     {
         "pk": 9, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -358,7 +358,7 @@
     }, 
     {
         "pk": 10, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -370,7 +370,7 @@
     }, 
     {
         "pk": 11, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -382,7 +382,7 @@
     }, 
     {
         "pk": 12, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -394,7 +394,7 @@
     }, 
     {
         "pk": 13, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -406,7 +406,7 @@
     }, 
     {
         "pk": 14, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -418,7 +418,7 @@
     }, 
     {
         "pk": 15, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -430,7 +430,7 @@
     }, 
     {
         "pk": 16, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -442,7 +442,7 @@
     }, 
     {
         "pk": 17, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -454,7 +454,7 @@
     }, 
     {
         "pk": 18, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -466,7 +466,7 @@
     }, 
     {
         "pk": 19, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -478,7 +478,7 @@
     }, 
     {
         "pk": 20, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -490,7 +490,7 @@
     }, 
     {
         "pk": 21, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -502,7 +502,7 @@
     }, 
     {
         "pk": 22, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -514,7 +514,7 @@
     }, 
     {
         "pk": 23, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -526,7 +526,7 @@
     }, 
     {
         "pk": 24, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -538,7 +538,7 @@
     }, 
     {
         "pk": 25, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -550,7 +550,7 @@
     }, 
     {
         "pk": 26, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -562,7 +562,7 @@
     }, 
     {
         "pk": 27, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -574,7 +574,7 @@
     }, 
     {
         "pk": 28, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": false, 
@@ -586,7 +586,7 @@
     }, 
     {
         "pk": 29, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -598,7 +598,7 @@
     }, 
     {
         "pk": 30, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -610,7 +610,7 @@
     }, 
     {
         "pk": 31, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -622,7 +622,7 @@
     }, 
     {
         "pk": 32, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": false, 
             "create": true, 
@@ -634,7 +634,7 @@
     }, 
     {
         "pk": 33, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -646,7 +646,7 @@
     }, 
     {
         "pk": 34, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -658,7 +658,7 @@
     }, 
     {
         "pk": 35, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -670,7 +670,7 @@
     }, 
     {
         "pk": 36, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -682,7 +682,7 @@
     }, 
     {
         "pk": 37, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -694,7 +694,7 @@
     }, 
     {
         "pk": 38, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -706,7 +706,7 @@
     }, 
     {
         "pk": 39, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -718,7 +718,7 @@
     }, 
     {
         "pk": 40, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -730,7 +730,7 @@
     }, 
     {
         "pk": 41, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -742,7 +742,7 @@
     }, 
     {
         "pk": 42, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -754,7 +754,7 @@
     }, 
     {
         "pk": 43, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -766,7 +766,7 @@
     }, 
     {
         "pk": 44, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -778,7 +778,7 @@
     }, 
     {
         "pk": 45, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -790,7 +790,7 @@
     }, 
     {
         "pk": 46, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -802,7 +802,7 @@
     }, 
     {
         "pk": 47, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -814,7 +814,7 @@
     }, 
     {
         "pk": 48, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -826,7 +826,7 @@
     }, 
     {
         "pk": 49, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -838,7 +838,7 @@
     }, 
     {
         "pk": 50, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -850,7 +850,7 @@
     }, 
     {
         "pk": 51, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -862,7 +862,7 @@
     }, 
     {
         "pk": 52, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -874,7 +874,7 @@
     }, 
     {
         "pk": 53, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -886,7 +886,7 @@
     }, 
     {
         "pk": 54, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -898,7 +898,7 @@
     }, 
     {
         "pk": 55, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -910,7 +910,7 @@
     }, 
     {
         "pk": 56, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -922,7 +922,7 @@
     }, 
     {
         "pk": 57, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -934,7 +934,7 @@
     }, 
     {
         "pk": 58, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -946,7 +946,7 @@
     }, 
     {
         "pk": 59, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -958,7 +958,7 @@
     }, 
     {
         "pk": 60, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": false, 
@@ -970,7 +970,7 @@
     }, 
     {
         "pk": 61, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -982,7 +982,7 @@
     }, 
     {
         "pk": 62, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -994,7 +994,7 @@
     }, 
     {
         "pk": 63, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -1006,7 +1006,7 @@
     }, 
     {
         "pk": 64, 
-        "model": "limited.mpermission", 
+        "model": "limited.permission",
         "fields": {
             "edit": true, 
             "create": true, 
@@ -1018,7 +1018,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "limited.mfilelib", 
+        "model": "limited.filelib",
         "fields": {
             "path": "",
             "name": "FileManager", 
@@ -1027,7 +1027,7 @@
     }, 
     {
         "pk": 2, 
-        "model": "limited.mfilelib", 
+        "model": "limited.filelib",
         "fields": {
             "path": "test",
             "name": "Test", 
@@ -1036,7 +1036,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "limited.mhome", 
+        "model": "limited.home",
         "fields": {
             "user": 2, 
             "lib": 1, 
@@ -1045,7 +1045,7 @@
     }, 
     {
         "pk": 2, 
-        "model": "limited.mhome", 
+        "model": "limited.home",
         "fields": {
             "user": 3, 
             "lib": 2, 
@@ -1054,7 +1054,7 @@
     }, 
     {
         "pk": 3, 
-        "model": "limited.mhome", 
+        "model": "limited.home",
         "fields": {
             "user": 2, 
             "lib": 2, 
@@ -1063,7 +1063,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "limited.mhistory", 
+        "model": "limited.history",
         "fields": {
             "name": "\u0424\u043e\u0442\u043e070.jpg", 
             "lib": 2, 
@@ -1076,7 +1076,7 @@
     }, 
     {
         "pk": 2, 
-        "model": "limited.mhistory", 
+        "model": "limited.history",
         "fields": {
             "name": "\u0424\u043e\u0442\u043e 070.jpg", 
             "lib": 2, 
@@ -1089,7 +1089,7 @@
     }, 
     {
         "pk": 3, 
-        "model": "limited.mhistory", 
+        "model": "limited.history",
         "fields": {
             "name": "\u0424\u043e\u0442\u043e 070.jpg", 
             "lib": 2, 
@@ -1102,7 +1102,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "limited.mlink", 
+        "model": "limited.link",
         "fields": {
             "path": "\u0424\u043e\u0442\u043e 070.jpg", 
             "hash": "a142a8d1442b", 

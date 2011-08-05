@@ -12,7 +12,7 @@ class PermissionError( Exception ):
     pass
 
 
-class MPermission( models.Model ):
+class Permission( models.Model ):
     edit = models.BooleanField( default=False )
     move = models.BooleanField( default=False )
     delete = models.BooleanField( default=False )
@@ -32,13 +32,12 @@ class MPermission( models.Model ):
     def Full(self):
         fieldcount = len(self._meta.fields)-1
         fields = self.fields()
-        perm = MPermission()
+        perm = Permission()
         for l in range( fieldcount ):
             setattr( perm, fields[l], True )
         return perm
 
     class Meta:
-        db_table = 'Permission'
         verbose_name = 'Permission'
         verbose_name_plural = 'Permissions'
 
@@ -51,8 +50,8 @@ class MPermission( models.Model ):
         return name
 
 
-class MFileLib( models.Model ):
-    validators = [ RegexValidator(r"^\w+.*$","Path can start only with letter or namber" ), ]
+class FileLib( models.Model ):
+    validators = [ RegexValidator(r"^\w+.*$","Path can start only with letters or numbers" ), ]
 
     name = models.CharField( max_length=64, null=False )
     description = models.CharField( max_length=256, null=False )
@@ -62,7 +61,6 @@ class MFileLib( models.Model ):
         return StoragePath().join( settings.LIMITED_ROOT_PATH, self.path )
 
     class Meta:
-        db_table = 'FileLib'
         verbose_name = 'File Lib'
         verbose_name_plural = 'File Libs'
 
@@ -70,13 +68,12 @@ class MFileLib( models.Model ):
         return 'ID' + str( self.id ) + ': ' + str( self.name )
 
 
-class MHome( models.Model ):
+class Home( models.Model ):
     user = models.ForeignKey( User )
-    lib = models.ForeignKey( MFileLib )
-    permission = models.ForeignKey( MPermission, default=1 )
+    lib = models.ForeignKey( FileLib )
+    permission = models.ForeignKey( Permission, default=1 )
 
     class Meta:
-        db_table = 'Home'
         verbose_name = 'Home'
         verbose_name_plural = 'Home'
 
@@ -84,7 +81,7 @@ class MHome( models.Model ):
         return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
 
 
-class MHistory( models.Model ):
+class History( models.Model ):
     CREATE = 1
     UPLOAD = 2
     RENAME = 3
@@ -111,7 +108,7 @@ class MHistory( models.Model ):
             (LINK, 'create'),
         )
     user = models.ForeignKey( User )
-    lib = models.ForeignKey( MFileLib )
+    lib = models.ForeignKey( FileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
     name = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=True )
@@ -143,7 +140,6 @@ class MHistory( models.Model ):
         return False
 
     class Meta:
-        db_table = 'History'
         verbose_name = 'History'
         verbose_name_plural = 'History'
 
@@ -151,9 +147,9 @@ class MHistory( models.Model ):
         return 'ID' + str( self.id ) + ': ' + str( self.user ) + ', ' + str( self.lib )
 
 
-class MLink( models.Model ):
+class Link( models.Model ):
     hash = models.CharField( max_length=12, null=False )
-    lib = models.ForeignKey( MFileLib )
+    lib = models.ForeignKey( FileLib )
     path = models.CharField( max_length=256, null=False )
     maxage = models.IntegerField( default=24 * 60 * 60, null=False )
     time = models.DateTimeField( auto_now_add=True, null=False )
@@ -162,7 +158,6 @@ class MLink( models.Model ):
         return timedelta( seconds=self.maxage )
 
     class Meta:
-        db_table = 'Link'
         verbose_name = 'Link'
         verbose_name_plural = 'Links'
 

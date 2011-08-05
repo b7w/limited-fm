@@ -9,6 +9,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Serve static
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes':True}),
+    url(r'^coverage/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.COVERAGE_REPORT_HTML_OUTPUT_DIR, 'show_indexes':True}),
 
     url(r'^', include('limited.urls') ),
 

@@ -4,7 +4,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from limited.controls import truncate_path
 
-from limited.models import MFileLib, MPermission
+from limited.models import FileLib, Permission
 from limited.storage import FileStorage
 from limited.utils import split_path,urlbilder
 
@@ -16,7 +16,7 @@ class CodeTest( TestCase ):
         call_command( 'loadpermissions', interactive=False )
         print '# Management end'
         print
-        assert MPermission.objects.count( ) == 2 ** len( MPermission.fields( ) )
+        assert Permission.objects.count( ) == 2 ** len( Permission.fields( ) )
 
     def test_urlbilder(self):
         assert urlbilder( 'action', 2, "add" ) == "/lib2/action/add/"
@@ -114,7 +114,7 @@ class ViewsTest( TestCase ):
         in  ID1: FileManager
         with  ID5: Edit False, Move False, Delete False, Create True, Upload False, Http_get False,
         """
-        lib = MFileLib.objects.get( name='FileManager' )
+        lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path() )
         # add True
         link = urlbilder( 'action', lib.id, "add", p='test', n='new dir' )

@@ -43,18 +43,18 @@ def split_path( path ):
 def load_permissions( using=None ):
     """
     Enumerate and create all permissions
-    For any count of columns in MPermission
+    For any count of columns in Permission
     """
-    from limited.models import MPermission
+    from limited.models import Permission
 
-    fields = MPermission.fields()
+    fields = Permission.fields()
     count = len( fields )
     last = count - 1
     rng = range( count )
     data = [0 for x in rng]
 
     for i in range( 2 ** count ):
-        Pemm = MPermission( )
+        Pemm = Permission( )
         for l in range( count ):
             setattr( Pemm, fields[l], data[l] )
         Pemm.save( using=using )
