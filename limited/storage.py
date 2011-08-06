@@ -28,12 +28,23 @@ class FileNotExist( FileError ):
 
 class StoragePath( object ):
     def join(self, path, name ):
+        """
+        join to path, if ``mane`` start with '/'
+        return ``name``
+        """
         return os.path.join( path, name )
 
     def name(self, path):
+        """
+        return file name or ''
+        """
         return os.path.basename( path )
 
     def dirname(self, path):
+        """
+        return directory path of file
+        or return path if ends with '/'
+        """
         return os.path.dirname( path )
 
     def norm(self, root, src ):
@@ -45,8 +56,6 @@ class StoragePath( object ):
         if src.find( '../' ) != -1 or src.find( './' ) != -1:
             path = self.join( root, src )
             path = os.path.normpath( path )
-            if path.find( '../' ) != -1 or path.find( './' ) != -1:
-                raise FileError( u"Wrong path '%s'" % path )
         else:
             path = src
 
@@ -54,25 +63,6 @@ class StoragePath( object ):
         if path[0] == '/':
             path = path[1:]
         return path
-
-
-def ListFiles( root, dir='', array={ } ):
-    """
-    List files recursive.
-    Return dict { abspath : path from root }
-    """
-    absdir = os.path.join( root, dir )
-    for name in os.listdir( absdir ):
-        fullpath = os.path.join( absdir, name )
-        if os.path.isdir( fullpath ):
-            dirpath = os.path.join( dir, name )
-            array = ListDir( root, dirpath, array )
-
-        if os.path.isfile( fullpath ):
-            path = os.path.join( dir, name )
-            array[fullpath] = path
-
-    return array
 
 
 class DownloadThread( threading.Thread ):
@@ -106,6 +96,13 @@ class FileStorage( object ):
     def open(self, name, mode='rb'):
         return open( self.abspath( name ), mode )
 
+    def create(self, name, content):
+        name = self.available_name( name )
+        
+        newfile = open( self.abspath( name ), 'wb' )
+        newfile.write( content )
+        newfile.close( )
+
     def save(self, name, file):
         name = self.available_name( name )
 
@@ -131,6 +128,8 @@ class FileStorage( object ):
         return self.path.join( self.home, name )
 
     def remove(self, name):
+        if not self.exists( name ):
+            raise FileNotExist( u"'%s' not found" % name )
         if self.isdir( name ):
             shutil.rmtree( self.abspath( name ) )
         else:
@@ -138,7 +137,7 @@ class FileStorage( object ):
 
     def move(self, src, dst):
         src_dir = self.path.dirname( src )
-        if src_dir == dst:
+        if src == dst or src_dir == dst:
             raise FileError( u"Moving to the same directory" )
         if not self.exists( src ):
             raise FileNotExist( u"'%s' not found" % src )
@@ -278,7 +277,7 @@ class FileStorage( object ):
         i = 1
         while i != 0:
             if self.exists( self.abspath( path ) ):
-                path = file + '[' + str( i ) + ']' + ext
+                path = file + u'[' + unicode( i ) + u']' + ext
                 i += 1
             else:
                 i = 0

@@ -305,7 +305,6 @@ def ActionView( request, id, command ):
             domain = Site.objects.get_current( ).domain
 
             # TODO: if links exists where hash and `time`+ `maxage` > NOW()
-            # +! work only with MySQL
             # extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
             link = Link.objects.filter( hash=hash )\
             .order_by( '-time' )\
@@ -420,16 +419,12 @@ def LinkView( request, hash ):
     """
     If link exist Download whitout any permission
     """
-    
-    # Filter kinks where hash and `time`+ `maxage` > NOW()
-    # if len == 0 send error
-    # +! work only with MySQL
-    link = Link.objects.filter( hash=hash ).\
-           extra( where=[ u" DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s " ], params=[datetime.now( )] ).\
-           order_by( '-time' )[0:1]
+    # TODO: if links exists where hash and `time`+ `maxage` > NOW()
+    link = Link.objects.filter( hash=hash )\
+            .order_by( '-time' )[0:1]
     if len( link ) == 0:
         logger.info( u"No link found by hash %s" % hash )
-        raise Http404( u"We are sorry. But such object does not exists or link is out of time" )
+        return RenderError( request, u"We are sorry. But such object does not exists or link is out of time" )
     link = link[0]
 
     Lib = FileLib.objects.select_related( 'lib' ).get( id=link.lib_id )

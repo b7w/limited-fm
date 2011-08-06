@@ -86,7 +86,7 @@ def file_response( home, path ):
         wrapper = FileWrapper( File.open( path ) )
         #wrapper = File.open( path ).read( )
         response = HttpResponse( wrapper, content_type=u"application/force-download" )
-        response[u"Content-Disposition"] = u"attachment; filename=%s" % smart_str( File.path.name( path ) )
+        response[u"Content-Disposition"] = "attachment; filename=%s" % smart_str( File.path.name( path ) )
         response[u"Content-Length"] = File.size( path )
 
     elif File.isdir( path ):
@@ -100,7 +100,7 @@ def file_response( home, path ):
         archive.close( )
         wrapper = FileWrapper( temp )
         response = HttpResponse( wrapper, content_type=u"application/zip" )
-        response[u"Content-Disposition"] = u"attachment; filename=%s.zip" % smart_str( File.path.name( path ) )
+        response[u"Content-Disposition"] = "attachment; filename=%s.zip" % smart_str( File.path.name( path ) )
         response[u"Content-Length"] = temp.tell( )
         temp.seek( 0 )
 
