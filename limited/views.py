@@ -372,7 +372,7 @@ def UploadView( request, id ):
 
             files = request.FILES.getlist( u'files' )
             # if files > 3 just send message 'Uploaded N files'
-            if len( files ) > 3:
+            if len( files ) > 2:
                 history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
                 history.name = u"%s files" % len( files )
                 for file in files:
@@ -388,8 +388,7 @@ def UploadView( request, id ):
                     history.name = file.name
                     history.save( )
         except PermissionError as e:
-            dfiles = [u"{0}:{1}".format(x.name,x.size) for x in files]
-            logger.error( u"Upload. {0}. home_id:{1}, path:{2}, files:{3}".format( e, lib_id, path, dfiles ) )
+            logger.error( u"Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     return HttpResponseReload( request )

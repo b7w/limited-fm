@@ -2,6 +2,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import File
 
 from django.core.management import call_command
 from django.template import Token, TOKEN_BLOCK
@@ -148,6 +149,17 @@ class CodeTest( TestCase ):
 ## FileStorage tests
 ##
 class FileStorageTest( TestCase ):
+    """
+    Test are mixed because when we test
+    we need to create and delete files after work
+
+    Also much better to run with --failfast
+
+    Best way is to test ``create``, ``mkdir`` and ``clear``
+    by your own separately
+
+    To change test data, add them to ``tearDown``
+    """
 
     fixtures = ['dump.json']
 
@@ -155,6 +167,19 @@ class FileStorageTest( TestCase ):
         self.path = StoragePath()
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = FileStorage( self.lib.get_path() )
+
+    def tearDown(self):
+        # TODO: take out this function
+        """
+        After run test rollback changes
+        For it ``create``, ``mkdir`` and ``clear`` need to work correctly!!
+        """
+        self.storage.clear( u"" )
+        self.storage.mkdir( u".TrashBin" )
+        self.storage.mkdir( u".TrashBin/Crash Test" )
+        self.storage.mkdir( u"Test Folder" )
+        self.storage.create( u"content.txt", u"Test line in file" )
+        self.storage.create( u"Фото 007.bin", "007"*2**8 )
 
     def test_storage_path(self):
         """
@@ -216,7 +241,20 @@ class FileStorageTest( TestCase ):
         content = f.read( )
         f.close( )
         assert content.strip( ) == u"Test"
-        self.storage.remove( u"Test Folder/test.bin" )
+
+    def test_save(self):
+        """
+        Test save file obj to disk
+        """
+        fileobj = self.storage.open( u"content.txt" )
+        self.storage.save( u"test file.bin", File( fileobj ) )
+        fileobj.close()
+        assert self.storage.exists( u"test file.bin" ) == True
+        f = self.storage.open( u"test file.bin" )
+        content = f.read( )
+        f.close( )
+        assert content.strip( ) == u"Test line in file"
+        self.storage.remove( u"test file.bin" )
 
     def test_remove(self):
         """
@@ -241,8 +279,6 @@ class FileStorageTest( TestCase ):
         assert self.storage.exists( u"New dir" ) == True
         assert self.storage.isdir( u"New dir" ) == True
         assert self.storage.isfile( u"New dir" ) == False
-        self.storage.remove( u"New dir" )
-        assert self.storage.exists( u"New dir" ) == False, "*Remove 'New dir' yourself!"
 
     def test_move(self):
         """
@@ -258,21 +294,19 @@ class FileStorageTest( TestCase ):
         self.storage.move( u"New dir/test.bin", u"Test Folder" )
         assert self.storage.exists( u"New dir/test.bin" ) == False
         assert self.storage.exists( u"Test Folder/test.bin" ) == True
-        self.storage.remove( u"Test Folder/test.bin" )
 
         self.storage.move( u"New dir", u"Test Folder" )
         assert self.storage.exists( u"New dir" ) == False
         assert self.storage.exists( u"Test Folder/New dir" ) == True
         assert self.storage.exists( u"Test Folder/New dir/test2.bin" ) == True
-        self.storage.remove( u"Test Folder/New dir" )
 
     def test_rename(self):
         """
         Test rename of files and directories
         """
         self.assertRaises( FileError, self.storage.rename, u"content.txt", u"bad/file.ext" )
-        self.assertRaises( FileNotExist, self.storage.rename, u"no file.txt", u"Фото 070.jpg" )
-        self.assertRaises( FileError, self.storage.rename, u"content.txt", u"Фото 070.jpg" )
+        self.assertRaises( FileNotExist, self.storage.rename, u"no file.txt", u"Фото 007.bin" )
+        self.assertRaises( FileError, self.storage.rename, u"content.txt", u"Фото 007.bin" )
         self.storage.mkdir( u"New dir" )
         self.storage.create( u"New dir/test.bin", u"Test" )
 
@@ -282,7 +316,6 @@ class FileStorageTest( TestCase ):
         self.storage.rename( u"New dir", u"New dir 2" )
         assert self.storage.exists( u"New dir 2" ) == True
         assert self.storage.exists( u"New dir 2/test2.bin" ) == True
-        self.storage.remove( u"New dir 2" )
 
     def test_trash(self):
         """
@@ -296,10 +329,64 @@ class FileStorageTest( TestCase ):
         self.storage.totrash( u"Crash Test/test.bin" )
         assert self.storage.exists( u".TrashBin" ) == True
         assert self.storage.exists( u".TrashBin/test.bin" ) == True
-        self.storage.remove( u".TrashBin/test.bin" )
 
         self.storage.totrash( u"Crash Test" )
         assert self.storage.exists( u".TrashBin/Crash Test" ) == True
+
+    def test_size(self):
+        """
+        Test size
+        """
+        assert self.storage.size( u"content.txt" ) == 17
+        assert self.storage.size( u"Test Folder" ) == 0
+        assert self.storage.size( u"Test Folder", dir=True ) == 0
+        self.storage.create( u"Test Folder/test.bin", "XXX"*2**16 )
+        self.storage.create( u"Test Folder/test2.bin", "XXX"*2**16 )
+        assert self.storage.size( u"Test Folder", dir=True ) == 196608 + 196608
+
+    def test_list_dir(self):
+        """
+        Test listdir
+        """
+        self.assertRaises( FileNotExist, self.storage.listdir, u"No Directory" )
+        
+        testfolder =  { "class": "dir", "name": u"Test Folder", u"url": "Test%20Folder", "size": 0 }
+        testfile =  { "class": "file", 'name': u"content.txt", 'url': "content.txt" }
+        testimage = { "class": 'file', "name": u"Фото 007.bin", "url": u"%D0%A4%D0%BE%D1%82%D0%BE%20007.bin" }
+
+        assert self.storage.listdir( "Test Folder" ).__len__() == 0
+        assert self.storage.listdir( "", hidden=True ).__len__() == 4
+
+        assert self.storage.listdir( "" ).__len__() == 3
+        assert self.storage.listdir( "" )[0]['class'] == testfolder['class']
+        assert self.storage.listdir( "" )[0]['name'] == testfolder['name']
+        assert self.storage.listdir( "" )[0]['url'] == testfolder['url']
+        assert self.storage.listdir( "" )[0]['size'] == testfolder['size']
+
+        assert self.storage.listdir( "" )[1]['class'] == testfile['class']
+        assert self.storage.listdir( "" )[1]['name'] == testfile['name']
+        assert self.storage.listdir( "" )[1]['url'] == testfile['url']
+
+        assert self.storage.listdir( "" )[2]['class'] == testimage['class']
+        assert self.storage.listdir( "" )[2]['name'] == testimage['name']
+        assert self.storage.listdir( "" )[2]['url'] == testimage['url']
+
+    def test_list_files(self):
+        """
+        Test listfiles
+        """
+        assert self.storage.listfiles( u"Test Folder" ).__len__()  == 0
+        
+        abs = self.path.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
+        real = {
+            self.path.join( abs, u'content.txt' ) : u'content.txt',
+            self.path.join( abs, u"Фото 007.bin" ): u"Фото 007.bin",
+        }
+        assert self.storage.listfiles( "" ) == real
+
+        self.storage.create( u"Test Folder/test.bin", u"Test" )
+        real.update( { self.path.join( abs, u'Test Folder/test.bin' ): u'Test Folder/test.bin' } )
+        assert self.storage.listfiles( "" ) == real
 
     def test_available_name(self):
         """
@@ -310,12 +397,10 @@ class FileStorageTest( TestCase ):
         assert self.storage.available_name( u"file name.ext" ) == u"file name[1].ext"
         self.storage.create( u"file name[1].ext", u"Test" )
         assert self.storage.available_name( u"file name.ext" ) == u"file name[2].ext"
-        self.storage.remove( u"file name.ext" )
-        self.storage.remove( u"file name[1].ext" )
 
-    def test_unzip(self):
+    def test_zip(self):
         """
-        Test unzip file
+        Test zip, unzip for files and folders
         """
         self.storage.zip( u"content.txt" )
         assert self.storage.exists( u"content.txt.zip" ) == True
@@ -323,8 +408,12 @@ class FileStorageTest( TestCase ):
 
         self.storage.unzip( u"Test Folder/content.txt.zip" )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
-        self.storage.remove( u"Test Folder/content.txt.zip" )
-        self.storage.remove( u"Test Folder/content.txt" )
+
+        self.storage.zip( u"Test Folder" )
+        assert self.storage.exists( u"Test Folder.zip" ) == True
+        self.storage.move( u"Test Folder.zip", u"Test Folder" )
+        self.storage.unzip( u"Test Folder/Test Folder.zip" )
+        assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
 
     def test_other(self):
         """
@@ -334,6 +423,60 @@ class FileStorageTest( TestCase ):
         assert self.storage.accessed_time( u"content.txt" ) != None
         assert self.storage.created_time( u"content.txt" ) != None
         assert self.storage.modified_time( u"content.txt" ) != None
+
+
+##
+## Action tests
+##
+class ActionTest( TestCase ):
+    """
+    Test Action api that need pre and post features
+    """
+
+    fixtures = ['dump.json']
+
+    def setUp(self):
+        self.path = StoragePath()
+        self.lib = FileLib.objects.get( name="Test" )
+        self.storage = FileStorage( self.lib.get_path() )
+
+    def tearDown(self):
+        # TODO: take out this function
+        """
+        After run test rollback changes
+        For it ``create``, ``mkdir`` and ``clear`` need to work correctly!!
+        """
+        self.storage.clear( u"" )
+        self.storage.mkdir( u".TrashBin" )
+        self.storage.mkdir( u".TrashBin/Crash Test" )
+        self.storage.mkdir( u"Test Folder" )
+        self.storage.create( u"content.txt", u"Test line in file" )
+        self.storage.create( u"Фото 007.bin", "007"*2**8 )
+
+    def test_Upload(self):
+        """
+        Test Upload files
+        """
+        file1 = self.storage.open( u"content.txt" )
+        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [ file1 ] } )
+        file1.close()
+        assert self.storage.exists( u"Test Folder/content.txt" ) == False
+
+        self.client.login( username='B7W', password='root' )
+        file1 = self.storage.open( u"content.txt" )
+        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [ file1 ] } )
+        file1.close()
+        assert self.storage.exists( u"Test Folder/content.txt" ) == True
+
+        file1 = self.storage.open( u"content.txt" )
+        file2 = self.storage.open( u"Фото 007.bin" )
+        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [ file1, file2, file1 ] } )
+        file1.close()
+        file2.close()
+        assert self.storage.exists( u"Test Folder/content[1].txt" ) == True
+        assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
+        assert self.storage.exists( u"Test Folder/content[2].txt" ) == True
+
 
 
 ##
@@ -552,44 +695,44 @@ class ViewsTest( TestCase ):
         lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path() )
         # add True
-        link = urlbilder( 'action', lib.id, "add", p='test', n='new dir' )
+        link = urlbilder( 'action', lib.id, "add", p='', n='new dir' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'created' in [m.message for m in list( resp.context['messages'] )][0]
-        storage.remove( storage.path.join( 'test', 'new dir' ) )
+        storage.remove( storage.path.join( '', 'new dir' ) )
         # delete False
-        link = urlbilder( 'action', lib.id, "delete", p='Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "delete", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # trash False
-        link = urlbilder( 'action', lib.id, "trash", p='Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "trash", p=u"Фото 007.bin"  )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # rename False
-        link = urlbilder( 'action', lib.id, "rename", p='Фото 070.jpg', n='Фото070.jpg' )
+        link = urlbilder( 'action', lib.id, "rename", p=u"Фото 007.bin" , n='Фото070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # move False
-        link = urlbilder( 'action', lib.id, "move", p='Фото 070.jpg', n='/' )
+        link = urlbilder( 'action', lib.id, "move", p=u"Фото 007.bin" , n='/' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # link True
-        link = urlbilder( 'action', lib.id, "link", p='Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "link", p=u"Фото 007.bin"  )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'link' in [m.message for m in list( resp.context['messages'] )][0]
         # zip False
-        link = urlbilder( 'action', lib.id, "zip", p='Фото 070.jpg' )
+        link = urlbilder( 'action', lib.id, "zip", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
@@ -621,15 +764,15 @@ class ViewsTest( TestCase ):
         """
         lib = FileLib.objects.get( name='Test' )
 
-        link = urlbilder( 'download', lib.id, p='content.txt' )
+        link = urlbilder( u'download', lib.id, p=u'content.txt' )
         resp = self.client.get( link )
         assert resp.status_code == 200
 
-        link = urlbilder( 'download', lib.id, p='Test Folder' )
+        link = urlbilder( u'download', lib.id, p=u'Test Folder' )
         resp = self.client.get( link )
         assert resp.status_code == 200
 
-        link = urlbilder( 'link', "nosuchhash" )
+        link = urlbilder( u'link', u"nosuchhash" )
         resp = self.client.get( link )
         assert resp.status_code == 200
         assert escape( u"We are sorry. But such object does not exists or link is out of time" ) in unicode(resp.content, errors='ignore')

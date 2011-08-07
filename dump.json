@@ -1104,7 +1104,7 @@
         "pk": 1, 
         "model": "limited.link",
         "fields": {
-            "path": "\u0424\u043e\u0442\u043e 070.jpg", 
+            "path": "\u0424\u043e\u0442\u043e 007.bin",
             "hash": "a142a8d1442b", 
             "maxage": 86400, 
             "lib": 2, 

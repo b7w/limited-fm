@@ -104,6 +104,10 @@ class FileStorage( object ):
         newfile.close( )
 
     def save(self, name, file):
+        """
+        Save to disk open ``django.core.files.base.File`` object
+        also you need to close it yourself
+        """
         name = self.available_name( name )
 
         newfile = open( self.abspath( name ), 'wb' )
@@ -134,6 +138,17 @@ class FileStorage( object ):
             shutil.rmtree( self.abspath( name ) )
         else:
             os.remove( self.abspath( name ) )
+
+    def clear(self, name):
+        """
+        Remove all files and dirs in namme directory
+        """
+        if not self.exists( name ):
+            raise FileNotExist( u"'%s' not found" % name )
+        if not self.isdir( name ):
+            raise FileError( u"'%s' not directory" % name )
+        for item in os.listdir( self.abspath( name ) ):
+            self.remove( item )
 
     def move(self, src, dst):
         src_dir = self.path.dirname( src )
@@ -203,28 +218,33 @@ class FileStorage( object ):
         files = sorted( files, key=lambda strut: strut['class'] )
         return files
 
-    def listfiles(self, path, dir='', array={ } ):
+    def listfiles(self, path, hidden=False ):
         """
-        List files recursive.
+        List files recursive
         Return dict { abspath : path from root }
         """
-        root = self.abspath( path )
-        absdir = os.path.join( root, dir )
-        for name in os.listdir( absdir ):
-            fullpath = os.path.join( absdir, name )
-            if os.path.isdir( fullpath ):
-                dirpath = os.path.join( dir, name )
-                array = self.listfiles( path, dirpath, array )
+        def _listfiles( path, dir, array, hidden=False ):
+            root = self.abspath( path )
+            absdir = os.path.join( root, dir )
+            for name in os.listdir( absdir ):
+                fullpath = os.path.join( absdir, name )
+                if os.path.isdir( fullpath ):
+                    dirpath = os.path.join( dir, name )
+                    array = _listfiles( path, dirpath, array )
 
-            if os.path.isfile( fullpath ):
-                fullname = os.path.join( dir, name )
-                array[fullpath] = fullname
+                if os.path.isfile( fullpath ):
+                    fullname = os.path.join( dir, name )
+                    array[fullpath] = fullname
 
-        return array
+            return array
+
+        return _listfiles( path, "", {}, hidden=hidden )
 
     def size(self, name, dir=False, cached=True):
         """
         return dir and files size
+        if dir, size will be sum recursive else 0
+        if cached, dirs size will be cached
         """
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
@@ -232,7 +252,8 @@ class FileStorage( object ):
         if dir and self.isdir( self.abspath( name ) ):
             key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
-            if size: return size
+            if size:
+                return size
 
             for item in os.listdir( self.abspath( name ) ):
                 file = self.path.join( name, item )
