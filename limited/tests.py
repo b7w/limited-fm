@@ -158,9 +158,6 @@ class CodeTest( TestCase ):
         lib = FileLib.objects.get( id=2 )
         assert lib.get_path( '/root/' ) == '/root/test'
         assert lib.get_path( '/root' ) == '/root/test'
-
-    def test_Model_Home(self):
-        pass
     
     def test_Model_History(self):
         history = History.objects.get( id=1 )
@@ -179,11 +176,7 @@ class CodeTest( TestCase ):
         assert history.get_type_display() == 'link'
         assert history.get_image_type() == 'create'
         assert history.is_extra() == True
-        assert history.get_extra() == '<a href=\"/link/a142a8d1442b/\">direct link</a>'
-
-    def test_Model_Link(self):
-        link = Link.objects.get( id=1 )
-        assert link.expires() == datetime(2011, 6, 27, 15, 25, 24)
+        assert history.get_extra() == '<a href=\"/link/d89d9baa47e8/\">direct link</a>'
 
 
 

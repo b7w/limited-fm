@@ -1,10 +1,12 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+import hashlib
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils.encoding import smart_str
 
 from limited.storage import StoragePath
 
@@ -145,15 +147,45 @@ class History( models.Model ):
         return u'ID' + unicode( self.id ) + u': ' + unicode( self.user ) + u', ' + unicode( self.lib )
 
 
+class LinkManager( models.Manager ):
+    def add(self, lib, path, age=24 * 60 * 60, *args, **kwargs ):
+        """
+        Create new link with default age 24h
+        """
+        kwargs['lib'] = lib
+        kwargs['path'] = path
+        kwargs['hash'] = self.model.get_hash( lib.id, path )
+        kwargs['expires'] = datetime.now( ) + timedelta( seconds=age )
+        link = Link( *args, **kwargs )
+        link.save( using=self._db )
+        return link
+
+    def find(self, hash ):
+        """
+        Find firs link by hash if it no expired
+        else return None
+        """
+        links = self.get_query_set()\
+            .filter( hash=hash, expires__gt=datetime.now() )\
+            .order_by( '-time' )
+        if len(links) > 0:
+            return links[0]
+        
+        return None
+
 class Link( models.Model ):
     hash = models.CharField( max_length=12, null=False )
     lib = models.ForeignKey( FileLib )
     path = models.CharField( max_length=256, null=False )
-    maxage = models.IntegerField( default=24 * 60 * 60, null=False )
+    expires = models.DateTimeField( null=False )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
-    def expires(self):
-        return self.time + timedelta( seconds=self.maxage )
+    objects = LinkManager()
+
+    @classmethod
+    def get_hash(self, lib_id, path ):
+        """ Return hash for link, need lib id and file path"""
+        return hashlib.md5( str(lib_id) + smart_str( path ) ).hexdigest( )[0:12]
 
     class Meta:
         verbose_name = 'Link'

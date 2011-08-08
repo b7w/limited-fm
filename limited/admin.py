@@ -81,6 +81,7 @@ admin.site.register( Home, AdminHome )
 class AdminHistory( admin.ModelAdmin ):
     list_display = ( 'user', 'lib', 'type', 'time', )
     list_filter = ( 'time', 'user', 'lib', )
+    readonly_fields = ( 'time', )
 
 admin.site.register( History, AdminHistory )
 
@@ -88,9 +89,7 @@ admin.site.register( History, AdminHistory )
 class AdminLink( admin.ModelAdmin ):
     list_display = ( 'path', 'lib', 'hash', 'expires', 'time', )
     list_filter = ( 'time', )
-
-    def expires(self, obj):
-        return format( obj.expires(), "N j, Y, P" )
+    readonly_fields = ( 'time', )
 
 admin.site.register( Link, AdminLink )
 

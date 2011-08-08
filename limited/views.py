@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-from datetime import datetime
-import hashlib
 import logging
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
-from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
-from limited.storage import FileStorage, FileError, FileNotExist
-from limited.models import Home, History, Link, FileLib
+from limited.storage import FileStorage, FileError
+from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import file_response, get_home, get_homes, get_user
 from limited.utils import split_path, HttpResponseReload
@@ -299,27 +296,21 @@ def ActionView( request, id, command ):
 
     elif command == u"link":
         try:
-            # Get MaxAge
-            #age = request.GET['a']
-            hash = hashlib.md5( smart_str( path ) ).hexdigest( )[0:12]
             domain = Site.objects.get_current( ).domain
-
-            # TODO: if links exists where hash and `time`+ `maxage` > NOW()
-            # extra( where=[' DATE_ADD(`time` , INTERVAL `maxage` SECOND) > %s'], params=[datetime.now( )] ).\
-            link = Link.objects.filter( hash=hash )\
-            .order_by( '-time' )\
-            .exists( )
+            link = Link.objects.find( Link.get_hash( home.lib_id, path ) )
             # if exist and not expired
             if link:
-                messages.success( request, u"link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
+                messages.success( request, u"link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
             # else create new one
             elif home.permission.create:
-                Link( hash=hash, lib=home.lib, path=path ).save( )
-                messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, hash) )
+                #Link( hash=hash, lib=home.lib, path=path ).save( )
+                link = Link.objects.add( home.lib, path )
+
+                messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
                 history.user = user
                 history.type = History.LINK
                 history.name = Storage.path.name( path )
-                history.extra = hash
+                history.extra = link.hash
                 history.path = Storage.path.dirname( path )
                 history.save( )
             else:
@@ -348,7 +339,6 @@ def ActionView( request, id, command ):
         size = filesizeformat( size )
         return HttpResponse( size )
 
-    #return render( request, "browser.html", {})
     return HttpResponseReload( request )
 
 
@@ -416,18 +406,14 @@ def DownloadView( request, id ):
 
 def LinkView( request, hash ):
     """
-    If link exist Download whitout any permission
+    If link exist Download without any permission
     """
-    # TODO: if links exists where hash and `time`+ `maxage` > NOW()
-    link = Link.objects.filter( hash=hash )\
-            .order_by( '-time' )[0:1]
-    if len( link ) == 0:
+    link = Link.objects.find( hash )
+    if not link:
         logger.info( u"No link found by hash %s" % hash )
         return RenderError( request, u"We are sorry. But such object does not exists or link is out of time" )
-    link = link[0]
 
-    Lib = FileLib.objects.select_related( 'lib' ).get( id=link.lib_id )
-    response = file_response( Lib.get_path(), link.path )
+    response = file_response( link.lib.get_path(), link.path )
     if not response:
         logger.error( u"Link. No file or directory find. hash:{0}".format( hash ) )
         return RenderError( request, u"No file or directory find" )
