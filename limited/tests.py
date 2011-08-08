@@ -16,6 +16,48 @@ from limited.storage import FileStorage, StoragePath, FileError, FileNotExist
 from limited.templatetags.limited_filters import truncatepath, joinpath
 from limited.utils import split_path, urlbilder
 
+class StorageTestCase( TestCase ):
+    """
+    Base class if wee need to rollback
+    test directory
+
+    It is run always with '--failfast' option
+
+    Best way is to test ``create``, ``mkdir`` and ``clear``
+    by your own separately
+
+    To change test data, add them to ``tearDown``
+    """
+    fixtures = ['dump.json']
+
+    def setUp(self):
+        self.path = StoragePath()
+        self.lib = FileLib.objects.get( name="Test" )
+        self.storage = FileStorage( self.lib.get_path() )
+
+    def tearDown(self):
+        try:
+            self.storage.clear( u"" )
+            self.storage.mkdir( u".TrashBin" )
+            self.storage.mkdir( u".TrashBin/Crash Test" )
+            self.storage.mkdir( u"Test Folder" )
+            self.storage.create( u"content.txt", u"Test line in file" )
+            self.storage.create( u"Фото 007.bin", "007"*2**8 )
+        except Exception:
+            raise Exception(u"Error happened while rollback changes in 'tearDown'. "+
+            "Test Stopped. Clear default data yourself! And test base methods by your own separately")
+
+    def run(self, result=None):
+        """
+        Mark --failfast.
+        Because if we no rollback following tests will not run obviously.
+        """
+        if result == None:
+            result = self.defaultTestResult()
+
+        result.failfast = True
+        super(TestCase, self).run(result)
+
 ##
 ## Main code tests
 ##
@@ -148,38 +190,11 @@ class CodeTest( TestCase ):
 ##
 ## FileStorage tests
 ##
-class FileStorageTest( TestCase ):
+class FileStorageTest( StorageTestCase ):
     """
     Test are mixed because when we test
     we need to create and delete files after work
-
-    Also much better to run with --failfast
-
-    Best way is to test ``create``, ``mkdir`` and ``clear``
-    by your own separately
-
-    To change test data, add them to ``tearDown``
     """
-
-    fixtures = ['dump.json']
-
-    def setUp(self):
-        self.path = StoragePath()
-        self.lib = FileLib.objects.get( name="Test" )
-        self.storage = FileStorage( self.lib.get_path() )
-
-    def tearDown(self):
-        # TODO: take out this function
-        """
-        After run test rollback changes
-        For it ``create``, ``mkdir`` and ``clear`` need to work correctly!!
-        """
-        self.storage.clear( u"" )
-        self.storage.mkdir( u".TrashBin" )
-        self.storage.mkdir( u".TrashBin/Crash Test" )
-        self.storage.mkdir( u"Test Folder" )
-        self.storage.create( u"content.txt", u"Test line in file" )
-        self.storage.create( u"Фото 007.bin", "007"*2**8 )
 
     def test_storage_path(self):
         """
@@ -428,30 +443,10 @@ class FileStorageTest( TestCase ):
 ##
 ## Action tests
 ##
-class ActionTest( TestCase ):
+class ActionTest( StorageTestCase ):
     """
     Test Action api that need pre and post features
     """
-
-    fixtures = ['dump.json']
-
-    def setUp(self):
-        self.path = StoragePath()
-        self.lib = FileLib.objects.get( name="Test" )
-        self.storage = FileStorage( self.lib.get_path() )
-
-    def tearDown(self):
-        # TODO: take out this function
-        """
-        After run test rollback changes
-        For it ``create``, ``mkdir`` and ``clear`` need to work correctly!!
-        """
-        self.storage.clear( u"" )
-        self.storage.mkdir( u".TrashBin" )
-        self.storage.mkdir( u".TrashBin/Crash Test" )
-        self.storage.mkdir( u"Test Folder" )
-        self.storage.create( u"content.txt", u"Test line in file" )
-        self.storage.create( u"Фото 007.bin", "007"*2**8 )
 
     def test_Upload(self):
         """
@@ -764,6 +759,11 @@ class ViewsTest( TestCase ):
         """
         lib = FileLib.objects.get( name='Test' )
 
+        link = urlbilder( u'download', lib.id, p=u'No Folder' )
+        resp = self.client.get( link )
+        assert resp.status_code == 200
+        assert escape( u"No file or directory find" ) in unicode(resp.content, errors='ignore')
+
         link = urlbilder( u'download', lib.id, p=u'content.txt' )
         resp = self.client.get( link )
         assert resp.status_code == 200
@@ -772,13 +772,19 @@ class ViewsTest( TestCase ):
         resp = self.client.get( link )
         assert resp.status_code == 200
 
-        link = urlbilder( u'link', u"nosuchhash" )
+        link = urlbilder( u'link', u"no_such_hash" )
         resp = self.client.get( link )
         assert resp.status_code == 200
-        assert escape( u"We are sorry. But such object does not exists or link is out of time" ) in unicode(resp.content, errors='ignore')
-        
+        assert escape( u"such object does not exists or link is out of time" ) in unicode(resp.content, errors='ignore')
+
         hash =  Link.objects.get( id=1 ).hash
         link = urlbilder( 'link', hash )
         resp = self.client.get( link )
         assert resp.status_code == 200
-        assert escape( u"No file or directory find" ) not in unicode(resp.content, errors='ignore')
+
+        Link.objects.filter( id=1 ).update( path="No File" )
+        hash =  Link.objects.get( id=1 ).hash
+        link = urlbilder( 'link', hash )
+        resp = self.client.get( link )
+        assert resp.status_code == 200
+        assert escape( u"No file or directory find" ) in unicode(resp.content, errors='ignore')
