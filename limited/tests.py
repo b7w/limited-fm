@@ -14,7 +14,7 @@ from limited.controls import truncate_path
 from limited.models import FileLib, Permission, History, Link
 from limited.storage import FileStorage, StoragePath, FileError, FileNotExist
 from limited.templatetags.limited_filters import truncatepath, joinpath
-from limited.utils import split_path, urlbilder
+from limited.utils import split_path, urlbilder, url_get_filename
 
 class StorageTestCase( TestCase ):
     """
@@ -78,6 +78,11 @@ class CodeTest( TestCase ):
         assert urlbilder( 'link', "hxhxhxhxhx", r='2' ) == "/link/hxhxhxhxhx/?r=2"
         assert urlbilder( 'link', "habr", r='/path/' ) == "/link/habr/?r=/path/"
         assert urlbilder( 'action', 2, "add", p='test', n='new dir' ) == "/lib2/action/add/?p=test&n=new%20dir"
+
+    def test_url_get_filename(self):
+        assert url_get_filename( u"http://www.djangoproject.com/download/1.3/tarball/" ) == u"tarball"
+        assert url_get_filename( u"http://domen.ru/share/2033.fb2" ) == u"2033.fb2"
+        assert url_get_filename( u"http://domen.ru/share/Исчисление высказываний.pdf" ) == u"Исчисление высказываний.pdf"
 
     def test_split_path(self):
         assert split_path( '' ) == {}

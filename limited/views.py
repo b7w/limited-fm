@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 import logging
+import urllib
 
 from django.conf import settings
 from django.contrib import messages
@@ -15,7 +16,7 @@ from limited.storage import FileStorage, FileError
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import file_response, get_home, get_homes, get_user
-from limited.utils import split_path, HttpResponseReload
+from limited.utils import split_path, HttpResponseReload, url_get_filename
 
 logger = logging.getLogger(__name__)
 
@@ -199,8 +200,10 @@ def ActionView( request, id, command ):
             # If it link - download it
             # No any messages on success
             if name.startswith( u"http://" ):
+                filename = url_get_filename( name )
+                path = Storage.path.join( path, filename )
                 Storage.download( path, name )
-                messages.success( request, u"file '%s' added for upload" % name )
+                messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
                 dir = Storage.path.join( path, name )

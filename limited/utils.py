@@ -1,4 +1,5 @@
 import os
+import urllib
 from django.core.exceptions import ValidationError
 
 from django.core.urlresolvers import reverse
@@ -97,3 +98,27 @@ def urlbilder( name, *args, **kwargs ):
         return reverse( name, args=args ) + url_params( **kwargs )
     else:
         return reverse( name, args=args )
+
+
+def url_get_filename( url ):
+    """
+    Get tail without ?,=,& and try it to decode to utf-8
+    or get domain name if break
+    """
+    result = ''
+    try:
+        url = iri_to_uri(url)
+        # convert to acii cose urllib is shit
+        bits = str(url).split('/')
+        names = [ x for x in bits if x != '' ]
+        # delete none useful chars
+        for ch in names[-1]:
+            if ch not in ('?','=','&',):
+                result += ch
+        result = urllib.url2pathname( result ).decode('utf-8')
+        
+    except Exception as e:
+        # set name as domen
+        result = url.split('/')[1]
+
+    return result

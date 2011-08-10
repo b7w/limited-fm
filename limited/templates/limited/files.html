@@ -99,6 +99,9 @@
                 </td>
                 <td class="nowrap">
                     <div class="align-right">
+                        <a href="{% url download home_id %}?p={{ item.url }}">
+                            <img src="{{ STATIC_URL }}limited/img/down.png" title="download"/>
+                        </a>
                         {% if permission.edit %}
                         <img class="zip" src="{{ STATIC_URL }}limited/img/zip.png" title="Zip/unZip files and folders"/>
                         <img class="rename" src="{{ STATIC_URL }}limited/img/rename.png" title="Rename"/>
