@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import md5
 import logging
 import os
@@ -106,7 +106,7 @@ class FileStorage( object ):
 
         path = self.available_name( path )
         file = self.abspath( path )
-        Tasks.pool.add_task( task, iri_to_uri(url) ,file, logger )
+        Tasks.add_task( task, iri_to_uri( url ), file, logger )
 
     def mkdir(self, name):
         if self.exists( name ):
@@ -124,16 +124,27 @@ class FileStorage( object ):
         else:
             os.remove( self.abspath( name ) )
 
-    def clear(self, name):
+    def clear(self, name, older=None):
         """
-        Remove all files and dirs in namme directory
+        Remove all files and dirs in namme directory.
+        
+        ``older`` needs seconds,
+        only top sub dirs checked
         """
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
         if not self.isdir( name ):
             raise FileError( u"'%s' not directory" % name )
-        for item in os.listdir( self.abspath( name ) ):
-            self.remove( item )
+        if older == None:
+            for item in os.listdir( self.abspath( name ) ):
+                file = self.path.join( name, item )
+                self.remove( file )
+        else:
+            for item in os.listdir( self.abspath( name ) ):
+                file = self.path.join( name, item )
+                chenaged = self.created_time( file )
+                if datetime.now( ) - chenaged > timedelta( seconds=older ):
+                    self.remove( file )
 
     def move(self, src, dst):
         src_dir = self.path.dirname( src )

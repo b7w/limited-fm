@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import time
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import File
@@ -283,6 +284,19 @@ class FileStorageTest( StorageTestCase ):
         self.storage.remove( u"test.bin" )
         assert self.storage.exists( u"test.bin" ) == False
 
+    def test_clear(self):
+        """
+        Test clear
+        """
+        self.assertRaises( FileNotExist, self.storage.clear, u"No Folder" )
+        self.assertRaises( FileError, self.storage.clear, u"content.txt" )
+
+        self.storage.clear( u".TrashBin", older=60 )
+        assert self.storage.exists( u".TrashBin/Crash Test" ) == True
+        time.sleep( 1 )
+        self.storage.clear( u".TrashBin", older=1 )
+        assert self.storage.exists( u".TrashBin/Crash Test" ) == False
+
     def test_mkdir(self):
         """
         Test directory creating
@@ -427,6 +441,14 @@ class FileStorageTest( StorageTestCase ):
         self.storage.move( u"Test Folder.zip", u"Test Folder" )
         self.storage.unzip( u"Test Folder/Test Folder.zip" )
         assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
+
+    def test_download(self):
+        """
+        Test download in ThreadPool
+        """
+        self.storage.download( u"logo3w.png", u"http://www.google.ru/images/srpr/logo3w.png" )
+        time.sleep( 1 )
+        assert self.storage.exists( u"logo3w.png" )
 
     def test_other(self):
         """

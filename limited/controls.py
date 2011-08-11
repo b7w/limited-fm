@@ -11,7 +11,9 @@ from django.utils.encoding import smart_str
 
 from limited.models import Home, FileLib, Permission
 from limited.storage import FileStorage
+from limited.tasks import Tasks
 
+logger = logging.getLogger(__name__)
 
 def get_home( user, lib_id ):
     """
@@ -126,3 +128,16 @@ def truncate_path( str, length=64, ext=False):
         return str
     else:
         return str[:length].strip() + u".."
+
+
+def clear_trashes( ):
+    """
+    Clear objects in all Trash folder,
+    older than one day
+    """
+    for lib in FileLib.objects.all( ):
+        storage = FileStorage( lib.get_path( ) )
+        storage.clear( u".TrashBin", older=24 * 60 * 60 )
+
+# Register schedule every hour
+Tasks.pool.add_schedule( 60 * 60, clear_trashes )

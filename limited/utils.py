@@ -1,6 +1,5 @@
 import os
 import urllib
-from django.core.exceptions import ValidationError
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -17,6 +16,16 @@ class HttpResponseReload( HttpResponse ):
         referer = request.META.get( u"HTTP_REFERER" )
         self[u"Location"] = iri_to_uri( referer or "/" )
 
+
+class Singleton( type ):
+    def __init__(cls, name, bases, dict):
+        super( Singleton, cls ).__init__( name, bases, dict )
+        cls.instance = None
+
+    def __call__(cls, *args, **kw):
+        if cls.instance is None:
+            cls.instance = super( Singleton, cls ).__call__( *args, **kw )
+            return cls.instance
 
 
 def split_path( path ):
@@ -107,18 +116,18 @@ def url_get_filename( url ):
     """
     result = ''
     try:
-        url = iri_to_uri(url)
+        url = iri_to_uri( url )
         # convert to acii cose urllib is shit
-        bits = str(url).split('/')
-        names = [ x for x in bits if x != '' ]
+        bits = str( url ).split( '/' )
+        names = [x for x in bits if x != '']
         # delete none useful chars
         for ch in names[-1]:
-            if ch not in ('?','=','&',):
+            if ch not in ('?', '=', '&',):
                 result += ch
-        result = urllib.url2pathname( result ).decode('utf-8')
-        
+        result = urllib.url2pathname( result ).decode( 'utf-8' )
+
     except Exception as e:
         # set name as domen
-        result = url.split('/')[1]
+        result = url.split( '/' )[1]
 
     return result
