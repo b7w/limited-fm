@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import md5
 import logging
 import os
 import shutil
-import threading
 import urllib
 import zipfile
 from django.core.cache import cache
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, iri_to_uri
+from django.utils.http import urlquote
+from limited.tasks import Tasks
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +28,23 @@ class FileNotExist( FileError ):
 
 class StoragePath( object ):
     def join(self, path, name ):
+        """
+        join to path, if ``mane`` start with '/'
+        return ``name``
+        """
         return os.path.join( path, name )
 
     def name(self, path):
+        """
+        return file name or ''
+        """
         return os.path.basename( path )
 
     def dirname(self, path):
+        """
+        return directory path of file
+        or return path if ends with '/'
+        """
         return os.path.dirname( path )
 
     def norm(self, root, src ):
@@ -44,8 +56,6 @@ class StoragePath( object ):
         if src.find( '../' ) != -1 or src.find( './' ) != -1:
             path = self.join( root, src )
             path = os.path.normpath( path )
-            if path.find( '../' ) != -1 or path.find( './' ) != -1:
-                raise FileError( "Wrong path '%s'" % path )
         else:
             path = src
 
@@ -53,49 +63,6 @@ class StoragePath( object ):
         if path[0] == '/':
             path = path[1:]
         return path
-
-
-def ListFiles( root, dir='', array={ } ):
-    """
-    List files recursive.
-    Return dict { abspath : path from root }
-    """
-    absdir = os.path.join( root, dir )
-    for name in os.listdir( absdir ):
-        fullpath = os.path.join( absdir, name )
-        if os.path.isdir( fullpath ):
-            dirpath = os.path.join( dir, name )
-            array = ListDir( root, dirpath, array )
-
-        if os.path.isfile( fullpath ):
-            path = os.path.join( dir, name )
-            array[fullpath] = path
-
-    return array
-
-
-class DownloadThread( threading.Thread ):
-    """
-    Download file from url in a thread.
-    So big files can be download without stopping django process
-    While downloading, file has name '[Download]{Name}'
-    """
-    def __init__(self, url, file, *args, **kwargs):
-        super( DownloadThread, self ).__init__( *args, **kwargs )
-        self.url = url
-        self.file = file
-
-    def run(self):
-        try:
-            path, name = os.path.split( self.file )
-            file = os.path.join( path, '[Downloading]' + name )
-            urllib.urlretrieve( self.url, file )
-            os.rename( file, self.file )
-        except Exception as e:
-            logger.error( "DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
-            if os.path.exists( self.file ):
-                os.remove( self.file )
-
 
 class FileStorage( object ):
     def __init__(self, home ):
@@ -105,7 +72,18 @@ class FileStorage( object ):
     def open(self, name, mode='rb'):
         return open( self.abspath( name ), mode )
 
+    def create(self, name, content):
+        name = self.available_name( name )
+        
+        newfile = open( self.abspath( name ), 'wb' )
+        newfile.write( content )
+        newfile.close( )
+
     def save(self, name, file):
+        """
+        Save to disk open ``django.core.files.base.File`` object
+        also you need to close it yourself
+        """
         name = self.available_name( name )
 
         newfile = open( self.abspath( name ), 'wb' )
@@ -115,31 +93,67 @@ class FileStorage( object ):
         newfile.close( )
 
     def download(self, path, url):
-        # TODO: fix problems with encoding
-        name = self.path.name( url )
-        file = self.path.join( self.abspath( path ), name )
-        thread = DownloadThread( url, file )
-        thread.start( );
+        def _download(url, file, logger ):
+            try:
+                path, name = os.path.split( file )
+                newfile = os.path.join( path, u"[Downloading]" + name )
+                urllib.urlretrieve( url, newfile )
+                os.rename( newfile, file )
+            except Exception as e:
+                logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, url, file ) )
+                if os.path.exists( file ):
+                    os.remove( file )
+
+        path = self.available_name( path )
+        file = self.abspath( path )
+        Tasks.add_task( _download, iri_to_uri( url ), file, logger )
 
     def mkdir(self, name):
         if self.exists( name ):
-            raise FileError( "Directory '%s' already exists" % name )
+            raise FileError( u"Directory '%s' already exists" % name )
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
         return self.path.join( self.home, name )
 
-    def delete(self, name):
-        os.remove( self.abspath( name ) )
+    def remove(self, name):
+        if not self.exists( name ):
+            raise FileNotExist( u"'%s' not found" % name )
+        if self.isdir( name ):
+            shutil.rmtree( self.abspath( name ) )
+        else:
+            os.remove( self.abspath( name ) )
+
+    def clear(self, name, older=None):
+        """
+        Remove all files and dirs in namme directory.
+        
+        ``older`` needs seconds,
+        only top sub dirs checked
+        """
+        if not self.exists( name ):
+            raise FileNotExist( u"'%s' not found" % name )
+        if not self.isdir( name ):
+            raise FileError( u"'%s' not directory" % name )
+        if older == None:
+            for item in os.listdir( self.abspath( name ) ):
+                file = self.path.join( name, item )
+                self.remove( file )
+        else:
+            for item in os.listdir( self.abspath( name ) ):
+                file = self.path.join( name, item )
+                chenaged = self.created_time( file )
+                if datetime.now( ) - chenaged > timedelta( seconds=older ):
+                    self.remove( file )
 
     def move(self, src, dst):
         src_dir = self.path.dirname( src )
-        if src_dir == dst:
-            raise FileError( "Moving to the same directory" )
+        if src == dst or src_dir == dst:
+            raise FileError( u"Moving to the same directory" )
         if not self.exists( src ):
-            raise FileNotExist( "'%s' not found" % src )
+            raise FileNotExist( u"'%s' not found" % src )
         if not self.exists( dst ):
-            raise FileNotExist( "'%s' not found" % dst )
+            raise FileNotExist( u"'%s' not found" % dst )
 
         name = self.path.name( src )
 
@@ -149,9 +163,9 @@ class FileStorage( object ):
 
     def rename(self, path, name):
         if '/' in name:
-            raise FileError( "'%s' contains not supported symbols" % name )
+            raise FileError( u"'%s' contains not supported symbols" % name )
         if not self.exists( path ):
-            raise FileNotExist( "'%s' not found" % path )
+            raise FileNotExist( u"'%s' not found" % path )
         new_path = self.path.join( self.path.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
@@ -159,10 +173,10 @@ class FileStorage( object ):
 
     def totrash(self, name):
         if not self.exists( name ):
-            raise FileNotExist( '%s not found' % name )
-        if not self.exists( '.TrashBin' ):
-            self.mkdir( '.TrashBin' )
-        self.move( name, '.TrashBin' )
+            raise FileNotExist( u"%s not found" % name )
+        if not self.exists( u".TrashBin" ):
+            self.mkdir( u".TrashBin"  )
+        self.move( name, u".TrashBin"  )
 
     def exists(self, name):
         return os.path.exists( self.abspath( name ) )
@@ -175,7 +189,7 @@ class FileStorage( object ):
 
     def listdir(self, path, hidden=False):
         if not (self.exists( path ) and self.isdir( path ) ):
-            raise FileNotExist( "path '%s' doesn't exist or it isn't a directory" % path )
+            raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
 
         tmp = os.listdir( self.abspath( path ) )
         files = []
@@ -200,36 +214,42 @@ class FileStorage( object ):
         files = sorted( files, key=lambda strut: strut['class'] )
         return files
 
-    def listfiles(self, path, dir='', array={ } ):
+    def listfiles(self, path, hidden=False ):
         """
-        List files recursive.
+        List files recursive
         Return dict { abspath : path from root }
         """
-        root = self.abspath( path )
-        absdir = os.path.join( root, dir )
-        for name in os.listdir( absdir ):
-            fullpath = os.path.join( absdir, name )
-            if os.path.isdir( fullpath ):
-                dirpath = os.path.join( dir, name )
-                array = self.listfiles( path, dirpath, array )
+        def _listfiles( path, dir, array, hidden=False ):
+            root = self.abspath( path )
+            absdir = os.path.join( root, dir )
+            for name in os.listdir( absdir ):
+                fullpath = os.path.join( absdir, name )
+                if os.path.isdir( fullpath ):
+                    dirpath = os.path.join( dir, name )
+                    array = _listfiles( path, dirpath, array )
 
-            if os.path.isfile( fullpath ):
-                fullname = os.path.join( dir, name )
-                array[fullpath] = fullname
+                if os.path.isfile( fullpath ):
+                    fullname = os.path.join( dir, name )
+                    array[fullpath] = fullname
 
-        return array
+            return array
+
+        return _listfiles( path, "", {}, hidden=hidden )
 
     def size(self, name, dir=False, cached=True):
         """
         return dir and files size
+        if dir, size will be sum recursive else 0
+        if cached, dirs size will be cached
         """
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
 
         if dir and self.isdir( self.abspath( name ) ):
-            key = md5( smart_str( name ) ).hexdigest( )
+            key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
             size = cache.get( key ) or 0
-            if size: return size
+            if size:
+                return size
 
             for item in os.listdir( self.abspath( name ) ):
                 file = self.path.join( name, item )
@@ -240,7 +260,7 @@ class FileStorage( object ):
         return 0
 
     def zip(self, path ):
-        file = self.abspath( path ) + '.zip'
+        file = self.abspath( path ) + u".zip"
         file = self.available_name( file )
         temp = open( file, mode='w' )
         archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
@@ -258,10 +278,15 @@ class FileStorage( object ):
     def unzip(self, path ):
         file = self.abspath( path )
         zip = zipfile.ZipFile( file )
-        zip.extractall( self.path.dirname( file ) )
+        # To lazy to do converting
+        # maybe chardet help later
+        try:
+            zip.extractall( self.path.dirname( file ) )
+        except UnicodeDecodeError as e:
+            raise FileError( u"Unicode decode error, try unzip yourself" )
 
     def url(self, name):
-        return name
+        return urlquote(name)
 
     def available_name(self, path):
         # if file exists add [i] to file name
@@ -269,7 +294,7 @@ class FileStorage( object ):
         i = 1
         while i != 0:
             if self.exists( self.abspath( path ) ):
-                path = file + '[' + str( i ) + ']' + ext
+                path = file + u'[' + unicode( i ) + u']' + ext
                 i += 1
             else:
                 i = 0

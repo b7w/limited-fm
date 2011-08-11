@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import re
 import tempfile
@@ -9,39 +10,30 @@ from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
-from limited.models import MHome, MFileLib, MPermission
+from limited.models import Home, FileLib, Permission
 from limited.storage import FileStorage
+from limited.tasks import Tasks
 
+logger = logging.getLogger(__name__)
 
-def isUserCanView( user ):
+def get_home( user, lib_id ):
     """
-    If user can view or need login
-    """
-    if user.is_authenticated( ):
-        return True
-    elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return True
-    return False
-
-
-def getHome( user, lib_id ):
-    """
-    Get MHome plus related FileLib
+    Get Home plus related FileLib
     depending on is_authenticated or not
     and LIMITED_ANONYMOUS
     """
     if user.is_authenticated( ):
         if user.is_superuser:
-            home = MHome()
-            home.lib = MFileLib.objects.get( id=lib_id )
-            home.permission = MPermission.Full()
+            home = Home()
+            home.lib = FileLib.objects.get( id=lib_id )
+            home.permission = Permission.Full()
             return home
         elif settings.LIMITED_ANONYMOUS:
-            home = MHome.objects.select_related( 'lib', 'permission' ).\
+            home = Home.objects.select_related( 'lib', 'permission' ).\
                 filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=lib_id)
             length = len(home)
             if length == 0:
-                raise MHome.DoesNotExist
+                raise Home.DoesNotExist
             # if len==2 than we have Anon and User permission
             # so we need to get User once
             elif length == 2:
@@ -50,32 +42,32 @@ def getHome( user, lib_id ):
                 # else: return home[0]
             return home[0]
         else:
-            return MHome.objects.select_related( 'lib', 'permission' ).get( user=user, lib__id=lib_id )
+            return Home.objects.select_related( 'lib', 'permission' ).get( user=user, lib__id=lib_id )
 
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return MHome.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
+        return Home.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
 
 
-def getHomes( user ):
+def get_homes( user ):
     """
-    Get MHome plus related FileLib
+    Get Home plus related FileLib
     depending on is_authenticated or not
     and LIMITED_ANONYMOUS
     """
     if user.is_authenticated( ):
         if user.is_superuser:
             homes = []
-            libs = MFileLib.objects.all( ).distinct( )
+            libs = FileLib.objects.all( ).distinct( )
             for item in libs:
-                homes.append( MHome( lib=item ) )
+                homes.append( Home( lib=item ) )
             return homes
         else:
-            return MHome.objects.select_related( 'lib' ).filter( user=user )
+            return Home.objects.select_related( 'lib' ).filter( user=user )
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return MHome.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
+        return Home.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
 
 
-def getUser( user ):
+def get_user( user ):
     """
     Return normal User obj for anon
     """
@@ -84,7 +76,7 @@ def getUser( user ):
     return user
 
 
-def Downloads( home, path ):
+def file_response( home, path ):
     """
     Return HttpResponse obj
     with file attachment
@@ -96,9 +88,9 @@ def Downloads( home, path ):
     if File.isfile( path ):
         wrapper = FileWrapper( File.open( path ) )
         #wrapper = File.open( path ).read( )
-        response = HttpResponse( wrapper, content_type='application/force-download' )
-        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( File.path.name( path ) )
-        response['Content-Length'] = File.size( path )
+        response = HttpResponse( wrapper, content_type=u"application/force-download" )
+        response[u"Content-Disposition"] = "attachment; filename=%s" % smart_str( File.path.name( path ) )
+        response[u"Content-Length"] = File.size( path )
 
     elif File.isdir( path ):
         temp = tempfile.TemporaryFile( )
@@ -110,17 +102,17 @@ def Downloads( home, path ):
 
         archive.close( )
         wrapper = FileWrapper( temp )
-        response = HttpResponse( wrapper, content_type='application/zip' )
-        response['Content-Disposition'] = 'attachment; filename=%s.zip' % smart_str( File.path.name( path ) )
-        response['Content-Length'] = temp.tell( )
+        response = HttpResponse( wrapper, content_type=u"application/zip" )
+        response[u"Content-Disposition"] = "attachment; filename=%s.zip" % smart_str( File.path.name( path ) )
+        response[u"Content-Length"] = temp.tell( )
         temp.seek( 0 )
 
     return response
 
 
-def MinimizeString( str, length=64, ext=False):
+def truncate_path( str, length=64, ext=False):
     """
-    Minimise long strings.
+    Truncate long path. if ext=True the path extensions will not deleted
 
     long name.ext -> {length}...ext
     or if fail long name - {length}..
@@ -129,8 +121,24 @@ def MinimizeString( str, length=64, ext=False):
         restr = r"^(.{%s}).*\.(\w+)$" % length
         name_ext = re.match( restr, str )
         if name_ext != None:
-            return "%s...%s" % name_ext.groups( )
+            #return "%s..%s" % name_ext.groups( )
+            filename = name_ext.group(1).strip()
+            fileext = name_ext.group(2).strip()
+            return u"{0}..{1}".format( filename, fileext )
     if len(str) < length:
         return str
     else:
-        return str[:length] + ".."
+        return str[:length].strip() + u".."
+
+
+def clear_trashes( ):
+    """
+    Clear objects in all Trash folder,
+    older than one day
+    """
+    for lib in FileLib.objects.all( ):
+        storage = FileStorage( lib.get_path( ) )
+        storage.clear( u".TrashBin", older=24 * 60 * 60 )
+
+# Register schedule every hour
+Tasks.pool.add_schedule( 60 * 60, clear_trashes )

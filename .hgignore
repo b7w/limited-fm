@@ -8,6 +8,9 @@ settings*.py
 FileManager.ids
 
 debug_toolbar
+django_coverage
+
+special
 static
 extra
 

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
+
 import re
 
 from django import template
-from limited.controls import MinimizeString
+from limited.controls import truncate_path
 
 register = template.Library()
 
 
 @register.filter
-def mini( value, arg=None ):
+def truncatepath( value, arg=None ):
     """
     Minimize/truncate file path. Can cut extensions or not.
-
+    
     * arg:  "int.(ext|noext)"
     * arg:  "(ext|noext)"
     * arg:  "int"
@@ -20,17 +21,17 @@ def mini( value, arg=None ):
         len, ext = re.match( r"^(\d+)?\.?(\w+)?$", arg ).groups( )
         if len != None and ext != None:
             if ext == "ext":
-                return MinimizeString( value, length=int( len ), ext=True )
+                return truncate_path( value, length=int( len ), ext=True )
             elif ext == "noext":
-                return MinimizeString( value, length=int( len ), ext=False )
+                return truncate_path( value, length=int( len ), ext=False )
         elif len != None:
-            return MinimizeString( value, length=int( len ) )
+            return truncate_path( value, length=int( len ) )
         elif ext != None:
             if ext == "ext":
-                return MinimizeString( value, ext=True )
+                return truncate_path( value, ext=True )
             elif ext == "noext":
-                return MinimizeString( value, ext=False )
-    return MinimizeString( value )
+                return truncate_path( value, ext=False )
+    return truncate_path( value )
 
 
 @register.tag
@@ -40,13 +41,13 @@ def joinpath(parser, token):
     can save result in variable in such way ``as name``
 
     Sample usage::
-
+    
         {% joinpath "/" item.path item.name as path %}
-        {{ path|mini }}
+        {{ path|truncatepath }}
     """
     args = token.split_contents( )[1:]
     if len(args) > 3:
-        if args[-2] == "as":
+        if args[-2] == u"as":
             return JoinPathNode( args[0:-2], args[-1] )
 
     return JoinPathNode( args )
