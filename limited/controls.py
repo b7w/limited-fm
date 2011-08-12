@@ -138,7 +138,7 @@ def clear_trashes( ):
     """
     for lib in FileLib.objects.all( ):
         storage = FileStorage( lib.get_path( ) )
-        storage.clear( u".TrashBin", older=24 * 60 * 60 )
+        storage.clear( u".TrashBin", older=7 * 24 * 60 * 60 )
 
 # Register schedule every hour
 Tasks.pool.add_schedule( 60 * 60, clear_trashes )

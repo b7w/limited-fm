@@ -63,7 +63,7 @@ class ThreadPool( Thread ):
     def add_schedule(self, period, func, *args, **kargs):
         sh = ScheduleTask( period, func, *args, **kargs  )
         self.schedules.append( sh )
-        self.logger.info( "Worker run " + func.__module__ + '.' + func.__name__ )
+        self.logger.debug( "Add schedule " + func.__module__ + '.' + func.__name__ )
 
     def run(self):
         for th in self.threads:

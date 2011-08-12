@@ -3,6 +3,7 @@ syntax: glob
 settings*.py
 
 *.pyc
+*.pyo
 *.log
 .idea
 FileManager.ids
