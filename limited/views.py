@@ -92,6 +92,7 @@ def FilesView( request, id ):
         return RenderError( request, e )
 
     return render( request, u"limited/files.html", {
+        'pathname': request.path,
         'path': path,
         'patharr': patharr,
         'history': history,
@@ -126,6 +127,7 @@ def HistoryView( request, id ):
         return RenderError( request, u"No such file lib or you don't have permissions" )
 
     return render( request, u"limited/history.html", {
+        'pathname': request.path,
         'patharr': patharr,
         'history': history,
         'home_id': lib_id,
@@ -166,6 +168,7 @@ def TrashView( request, id ):
         return RenderError( request, e )
 
     return render( request, u"limited/trash.html", {
+        'pathname': request.path,
         'path': '.TrashBin',
         'patharr': patharr,
         'history': history,

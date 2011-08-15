@@ -30,7 +30,7 @@
                 {% endif %}
             <a href="/logout/">Log out</a>
             {% else %}
-            <a href="/login/">Log in</a>
+            <a href="/login/?next={{ pathname }}">Log in</a>
             {% endif %}
         </div>
     </div>

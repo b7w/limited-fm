@@ -12,7 +12,7 @@ from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.utils.html import escape
 
-from limited.controls import truncate_path, clear_trashes
+from limited.controls import truncate_path, clear_folders
 from limited.models import FileLib, Permission, History, Link
 from limited.storage import FileStorage, StoragePath, FileError, FileNotExist
 from limited.templatetags.limited_filters import truncatepath, joinpath
@@ -68,12 +68,24 @@ class CodeTest( TestCase ):
     fixtures = ['dump.json']
     
     def test_load_permissions(self):
+        """
+        Test management command loadpermissions.
+        """
         print
         print '# Management output start'
         call_command( 'loadpermissions', interactive=False )
         print '# Management end'
         print
         assert Permission.objects.count( ) == 2 ** len( Permission.fields( ) )
+
+    def test_clear_folder(self):
+        """
+        Test management command clearfolder.
+        If no exceptions - pretty good
+        """
+        call_command( 'clearfolder', '.TrashBin' )
+        call_command( 'clearfolder', '.TrashBin', '24*60*60' )
+        call_command( 'clearfolder', 'NoFolder', '24*60*60' )
 
     def test_urlbilder(self):
         assert urlbilder( 'action', 2, "add" ) == "/lib2/action/add/"
@@ -287,7 +299,7 @@ class FileStorageTest( StorageTestCase ):
 
     def test_clear(self):
         """
-        Test clear
+        Test clear and test and very similar 'controls.clear_folders'
         """
         self.assertRaises( FileNotExist, self.storage.clear, u"No Folder" )
         self.assertRaises( FileError, self.storage.clear, u"content.txt" )
@@ -297,8 +309,11 @@ class FileStorageTest( StorageTestCase ):
         time.sleep( 1 )
         self.storage.clear( u".TrashBin", older=1 )
         assert self.storage.exists( u".TrashBin/Crash Test" ) == False
-        # just run it
-        clear_trashes()
+
+        self.storage.create( u".TrashBin/test.bin", u"Test" )
+        clear_folders( u"NoFolder" )
+        clear_folders( u".TrashBin", 0 )
+        assert self.storage.exists( u".TrashBin/test.bin" ) == False
 
     def test_mkdir(self):
         """
@@ -509,7 +524,7 @@ class ViewsTest( TestCase ):
         Look home page of admin
         and his libs
         """
-        self.assertTrue( self.client.login( username='admin', password='root' ) )
+        assert self.client.login( username='admin', password='root' ) == True
         resp = self.client.get( '/' )
         assert resp.status_code == 200
         assert resp.context['Homes'].__len__( ) == 2
