@@ -131,14 +131,14 @@ def truncate_path( str, length=64, ext=False):
         return str[:length].strip() + u".."
 
 
-def clear_trashes( ):
+def clear_folders( path, older=7 * 24 * 60 * 60 ):
     """
-    Clear objects in all Trash folder,
-    older than one day
+    Clear objects in ``path`` in all filelibs,
+    older than one week by default.
+
+    if no folder, nothing will happened
     """
     for lib in FileLib.objects.all( ):
         storage = FileStorage( lib.get_path( ) )
-        storage.clear( u".TrashBin", older=7 * 24 * 60 * 60 )
-
-# Register schedule every hour
-Tasks.pool.add_schedule( 60 * 60, clear_trashes )
+        if storage.isdir( path ):
+            storage.clear( path, older=older )

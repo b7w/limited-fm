@@ -5,6 +5,7 @@ from hashlib import md5
 import logging
 import os
 import shutil
+import threading
 import urllib
 import zipfile
 from django.core.cache import cache
@@ -25,6 +26,29 @@ class FileNotExist( FileError ):
     File not Found Storage Error
     """
     pass
+
+
+class DownloadThread( threading.Thread ):
+    """
+    Download file in a thread
+    """
+
+    def __init__(self, url, file, *args, **kwargs ):
+        super( DownloadThread, self ).__init__( *args, **kwargs )
+        self.url = url
+        self.file = file
+
+    def run(self):
+        try:
+            path, name = os.path.split( self.file )
+            newfile = os.path.join( path, u"[Downloading]" + name )
+            urllib.urlretrieve( self.url, newfile )
+            os.rename( newfile, self.file )
+        except Exception as e:
+            logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
+            if os.path.exists( self.file ):
+                os.remove( self.file )
+
 
 class StoragePath( object ):
     def join(self, path, name ):
@@ -64,6 +88,7 @@ class StoragePath( object ):
             path = path[1:]
         return path
 
+
 class FileStorage( object ):
     def __init__(self, home ):
         self.home = home
@@ -93,20 +118,10 @@ class FileStorage( object ):
         newfile.close( )
 
     def download(self, path, url):
-        def _download(url, file, logger ):
-            try:
-                path, name = os.path.split( file )
-                newfile = os.path.join( path, u"[Downloading]" + name )
-                urllib.urlretrieve( url, newfile )
-                os.rename( newfile, file )
-            except Exception as e:
-                logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, url, file ) )
-                if os.path.exists( file ):
-                    os.remove( file )
-
         path = self.available_name( path )
         file = self.abspath( path )
-        Tasks.add_task( _download, iri_to_uri( url ), file, logger )
+        thread = DownloadThread( iri_to_uri( url ), file )
+        thread.start()
 
     def mkdir(self, name):
         if self.exists( name ):
