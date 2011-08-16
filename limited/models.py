@@ -10,7 +10,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.encoding import smart_str
 
-from limited.storage import StoragePath
+from limited.storage.base import StoragePath
 
 class PermissionError( Exception ):
     pass

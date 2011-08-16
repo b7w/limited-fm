@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from limited.models import FileLib
-from limited.storage import FileStorage, StoragePath
+from limited.storage.base import FileStorage, StoragePath
 
 
 class StorageTestCase( TestCase ):

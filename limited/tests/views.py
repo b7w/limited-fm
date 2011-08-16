@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.utils.html import escape
 
 from limited.models import FileLib, Link
-from limited.storage import FileStorage
+from limited.storage.base import FileStorage
 from limited.utils import urlbilder
 
 class ViewsTest( TestCase ):

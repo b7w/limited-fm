@@ -6,7 +6,8 @@ from django.conf import settings
 from django.core.files.base import File
 
 from limited.controls import clear_folders
-from limited.storage import FileError, FileNotExist, ZipThread
+from limited.storage.base import FileError, FileNotExist
+from limited.storage.utils import ZipThread
 from limited.tests.base import StorageTestCase
 
 
