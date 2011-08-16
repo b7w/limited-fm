@@ -14,7 +14,9 @@ from django.utils.html import escape
 
 from limited.controls import truncate_path, clear_folders
 from limited.models import FileLib, Permission, History, Link
-from limited.storage import FileStorage, StoragePath, FileError, FileNotExist
+from limited.serve.backends import BaseDownloadResponse
+from limited.serve.manager import DownloadManager
+from limited.storage import FileStorage, StoragePath, FileError, FileNotExist, ZipThread
 from limited.templatetags.limited_filters import truncatepath, joinpath
 from limited.utils import split_path, urlbilder, url_get_filename
 
@@ -35,7 +37,7 @@ class StorageTestCase( TestCase ):
     def setUp(self):
         self.path = StoragePath()
         self.lib = FileLib.objects.get( name="Test" )
-        self.storage = FileStorage( self.lib.get_path() )
+        self.storage = FileStorage( self.lib.get_path(), self.lib.path )
 
     def tearDown(self):
         try:
@@ -198,6 +200,70 @@ class CodeTest( TestCase ):
         assert history.get_extra() == '<a href=\"/link/d89d9baa47e8/\">direct link</a>'
 
 
+##
+## FileStorage tests
+##
+class DownloadManagerTest( StorageTestCase ):
+    """
+    Test DownloadManager
+    """
+
+    def setUp(self):
+        """
+        Add DownloadManager and set default settings
+        """
+        super( DownloadManagerTest, self ).setUp( )
+        self.manager = DownloadManager( self.lib )
+        settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 * 1024
+        settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.default'
+        settings.LIMITED_SERVE['INTERNAL_URL'] = '/protected'
+
+    def test_processing(self):
+        """
+        Test manager.is_need_processing and manager.process
+        """
+        settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024
+
+        assert self.manager.is_need_processing( u"Test Folder" ) == False
+        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
+        assert self.manager.is_need_processing( u"Test Folder" ) == True
+        self.manager.process( u"Test Folder" )
+        time.sleep( 1 )
+        assert self.storage.exists( self.manager.cache_path( u"Test Folder" ) ) == True
+        assert self.manager.is_need_processing( u"Test Folder" ) == False
+
+    def test_backend(self):
+        """
+        Test backend is isinstance of class BaseDownloadResponse
+        """
+        settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.nginx'
+        backend = self.manager.get_backend( )
+        assert isinstance( backend( None, { } ), BaseDownloadResponse ) == True
+
+        settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.default'
+        backend = self.manager.get_backend( )
+        assert isinstance( backend( None, { } ), BaseDownloadResponse ) == True
+
+    def test_response(self):
+        """
+        Test response Content-Disposition and len of content
+        For nginx X-Accel-Redirect.
+        """
+        settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.nginx'
+        response = self.manager.build( u"content.txt" )
+        assert response['X-Accel-Redirect'] == u"/protected/%s/content.txt" % self.lib.path
+        assert response['Content-Disposition'] == "attachment; filename=%s" % u"content.txt".encode( 'utf-8' )
+        assert response.content.__len__( ) == 0
+
+        settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.default'
+        response = self.manager.build( u"content.txt" )
+        assert response['Content-Disposition'] == "attachment; filename=%s" % u"content.txt".encode( 'utf-8' )
+        assert response.content.__len__( ) != 0
+
+        response = self.manager.build( u"Test Folder" )
+        assert response['Content-Disposition'] == "attachment; filename=%s" % u"Test Folder.zip".encode( 'utf-8' )
+        assert response.content.__len__( ) != 0
+
 
 ##
 ## FileStorage tests
@@ -246,8 +312,13 @@ class FileStorageTest( StorageTestCase ):
         """
         Simple check for ``get Absolute``
         """
-        abs = self.path.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
-        assert self.storage.abspath( u"file.ext" ) == self.path.join( abs, u"file.ext" )
+        assert self.storage.abspath( u"file.ext" ) == self.lib.get_path( ) + u'/' + u"file.ext"
+
+    def test_homepath(self):
+        """
+        Simple check for ``get Absolute``
+        """
+        assert self.storage.homepath( u"file.ext" ) == self.lib.path + u'/' + u"file.ext"
 
     def test_is(self):
         """
@@ -382,12 +453,12 @@ class FileStorageTest( StorageTestCase ):
         """
         Test size
         """
-        assert self.storage.size( u"content.txt" ) == 17
-        assert self.storage.size( u"Test Folder" ) == 0
-        assert self.storage.size( u"Test Folder", dir=True ) == 0
+        assert self.storage.size( u"content.txt", cached=False ) == 17
+        assert self.storage.size( u"Test Folder", cached=False ) == 0
+        assert self.storage.size( u"Test Folder", dir=True, cached=False ) == 0
         self.storage.create( u"Test Folder/test.bin", "XXX"*2**16 )
         self.storage.create( u"Test Folder/test2.bin", "XXX"*2**16 )
-        assert self.storage.size( u"Test Folder", dir=True ) == 196608 + 196608
+        assert self.storage.size( u"Test Folder", dir=True, cached=False ) == 196608 + 196608
 
     def test_list_dir(self):
         """
@@ -462,11 +533,20 @@ class FileStorageTest( StorageTestCase ):
 
     def test_download(self):
         """
-        Test download in ThreadPool
+        Test download in Thread
         """
         self.storage.download( u"logo3w.png", u"http://www.google.ru/images/srpr/logo3w.png" )
-        time.sleep( 1 )
-        assert self.storage.exists( u"logo3w.png" )
+        time.sleep( 2 )
+        assert self.storage.exists( u"logo3w.png" ) == True
+
+    def test_zip_thread(self):
+        """
+        Test zip in Thread
+        """
+        th = ZipThread( self.storage, u"Test Folder", u"Test Folder.zip" )
+        th.start( )
+        th.join()
+        assert self.storage.exists( u"Test Folder.zip" ) == True
 
     def test_other(self):
         """

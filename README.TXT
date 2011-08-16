@@ -57,9 +57,45 @@ in http://domain.com/admin/limited/home/
 also you can look libs per user in http://domain.com/admin/limited/user/
 
 [[ Management ]]
-#All deleted file are moved to trash - .TrashBin.
-#so if you need to clear it up, use this
+# All deleted file are moved to trash - `.TrashBin`
+# so if you need to clear it up, use this
 python manage.py clearfolder .TrashBin '24*60*60'
+
+# Also you need to clear `.cache` folder,
+# where zip folders are stored
+
+
+[[ Serve files ]]
+
+Some folders can be rather big to zip and serve on a fly
+So there is a a max folder size
+after witch processing will be in a thread
+and user will get a message to come later. size in bytes.
+
+LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
+
+Serving files with django is hard work.
+Limited can tell http server to serve files
+
+Now only nginx is available. To config it, add smth like this
+location /protected {
+    internal;
+    alias settings.LIMITED_ROOT_PATH;
+}
+
+and in settings
+
+LIMITED_SERVE = {
+    'BACKEND': 'limited.serve.backends.nginx',
+    'INTERNAL_URL': '/protected',
+}
+
+* this work only in debug=False,
+* because django don't no nothing about /protected url
+
+Also you can add 'Content-Type' in this setting.
+default is 'application/octet-stream'
+
 
 [[ Test ]]
 

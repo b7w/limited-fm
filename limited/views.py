@@ -11,10 +11,11 @@ from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
 
-from limited.storage import FileStorage, FileError
+from limited.serve.manager import DownloadManager
+from limited.storage import FileStorage, FileError, FileNotExist
 from limited.models import Home, History, Link
 from limited.models import PermissionError
-from limited.controls import file_response, get_home, get_homes, get_user
+from limited.controls import get_home, get_homes, get_user
 from limited.utils import split_path, HttpResponseReload, url_get_filename
 
 logger = logging.getLogger(__name__)
@@ -396,13 +397,18 @@ def DownloadView( request, id ):
     """
     if request.method == u"GET":
         lib_id = int( id )
-        path = request.GET.get('p', '')
+        path = request.GET.get( 'p', '' )
 
-        home = get_home( request.user, lib_id)
-
-        response = file_response( home.lib.get_path(), path )
-
-        if not response:
+        try:
+            home = get_home( request.user, lib_id )
+            manager = DownloadManager( home.lib )
+            if manager.is_need_processing( path ):
+                manager.process( path )
+                messages.info( request, u"File to big and need time to process. Try again a little bit later" )
+                return HttpResponseReload( request )
+            else:
+                response = manager.build( path )
+        except FileNotExist as e:
             logger.error( u"Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, path ) )
             return RenderError( request, u"No file or directory find" )
 
@@ -413,16 +419,23 @@ def LinkView( request, hash ):
     """
     If link exist Download without any permission
     """
-    link = Link.objects.find( hash )
-    if not link:
-        logger.info( u"No link found by hash %s" % hash )
-        return RenderError( request, u"We are sorry. But such object does not exists or link is out of time" )
+    try:
+        link = Link.objects.find( hash )
+        if not link:
+            logger.info( u"No link found by hash %s" % hash )
+            return RenderError( request, u"We are sorry. But such object does not exists or link is out of time" )
 
-    response = file_response( link.lib.get_path(), link.path )
-    if not response:
+        manager = DownloadManager( link.lib )
+        if manager.is_need_processing( link.path ):
+            manager.process( link.path )
+            messages.info( request, u"File to big and need time to process. Try again a little bit later" )
+            return HttpResponseReload( request )
+        else:
+            response = manager.build( link.path )
+
+    except FileNotExist as e:
         logger.error( u"Link. No file or directory find. hash:{0}".format( hash ) )
         return RenderError( request, u"No file or directory find" )
-
     return response
 
 

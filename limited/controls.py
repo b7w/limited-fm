@@ -75,40 +75,6 @@ def get_user( user ):
     return user
 
 
-def file_response( home, path ):
-    """
-    Return HttpResponse obj
-    with file attachment
-    or zip temp folder attachment
-    """
-    File = FileStorage( home )
-    response = None
-
-    if File.isfile( path ):
-        wrapper = FileWrapper( File.open( path ) )
-        #wrapper = File.open( path ).read( )
-        response = HttpResponse( wrapper, content_type=u"application/force-download" )
-        response[u"Content-Disposition"] = "attachment; filename=%s" % smart_str( File.path.name( path ) )
-        response[u"Content-Length"] = File.size( path )
-
-    elif File.isdir( path ):
-        temp = tempfile.TemporaryFile( )
-        archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
-        dirname = File.path.name( path )
-        for abspath, name in File.listfiles( path ).items( ):
-            name = File.path.join( dirname, name )
-            archive.write( abspath, name )
-
-        archive.close( )
-        wrapper = FileWrapper( temp )
-        response = HttpResponse( wrapper, content_type=u"application/zip" )
-        response[u"Content-Disposition"] = "attachment; filename=%s.zip" % smart_str( File.path.name( path ) )
-        response[u"Content-Length"] = temp.tell( )
-        temp.seek( 0 )
-
-    return response
-
-
 def truncate_path( str, length=64, ext=False):
     """
     Truncate long path. if ext=True the path extensions will not deleted

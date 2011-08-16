@@ -49,6 +49,25 @@ class DownloadThread( threading.Thread ):
                 os.remove( self.file )
 
 
+class ZipThread( threading.Thread ):
+    """
+    Zip in a thread
+    """
+    def __init__(self, storage, path, file, *args, **kwargs ):
+        super( ZipThread, self ).__init__( *args, **kwargs )
+        self.storage = storage
+        self.path = path
+        self.file = file
+
+    def run(self):
+        try:
+            tmp = self.file + u".part"
+            self.storage.zip( self.path, tmp )
+            self.storage.rename( tmp, self.storage.path.name( self.file ) )
+        except Exception as e:
+            logger.error( e )
+
+
 class StoragePath( object ):
     def join(self, path, name ):
         """
@@ -89,7 +108,8 @@ class StoragePath( object ):
 
 
 class FileStorage( object ):
-    def __init__(self, home ):
+    def __init__(self, root, home=u''  ):
+        self.root = root
         self.home = home
         self.path = StoragePath( )
 
@@ -128,6 +148,9 @@ class FileStorage( object ):
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
+        return self.path.join( self.root, name )
+
+    def homepath(self, name):
         return self.path.join( self.home, name )
 
     def remove(self, name):
@@ -237,14 +260,15 @@ class FileStorage( object ):
             root = self.abspath( path )
             absdir = os.path.join( root, dir )
             for name in os.listdir( absdir ):
-                fullpath = os.path.join( absdir, name )
-                if os.path.isdir( fullpath ):
-                    dirpath = os.path.join( dir, name )
-                    array = _listfiles( path, dirpath, array )
+                if not name.startswith( u'.' ):
+                    fullpath = os.path.join( absdir, name )
+                    if os.path.isdir( fullpath ):
+                        dirpath = os.path.join( dir, name )
+                        array = _listfiles( path, dirpath, array )
 
-                if os.path.isfile( fullpath ):
-                    fullname = os.path.join( dir, name )
-                    array[fullpath] = fullname
+                    if os.path.isfile( fullpath ):
+                        fullname = os.path.join( dir, name )
+                        array[fullpath] = fullname
 
             return array
 
@@ -273,17 +297,20 @@ class FileStorage( object ):
             return size
         return 0
 
-    def zip(self, path ):
-        file = self.abspath( path ) + u".zip"
-        file = self.available_name( file )
-        temp = open( file, mode='w' )
+    def zip(self, path, file=None ):
+        """
+        zip file or directory `path` to `file` or to `path`.zip if file=None
+        """
+        if file == None:
+            file = self.available_name( path + u".zip" )
+        temp = self.open( file, mode='wb' )
         archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
         if self.isdir( path ):
             dirname = self.path.name( path )
             for abspath, name in self.listfiles( path ).items( ):
                 name = self.path.join( dirname, name )
                 archive.write( abspath, name )
-        if self.isfile( path ):
+        elif self.isfile( path ):
             archive.write( self.abspath( path ), self.path.name( path ) )
 
         archive.close( )

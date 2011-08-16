@@ -179,3 +179,13 @@ LIMITED_ANONYMOUS_ID = 2
 # Absolute root path to witch
 # FileLib.path will be added
 LIMITED_ROOT_PATH = "/home/user"
+
+# Max size in bytes after witch
+# zipping will be async
+LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
+
+# Set backen for serving files
+# Now only default and nginx
+LIMITED_SERVE = {
+    'BACKEND': 'limited.serve.backends.default',
+}
