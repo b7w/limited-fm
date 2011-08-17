@@ -18,16 +18,16 @@ class DownloadThread( threading.Thread ):
         self.file = file
 
     def run(self):
+        newfile = None
         try:
-            from limited.files.base import FilePath
-            path, name = FilePath.split( self.file )
-            newfile = FilePath.join( path, u"[Downloading]" + name )
-            urllib.urlretrieve( self.url, newfile )
+            from limited.files.storage import FilePath
+            newfile = self.file + u".part"
+            urllib.urlretrieve( self.url, self.storage.abspath( newfile ) )
             self.storage.rename( newfile, FilePath.name( self.file ) )
         except Exception as e:
             logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
-            if self.storage.exists( self.file ):
-                self.storage.remove( self.file )
+            if newfile != None and self.storage.exists( newfile ):
+                self.storage.remove( newfile )
 
 
 class ZipThread( threading.Thread ):
@@ -42,12 +42,13 @@ class ZipThread( threading.Thread ):
         self.file = file
 
     def run(self):
+        newfile = None
         try:
-            from limited.files.base import FilePath
-            tmp = self.file + u".part"
-            self.storage.zip( self.path, tmp )
-            self.storage.rename( tmp, FilePath.name( self.file ) )
+            from limited.files.storage import FilePath
+            newfile = self.file + u".part"
+            self.storage.zip( self.path, newfile )
+            self.storage.rename( newfile, FilePath.name( self.file ) )
         except Exception as e:
-            logger.error( e )
-            if self.storage.exists( tmp ):
-                self.storage.remove( tmp )
+            logger.error( u"ZipThread. {0}. path:{1}, zipfile:{2}".format( e, self.path, self.file ) )
+            if newfile != None and self.storage.exists( newfile ):
+                self.storage.remove( newfile )

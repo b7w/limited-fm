@@ -7,7 +7,7 @@ from django.core.files.base import File
 
 from limited.controls import clear_folders
 from limited.files.storage import FileError, FileNotExist, FilePath
-from limited.files.utils import ZipThread
+from limited.files.utils import ZipThread, DownloadThread
 from limited.tests.base import StorageTestCase
 
 
@@ -122,6 +122,10 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.exists( u".TrashBin/Crash Test" ) == True
         time.sleep( 1 )
         self.storage.clear( u".TrashBin", older=1 )
+        assert self.storage.exists( u".TrashBin/Crash Test" ) == False
+
+        self.storage.create( u".TrashBin/test.bin", u"Test" )
+        self.storage.clear( u".TrashBin" )
         assert self.storage.exists( u".TrashBin/Crash Test" ) == False
 
         self.storage.create( u".TrashBin/test.bin", u"Test" )
@@ -278,18 +282,27 @@ class FileStorageTest( StorageTestCase ):
         """
         Test download in Thread
         """
-        self.storage.download( u"logo3w.png", u"http://www.google.ru/images/srpr/logo3w.png" )
+        self.storage.download( u"http://www.google.ru/images/srpr/logo3w.png", u"logo3w.png" )
         time.sleep( 2 )
         assert self.storage.exists( u"logo3w.png" ) == True
+        self.storage.remove( u"logo3w.png" )
+        obj = DownloadThread( self.storage, u"http://www.google.ru/images/srpr/logo3w.png", u"logo3w.png" )
+        obj.run()
+        assert self.storage.exists( u"logo3w.png" ) == True
+        # It must catch error, because 'logo3w.png' exists
+        obj.run()
+        assert self.storage.exists( u"logo3w.png.part" ) == False
 
     def test_zip_thread(self):
         """
-        Test zip in Thread
+        Test ZipThread run method
         """
-        th = ZipThread( self.storage, u"Test Folder", u"Test Folder.zip" )
-        th.start( )
-        th.join( )
+        obj = ZipThread( self.storage, u"Test Folder", u"Test Folder.zip" )
+        obj.run()
         assert self.storage.exists( u"Test Folder.zip" ) == True
+        # It must catch error, because 'Test Folder.zip' exists
+        obj.run()
+        assert self.storage.exists( u"Test Folder.zip.part" ) == False
 
     def test_other(self):
         """

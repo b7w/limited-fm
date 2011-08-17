@@ -53,13 +53,6 @@ class FilePath( object ):
         return os.path.dirname( path )
 
     @staticmethod
-    def split( path ):
-        """
-        Split path for directory and file name
-        """
-        return os.path.split( path )
-
-    @staticmethod
     def norm( root, src ):
         """
         If src include '../' or './'
@@ -106,10 +99,9 @@ class FileStorage( object ):
 
         newfile.close( )
 
-    def download(self, path, url):
+    def download(self, url, path):
         path = self.available_name( path )
-        file = self.abspath( path )
-        thread = DownloadThread( self, iri_to_uri( url ), file )
+        thread = DownloadThread( self, iri_to_uri( url ), path )
         thread.start()
 
     def mkdir(self, name):

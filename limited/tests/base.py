@@ -8,33 +8,37 @@ from limited.files.storage import FileStorage, FilePath
 
 class StorageTestCase( TestCase ):
     """
-    Base class if wee need to rollback
-    test directory
+    Base class to init test data in every tests.
+
+    It creates 'test' folder in LIMITED_ROOT_PATH with
+    '.TrashBin/Crash Test'
+    'Test Folder'
+    'content.txt' - Test line in file
+    'Фото 007.bin'
+
+    class doesn't delete test data!
 
     It is run always with '--failfast' option
 
     Best way is to test ``create``, ``mkdir`` and ``clear``
     by your own separately
-
-    To change test data, add them to ``tearDown``
     """
     fixtures = ['dump.json']
 
     def setUp(self):
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
-
-    def tearDown(self):
         try:
-            self.storage.clear( u"" )
+            if self.storage.exists( u"" ):
+                self.storage.remove( u"" )
+            self.storage.mkdir( u"" )
             self.storage.mkdir( u".TrashBin" )
             self.storage.mkdir( u".TrashBin/Crash Test" )
             self.storage.mkdir( u"Test Folder" )
             self.storage.create( u"content.txt", u"Test line in file" )
             self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )
         except Exception:
-            raise Exception( u"Error happened while rollback changes in 'tearDown'. " +
-                "Test Stopped. Clear default data yourself! And test base methods by your own separately" )
+            raise Exception( u"Error happened while init test files in 'setUp'" )
 
     def run(self, result=None):
         """

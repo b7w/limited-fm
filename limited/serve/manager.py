@@ -52,8 +52,9 @@ class DownloadManager:
     def process(self, path):
         if not self.storage.exists( u".cache" ):
             self.storage.mkdir( u".cache" )
-        th = ZipThread( self.storage, path, self.cache_path( path ) )
-        th.start( )
+        if not self.storage.exists( self.cache_path( path ) ):
+            th = ZipThread( self.storage, path, self.cache_path( path ) )
+            th.start( )
 
     def get_backend(self):
         import_path = settings.LIMITED_SERVE['BACKEND']
