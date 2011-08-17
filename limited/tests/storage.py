@@ -272,37 +272,29 @@ class FileStorageTest( StorageTestCase ):
         self.storage.unzip( u"Test Folder/content.txt.zip" )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
 
-        self.storage.zip( u"Test Folder" )
+        self.storage.zip( u"Test Folder", u"Test Folder.zip" )
         assert self.storage.exists( u"Test Folder.zip" ) == True
         self.storage.move( u"Test Folder.zip", u"Test Folder" )
         self.storage.unzip( u"Test Folder/Test Folder.zip" )
         assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
 
+        obj = ZipThread( self.storage, u"Test Folder", u"Test Folder2.zip" )
+        obj.run()
+        assert self.storage.exists( u"Test Folder2.zip" ) == True
+
     def test_download(self):
         """
         Test download in Thread
         """
-        self.storage.download( u"http://www.google.ru/images/srpr/logo3w.png", u"logo3w.png" )
-        time.sleep( 2 )
+        url = u"http://www.google.ru/images/srpr/logo3w.png"
+        self.storage.download( url, u"logo3w.png" )
         assert self.storage.exists( u"logo3w.png" ) == True
-        self.storage.remove( u"logo3w.png" )
-        obj = DownloadThread( self.storage, u"http://www.google.ru/images/srpr/logo3w.png", u"logo3w.png" )
-        obj.run()
-        assert self.storage.exists( u"logo3w.png" ) == True
-        # It must catch error, because 'logo3w.png' exists
-        obj.run()
-        assert self.storage.exists( u"logo3w.png.part" ) == False
 
-    def test_zip_thread(self):
-        """
-        Test ZipThread run method
-        """
-        obj = ZipThread( self.storage, u"Test Folder", u"Test Folder.zip" )
+        self.storage.remove( u"logo3w.png" )
+        
+        obj = DownloadThread( self.storage, url, u"logo3w.png" )
         obj.run()
-        assert self.storage.exists( u"Test Folder.zip" ) == True
-        # It must catch error, because 'Test Folder.zip' exists
-        obj.run()
-        assert self.storage.exists( u"Test Folder.zip.part" ) == False
+        assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_other(self):
         """

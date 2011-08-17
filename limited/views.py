@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
+from limited.files.utils import DownloadThread
 
 from limited.serve.manager import DownloadManager
 from limited.files.storage import FileStorage, FileError, FileNotExist, FilePath
@@ -205,7 +206,7 @@ def ActionView( request, id, command ):
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
-                Storage.download( name, path )
+                DownloadThread( Storage, name. path ).start()
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:

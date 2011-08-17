@@ -5,9 +5,11 @@ from hashlib import md5
 import logging
 import os
 import shutil
+import urllib
 import zipfile
 
 from django.core.cache import cache
+from django.core.files.base import File
 from django.utils.encoding import smart_str, iri_to_uri
 from django.utils.http import urlquote
 
@@ -77,12 +79,12 @@ class FileStorage( object ):
         self.home = home
 
     def open(self, name, mode='rb'):
-        return open( self.abspath( name ), mode )
+        return File( open( self.abspath( name ), mode ) )
 
     def create(self, name, content):
         name = self.available_name( name )
         
-        newfile = open( self.abspath( name ), 'wb' )
+        newfile = self.open( name, 'wb' )
         newfile.write( content )
         newfile.close( )
 
@@ -93,16 +95,30 @@ class FileStorage( object ):
         """
         name = self.available_name( name )
 
-        newfile = open( self.abspath( name ), 'wb' )
+        newfile = self.open( name, 'wb' )
         for chunk in file.chunks( ):
             newfile.write( chunk )
 
         newfile.close( )
 
     def download(self, url, path):
+        """
+        Download file from url
+        """
         path = self.available_name( path )
-        thread = DownloadThread( self, iri_to_uri( url ), path )
-        thread.start()
+        newfile = path + u".part"
+        try:
+            # simple hook to stop File proxy access field 'name'
+            # that is no exists
+            data = urllib.urlopen( iri_to_uri( url ) )
+            data.size = int( data.info( )['Content-Length'] )
+
+            self.save( newfile, File( data ) )
+            self.rename( newfile, FilePath.name( path ) )
+        except Exception:
+            if self.exists( newfile ):
+                self.remove( newfile )
+            raise
 
     def mkdir(self, name):
         if self.exists( name ):
@@ -265,18 +281,26 @@ class FileStorage( object ):
         """
         if file == None:
             file = self.available_name( path + u".zip" )
-        temp = self.open( file, mode='wb' )
-        archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
-        if self.isdir( path ):
-            dirname = FilePath.name( path )
-            for abspath, name in self.listfiles( path ).items( ):
-                name = FilePath.join( dirname, name )
-                archive.write( abspath, name )
-        elif self.isfile( path ):
-            archive.write( self.abspath( path ), FilePath.name( path ) )
 
-        archive.close( )
-        temp.seek( 0 )
+        newfile = file + u".part"
+        try:
+            zfile = self.open( newfile, mode='wb' )
+            archive = zipfile.ZipFile( zfile, 'w', zipfile.ZIP_DEFLATED )
+            if self.isdir( path ):
+                dirname = FilePath.name( path )
+                for abspath, name in self.listfiles( path ).items( ):
+                    name = FilePath.join( dirname, name )
+                    archive.write( abspath, name )
+            elif self.isfile( path ):
+                archive.write( self.abspath( path ), FilePath.name( path ) )
+
+            archive.close( )
+            zfile.seek( 0 )
+            self.rename( newfile, FilePath.name( file ) )
+        except Exception:
+            if self.exists( newfile ):
+                self.remove( newfile )
+            raise
 
     def unzip(self, path ):
         file = self.abspath( path )

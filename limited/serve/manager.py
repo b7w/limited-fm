@@ -38,9 +38,7 @@ class DownloadManager:
         Check for directory if cache exist or size is small.
         Else return False
         """
-        cache = self.cache_path( path )
-        part = self.cache_path( path ) + u".part"
-        if self.storage.exists( cache ) or self.storage.exists( part ):
+        if self.storage.exists( self.cache_path( path ) ):
             return False
         if self.storage.isdir( path ):
             size = self.storage.size( path, dir=True )
@@ -52,7 +50,9 @@ class DownloadManager:
     def process(self, path):
         if not self.storage.exists( u".cache" ):
             self.storage.mkdir( u".cache" )
-        if not self.storage.exists( self.cache_path( path ) ):
+        cache = self.cache_path( path )
+        part = self.cache_path( path ) + u".part"
+        if not self.storage.exists( cache ) and not self.storage.exists( part ):
             th = ZipThread( self.storage, path, self.cache_path( path ) )
             th.start( )
 

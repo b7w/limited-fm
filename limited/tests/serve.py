@@ -58,14 +58,14 @@ class DownloadManagerTest( StorageTestCase ):
         settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.nginx'
         response = self.manager.build( u"content.txt" )
         assert response['X-Accel-Redirect'] == u"/protected/%s/content.txt" % self.lib.path
-        assert response['Content-Disposition'] == "attachment; filename=%s" % u"content.txt".encode( 'utf-8' )
+        assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"content.txt".encode( 'utf-8' )
         assert response.content.__len__( ) == 0
 
         settings.LIMITED_SERVE['BACKEND'] = 'limited.serve.backends.default'
         response = self.manager.build( u"content.txt" )
-        assert response['Content-Disposition'] == "attachment; filename=%s" % u"content.txt".encode( 'utf-8' )
+        assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"content.txt".encode( 'utf-8' )
         assert response.content.__len__( ) != 0
 
         response = self.manager.build( u"Test Folder" )
-        assert response['Content-Disposition'] == "attachment; filename=%s" % u"Test Folder.zip".encode( 'utf-8' )
+        assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"Test Folder.zip".encode( 'utf-8' )
         assert response.content.__len__( ) != 0

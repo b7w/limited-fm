@@ -3,6 +3,7 @@
 import logging
 import threading
 import urllib
+from django.core.files.base import File
 
 logger = logging.getLogger( __name__ )
 
@@ -18,16 +19,10 @@ class DownloadThread( threading.Thread ):
         self.file = file
 
     def run(self):
-        newfile = None
         try:
-            from limited.files.storage import FilePath
-            newfile = self.file + u".part"
-            urllib.urlretrieve( self.url, self.storage.abspath( newfile ) )
-            self.storage.rename( newfile, FilePath.name( self.file ) )
+            self.storage.download( self.url, self.file )
         except Exception as e:
             logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
-            if newfile != None and self.storage.exists( newfile ):
-                self.storage.remove( newfile )
 
 
 class ZipThread( threading.Thread ):
@@ -42,13 +37,7 @@ class ZipThread( threading.Thread ):
         self.file = file
 
     def run(self):
-        newfile = None
         try:
-            from limited.files.storage import FilePath
-            newfile = self.file + u".part"
-            self.storage.zip( self.path, newfile )
-            self.storage.rename( newfile, FilePath.name( self.file ) )
+            self.storage.zip( self.path, self.file )
         except Exception as e:
             logger.error( u"ZipThread. {0}. path:{1}, zipfile:{2}".format( e, self.path, self.file ) )
-            if newfile != None and self.storage.exists( newfile ):
-                self.storage.remove( newfile )
