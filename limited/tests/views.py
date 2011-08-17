@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.utils.html import escape
 
 from limited.models import FileLib, Link
-from limited.storage.base import FileStorage
+from limited.storage.base import FileStorage, FilePath
 from limited.utils import urlbilder
 
 class ViewsTest( TestCase ):
@@ -225,7 +225,7 @@ class ViewsTest( TestCase ):
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'created' in [m.message for m in list( resp.context['messages'] )][0]
-        storage.remove( storage.path.join( '', 'new dir' ) )
+        storage.remove( FilePath.join( '', 'new dir' ) )
         # delete False
         link = urlbilder( 'action', lib.id, "delete", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 
-from limited.storage.base import FileStorage, FileNotExist
+from limited.storage.base import FileStorage, FileNotExist, FilePath
 from limited.storage.utils import ZipThread
 
 
@@ -14,7 +14,6 @@ class DownloadManager:
     def __init__(self, lib):
         self.lib = lib
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
-        self.stpath = self.storage.path
         self.cache = { }
 
     def hash(self, path):
@@ -30,7 +29,7 @@ class DownloadManager:
         """
         if self.cache.has_key( path ):
             return self.cache[path]
-        cache = self.stpath.join( u".cache", self.hash( path ) )
+        cache = FilePath.join( u".cache", self.hash( path ) )
         self.cache[path] = cache
         return cache
 
@@ -71,11 +70,11 @@ class DownloadManager:
             if not self.storage.exists( self.cache_path( path ) ):
                 self.storage.zip( path, self.cache_path( path ) )
             url_path = self.cache_path( path )
-            name = self.stpath.name( path ) + '.zip'
+            name = FilePath.name( path ) + '.zip'
 
         elif self.storage.isfile( path ):
             url_path = path
-            name = self.stpath.name( path )
+            name = FilePath.name( path )
         else:
             raise FileNotExist( u"'%s' not found" % path )
 

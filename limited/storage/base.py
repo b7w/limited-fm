@@ -28,35 +28,46 @@ class FileNotExist( FileError ):
     pass
 
 
-class StoragePath( object ):
-    def join(self, path, name ):
+class FilePath( object ):
+    @staticmethod
+    def join( path, name ):
         """
         join to path, if ``mane`` start with '/'
         return ``name``
         """
         return os.path.join( path, name )
 
-    def name(self, path):
+    @staticmethod
+    def name(path):
         """
         return file name or ''
         """
         return os.path.basename( path )
 
-    def dirname(self, path):
+    @staticmethod
+    def dirname( path ):
         """
         return directory path of file
         or return path if ends with '/'
         """
         return os.path.dirname( path )
 
-    def norm(self, root, src ):
+    @staticmethod
+    def split( path ):
+        """
+        Split path for directory and file name
+        """
+        return os.path.split( path )
+
+    @staticmethod
+    def norm( root, src ):
         """
         If src include '../' or './'
           join root and src and normalise it
         Else return src
         """
         if src.find( '../' ) != -1 or src.find( './' ) != -1:
-            path = self.join( root, src )
+            path = FilePath.join( root, src )
             path = os.path.normpath( path )
         else:
             path = src
@@ -71,7 +82,6 @@ class FileStorage( object ):
     def __init__(self, root, home=u''  ):
         self.root = root
         self.home = home
-        self.path = StoragePath( )
 
     def open(self, name, mode='rb'):
         return open( self.abspath( name ), mode )
@@ -99,7 +109,7 @@ class FileStorage( object ):
     def download(self, path, url):
         path = self.available_name( path )
         file = self.abspath( path )
-        thread = DownloadThread( iri_to_uri( url ), file )
+        thread = DownloadThread( self, iri_to_uri( url ), file )
         thread.start()
 
     def mkdir(self, name):
@@ -108,10 +118,10 @@ class FileStorage( object ):
         os.mkdir( self.abspath( name ) )
 
     def abspath(self, name):
-        return self.path.join( self.root, name )
+        return FilePath.join( self.root, name )
 
     def homepath(self, name):
-        return self.path.join( self.home, name )
+        return FilePath.join( self.home, name )
 
     def remove(self, name):
         if not self.exists( name ):
@@ -134,17 +144,17 @@ class FileStorage( object ):
             raise FileError( u"'%s' not directory" % name )
         if older == None:
             for item in os.listdir( self.abspath( name ) ):
-                file = self.path.join( name, item )
+                file = FilePath.join( name, item )
                 self.remove( file )
         else:
             for item in os.listdir( self.abspath( name ) ):
-                file = self.path.join( name, item )
+                file = FilePath.join( name, item )
                 chenaged = self.created_time( file )
                 if datetime.now( ) - chenaged > timedelta( seconds=older ):
                     self.remove( file )
 
     def move(self, src, dst):
-        src_dir = self.path.dirname( src )
+        src_dir = FilePath.dirname( src )
         if src == dst or src_dir == dst:
             raise FileError( u"Moving to the same directory" )
         if not self.exists( src ):
@@ -152,9 +162,9 @@ class FileStorage( object ):
         if not self.exists( dst ):
             raise FileNotExist( u"'%s' not found" % dst )
 
-        name = self.path.name( src )
+        name = FilePath.name( src )
 
-        dst = self.path.join( dst, name )
+        dst = FilePath.join( dst, name )
         dst = self.available_name( dst )
         shutil.move( self.abspath( src ), self.abspath( dst ) )
 
@@ -163,7 +173,7 @@ class FileStorage( object ):
             raise FileError( u"'%s' contains not supported symbols" % name )
         if not self.exists( path ):
             raise FileNotExist( u"'%s' not found" % path )
-        new_path = self.path.join( self.path.dirname( path ), name )
+        new_path = FilePath.join( FilePath.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
         os.rename( self.abspath( path ), self.abspath( new_path ) )
@@ -194,7 +204,7 @@ class FileStorage( object ):
             tmp = filter( lambda x: x.startswith( '.' ) == 0, tmp )
 
         for item in tmp:
-            fullpath = self.path.join( path, item )
+            fullpath = FilePath.join( path, item )
             if self.isfile( fullpath ): ccl = 'file'
             if self.isdir( fullpath ): ccl = 'dir'
 
@@ -250,7 +260,7 @@ class FileStorage( object ):
                 return size
 
             for item in os.listdir( self.abspath( name ) ):
-                file = self.path.join( name, item )
+                file = FilePath.join( name, item )
                 size += self.size( file, dir=True )
 
             if cached: cache.set( key, size, 120 )
@@ -266,12 +276,12 @@ class FileStorage( object ):
         temp = self.open( file, mode='wb' )
         archive = zipfile.ZipFile( temp, 'w', zipfile.ZIP_DEFLATED )
         if self.isdir( path ):
-            dirname = self.path.name( path )
+            dirname = FilePath.name( path )
             for abspath, name in self.listfiles( path ).items( ):
-                name = self.path.join( dirname, name )
+                name = FilePath.join( dirname, name )
                 archive.write( abspath, name )
         elif self.isfile( path ):
-            archive.write( self.abspath( path ), self.path.name( path ) )
+            archive.write( self.abspath( path ), FilePath.name( path ) )
 
         archive.close( )
         temp.seek( 0 )
@@ -282,7 +292,7 @@ class FileStorage( object ):
         # To lazy to do converting
         # maybe chardet help later
         try:
-            zip.extractall( self.path.dirname( file ) )
+            zip.extractall( FilePath.dirname( file ) )
         except UnicodeDecodeError as e:
             raise FileError( u"Unicode decode error, try unzip yourself" )
 

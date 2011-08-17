@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from limited.models import FileLib
-from limited.storage.base import FileStorage, StoragePath
+from limited.storage.base import FileStorage, FilePath
 
 
 class StorageTestCase( TestCase ):
@@ -21,7 +21,6 @@ class StorageTestCase( TestCase ):
     fixtures = ['dump.json']
 
     def setUp(self):
-        self.path = StoragePath( )
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
 

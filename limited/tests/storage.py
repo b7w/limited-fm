@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.base import File
 
 from limited.controls import clear_folders
-from limited.storage.base import FileError, FileNotExist
+from limited.storage.base import FileError, FileNotExist, FilePath
 from limited.storage.utils import ZipThread
 from limited.tests.base import StorageTestCase
 
@@ -19,28 +19,28 @@ class FileStorageTest( StorageTestCase ):
 
     def test_storage_path(self):
         """
-        Test StoragePath class
+        Test FilePath class
         """
-        assert self.path.join( u"path", "name" ) == u"path/name"
-        assert self.path.join( u"/path", "name" ) == u"/path/name"
-        assert self.path.join( u"/root/path", "name" ) == u"/root/path/name"
-        assert self.path.join( u"/path/", "name" ) == u"/path/name"
-        assert self.path.join( u"/path/", "/name" ) != u"/path/name", " = /name"
+        assert FilePath.join( u"path", "name" ) == u"path/name"
+        assert FilePath.join( u"/path", "name" ) == u"/path/name"
+        assert FilePath.join( u"/root/path", "name" ) == u"/root/path/name"
+        assert FilePath.join( u"/path/", "name" ) == u"/path/name"
+        assert FilePath.join( u"/path/", "/name" ) != u"/path/name", " = /name"
 
-        assert self.path.name( u"/path/name" ) == u"name"
-        assert self.path.name( u"/path/name" ) == u"name"
-        assert self.path.name( u"/path/name/" ) == u""
+        assert FilePath.name( u"/path/name" ) == u"name"
+        assert FilePath.name( u"/path/name" ) == u"name"
+        assert FilePath.name( u"/path/name/" ) == u""
 
-        assert self.path.dirname( u"/path/name/" ) == u"/path/name"
-        assert self.path.dirname( u"/path/name/file" ) == u"/path/name"
-        assert self.path.dirname( u"/path/name/file.ext" ) == u"/path/name"
+        assert FilePath.dirname( u"/path/name/" ) == u"/path/name"
+        assert FilePath.dirname( u"/path/name/file" ) == u"/path/name"
+        assert FilePath.dirname( u"/path/name/file.ext" ) == u"/path/name"
 
-        assert self.path.norm( u"/root/base", "file.ext" ) == u"file.ext"
-        assert self.path.norm( u"/root/base", "../file.ext" ) == u"root/file.ext"
-        assert self.path.norm( u"/root/base", ".././file.ext" ) == u"root/file.ext"
-        assert self.path.norm( u"/root/base", "../../file.ext" ) == u"file.ext"
-        assert self.path.norm( u"/root", "./file.ext" ) == u"root/file.ext"
-        assert self.path.norm( u"/root", "././file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"/root/base", "file.ext" ) == u"file.ext"
+        assert FilePath.norm( u"/root/base", "../file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"/root/base", ".././file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"/root/base", "../../file.ext" ) == u"file.ext"
+        assert FilePath.norm( u"/root", "./file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"/root", "././file.ext" ) == u"root/file.ext"
 
     def test_storage_open(self):
         """
@@ -236,15 +236,15 @@ class FileStorageTest( StorageTestCase ):
         """
         assert self.storage.listfiles( u"Test Folder" ).__len__( ) == 0
 
-        abs = self.path.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
+        abs = FilePath.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
         real = {
-            self.path.join( abs, u'content.txt' ): u'content.txt',
-            self.path.join( abs, u"Фото 007.bin" ): u"Фото 007.bin",
+            FilePath.join( abs, u'content.txt' ): u'content.txt',
+            FilePath.join( abs, u"Фото 007.bin" ): u"Фото 007.bin",
             }
         assert self.storage.listfiles( "" ) == real
 
         self.storage.create( u"Test Folder/test.bin", u"Test" )
-        real.update( { self.path.join( abs, u'Test Folder/test.bin' ): u'Test Folder/test.bin' } )
+        real.update( { FilePath.join( abs, u'Test Folder/test.bin' ): u'Test Folder/test.bin' } )
         assert self.storage.listfiles( "" ) == real
 
     def test_available_name(self):
