@@ -6,8 +6,8 @@ from django.conf import settings
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 
-from limited.storage.base import FileStorage, FileNotExist, FilePath
-from limited.storage.utils import ZipThread
+from limited.files.storage import FileStorage, FileNotExist, FilePath
+from limited.files.utils import ZipThread
 
 
 class DownloadManager:

@@ -19,7 +19,7 @@ class DownloadThread( threading.Thread ):
 
     def run(self):
         try:
-            from limited.storage.base import FilePath
+            from limited.files.base import FilePath
             path, name = FilePath.split( self.file )
             newfile = FilePath.join( path, u"[Downloading]" + name )
             urllib.urlretrieve( self.url, newfile )
@@ -43,7 +43,7 @@ class ZipThread( threading.Thread ):
 
     def run(self):
         try:
-            from limited.storage.base import FilePath
+            from limited.files.base import FilePath
             tmp = self.file + u".part"
             self.storage.zip( self.path, tmp )
             self.storage.rename( tmp, FilePath.name( self.file ) )

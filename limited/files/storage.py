@@ -11,7 +11,7 @@ from django.core.cache import cache
 from django.utils.encoding import smart_str, iri_to_uri
 from django.utils.http import urlquote
 
-from limited.storage.utils import DownloadThread
+from limited.files.utils import DownloadThread
 
 logger = logging.getLogger(__name__)
 

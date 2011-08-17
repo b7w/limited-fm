@@ -12,7 +12,7 @@ from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
 
 from limited.serve.manager import DownloadManager
-from limited.storage.base import FileStorage, FileError, FileNotExist, FilePath
+from limited.files.storage import FileStorage, FileError, FileNotExist, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user

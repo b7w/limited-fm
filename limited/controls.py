@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 
 from limited.models import Home, FileLib, Permission
-from limited.storage.base import FileStorage
+from limited.files.storage import FileStorage
 
 
 logger = logging.getLogger(__name__)
