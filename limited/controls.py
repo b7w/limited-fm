@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-import tempfile
-import zipfile
+
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.servers.basehttp import FileWrapper
 from django.db.models.query_utils import Q
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
 
 from limited.models import Home, FileLib, Permission
-from limited.storage import FileStorage
+from limited.files.storage import FileStorage
+
 
 logger = logging.getLogger(__name__)
 

@@ -10,9 +10,10 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
+from limited.files.utils import DownloadThread
 
 from limited.serve.manager import DownloadManager
-from limited.storage import FileStorage, FileError, FileNotExist
+from limited.files.storage import FileStorage, FileError, FileNotExist, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
@@ -193,7 +194,7 @@ def ActionView( request, id, command ):
     Storage = FileStorage( home.lib.get_path() )
 
     history = History( lib=home.lib )
-    history.path = Storage.path.dirname( path )
+    history.path = FilePath.dirname( path )
     # GET 'n' - folder name
     if command == u"add":
         try:
@@ -204,12 +205,12 @@ def ActionView( request, id, command ):
             # No any messages on success
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
-                path = Storage.path.join( path, filename )
-                Storage.download( path, name )
+                path = FilePath.join( path, filename )
+                DownloadThread( Storage, name. path ).start()
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
-                dir = Storage.path.join( path, name )
+                dir = FilePath.join( path, name )
                 Storage.mkdir( dir )
                 messages.success( request, u"directory '%s' successfully created" % name )
                 #history.message = "dir '%s' created" % name
@@ -230,10 +231,10 @@ def ActionView( request, id, command ):
             if not home.permission.delete:
                 raise PermissionError( u'You have no permission to delete' )
             Storage.remove( path )
-            messages.success( request, u"'%s' successfully deleted" % Storage.path.name( path ) )
+            messages.success( request, u"'%s' successfully deleted" % FilePath.name( path ) )
             history.user = user
             history.type = History.DELETE
-            history.name = Storage.path.name( path )
+            history.name = FilePath.name( path )
             history.save( )
         except FileError as e:
             logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
@@ -248,10 +249,10 @@ def ActionView( request, id, command ):
             if not home.permission.delete:
                 raise PermissionError( u"You have no permission to delete" )
             Storage.totrash( path )
-            messages.success( request, u"'%s' successfully moved to trash" % Storage.path.name( path ) )
+            messages.success( request, u"'%s' successfully moved to trash" % FilePath.name( path ) )
             history.user = user
             history.type = History.TRASH
-            history.name = Storage.path.name( path )
+            history.name = FilePath.name( path )
             history.save( )
         except FileError as e:
             logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
@@ -267,7 +268,7 @@ def ActionView( request, id, command ):
                 raise PermissionError( u"You have no permission to rename" )
             name = request.GET['n']
             Storage.rename( path, name )
-            messages.success( request, u"'%s' successfully rename to '%s'" % (Storage.path.name( path ), name) )
+            messages.success( request, u"'%s' successfully rename to '%s'" % ( FilePath.name( path ), name) )
             history.user = user
             history.type = History.RENAME
             history.name = name
@@ -285,12 +286,12 @@ def ActionView( request, id, command ):
             if not home.permission.move:
                 raise PermissionError( u"You have no permission to move" )
             path2 = request.GET['p2']
-            path2 = Storage.path.norm( Storage.path.dirname( path ), path2 )
+            path2 = FilePath.norm( FilePath.dirname( path ), path2 )
             Storage.move( path, path2 )
-            messages.success( request, u"'%s' successfully moved to '%s'" % (Storage.path.name( path ), path2) )
+            messages.success( request, u"'%s' successfully moved to '%s'" % ( FilePath.name( path ), path2) )
             history.user = user
             history.type = History.MOVE
-            history.name = Storage.path.name( path )
+            history.name = FilePath.name( path )
             history.path = path2
             history.save( )
         except FileError as e:
@@ -315,9 +316,9 @@ def ActionView( request, id, command ):
                 messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
                 history.user = user
                 history.type = History.LINK
-                history.name = Storage.path.name( path )
+                history.name = FilePath.name( path )
                 history.extra = link.hash
-                history.path = Storage.path.dirname( path )
+                history.path = FilePath.dirname( path )
                 history.save( )
             else:
                 logger.error( u"Action link. You have no permission to create links. home_id:{0}, path:{0}".format( lib_id, path ) )
@@ -372,13 +373,13 @@ def UploadView( request, id ):
                 history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
                 history.name = u"%s files" % len( files )
                 for file in files:
-                    fool_path = storage.path.join( path, file.name )
+                    fool_path = FilePath.join( path, file.name )
                     storage.save( fool_path, file )
                 history.save( )
             # else create message for each file
             else:
                 for file in files:
-                    fool_path = storage.path.join( path, file.name )
+                    fool_path = FilePath.join( path, file.name )
                     storage.save( fool_path, file )
                     history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
                     history.name = file.name

@@ -6,13 +6,14 @@ from django.conf import settings
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 
-from limited.storage import FileStorage, FileNotExist, ZipThread
+from limited.files.storage import FileStorage, FileNotExist, FilePath
+from limited.files.utils import ZipThread
+
 
 class DownloadManager:
     def __init__(self, lib):
         self.lib = lib
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
-        self.stpath = self.storage.path
         self.cache = { }
 
     def hash(self, path):
@@ -28,7 +29,7 @@ class DownloadManager:
         """
         if self.cache.has_key( path ):
             return self.cache[path]
-        cache = self.stpath.join( u".cache", self.hash( path ) )
+        cache = FilePath.join( u".cache", self.hash( path ) )
         self.cache[path] = cache
         return cache
 
@@ -37,9 +38,7 @@ class DownloadManager:
         Check for directory if cache exist or size is small.
         Else return False
         """
-        cache = self.cache_path( path )
-        part = self.cache_path( path ) + u".part"
-        if self.storage.exists( cache ) or self.storage.exists( part ):
+        if self.storage.exists( self.cache_path( path ) ):
             return False
         if self.storage.isdir( path ):
             size = self.storage.size( path, dir=True )
@@ -51,8 +50,11 @@ class DownloadManager:
     def process(self, path):
         if not self.storage.exists( u".cache" ):
             self.storage.mkdir( u".cache" )
-        th = ZipThread( self.storage, path, self.cache_path( path ) )
-        th.start( )
+        cache = self.cache_path( path )
+        part = self.cache_path( path ) + u".part"
+        if not self.storage.exists( cache ) and not self.storage.exists( part ):
+            th = ZipThread( self.storage, path, self.cache_path( path ) )
+            th.start( )
 
     def get_backend(self):
         import_path = settings.LIMITED_SERVE['BACKEND']
@@ -69,11 +71,11 @@ class DownloadManager:
             if not self.storage.exists( self.cache_path( path ) ):
                 self.storage.zip( path, self.cache_path( path ) )
             url_path = self.cache_path( path )
-            name = self.stpath.name( path ) + '.zip'
+            name = FilePath.name( path ) + '.zip'
 
         elif self.storage.isfile( path ):
             url_path = path
-            name = self.stpath.name( path )
+            name = FilePath.name( path )
         else:
             raise FileNotExist( u"'%s' not found" % path )
 

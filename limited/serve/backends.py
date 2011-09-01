@@ -29,7 +29,7 @@ class nginx( BaseDownloadResponse ):
         response['X-Accel-Charset'] = "utf-8"
         response['X-Accel-Redirect'] = url
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=%s" % name.encode( 'utf-8' )
+        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )
         return response
 
 
@@ -38,6 +38,6 @@ class default( BaseDownloadResponse ):
         wrapper = FileWrapper( self.storage.open( path ) )
         response = HttpResponse( wrapper )
         response['Content-Type'] = self.settings['Content-Type']
-        response['Content-Disposition'] = "attachment; filename=%s" % name.encode( 'utf-8' )
+        response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )
         response['Content-Length'] = self.storage.size( path )
         return response
