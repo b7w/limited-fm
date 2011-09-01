@@ -40,7 +40,8 @@ def IndexView( request ):
     if not user.is_anonymous( ) and not user.is_superuser:
         AnonHomes = Home.objects.select_related( 'lib' )\
             .filter( user=settings.LIMITED_ANONYMOUS_ID )\
-            .exclude( lib__in=libs )
+            .exclude( lib__in=libs )\
+            .order_by( 'lib__name' )
 
     # append Anon user libs for history
     for i in AnonHomes:

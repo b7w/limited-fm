@@ -53,14 +53,14 @@ def get_homes( user ):
     if user.is_authenticated( ):
         if user.is_superuser:
             homes = []
-            libs = FileLib.objects.all( ).distinct( )
+            libs = FileLib.objects.all( ).distinct( ).order_by( 'name' )
             for item in libs:
                 homes.append( Home( lib=item ) )
             return homes
         else:
-            return Home.objects.select_related( 'lib' ).filter( user=user )
+            return Home.objects.select_related( 'lib' ).filter( user=user ).order_by( 'lib__name' )
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
-        return Home.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID )
+        return Home.objects.select_related( 'lib' ).filter( user=settings.LIMITED_ANONYMOUS_ID ).order_by( 'lib__name' )
 
 
 def get_user( user ):
