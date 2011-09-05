@@ -88,7 +88,7 @@ admin.site.register( History, AdminHistory )
 
 
 class AdminLink( admin.ModelAdmin ):
-    list_display = ( 'path', 'lib', 'hash', 'expires', 'time', )
+    list_display = ( 'path', 'lib', 'hash', 'time', 'expires', )
     list_filter = ( 'time', )
     readonly_fields = ( 'time', )
 
@@ -106,6 +106,7 @@ class AdminUser( UserAdmin ):
     ('Main', { 'fields': ('username', 'password') }),
     ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
     )
+    readonly_fields = ( 'password', )
     inlines = [HomeInline, ]
 
     # Need to remove inlines when adding object

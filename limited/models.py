@@ -117,8 +117,8 @@ class History( models.Model ):
     lib = models.ForeignKey( FileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
     name = models.CharField( max_length=256, null=False )
-    path = models.CharField( max_length=256, null=True )
-    extra = models.CharField( max_length=256, null=True )
+    path = models.CharField( max_length=256, null=True, blank=True )
+    extra = models.CharField( max_length=256, null=True, blank=True  )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
     # Return image type
@@ -150,10 +150,13 @@ class History( models.Model ):
 
 
 class LinkManager( models.Manager ):
-    def add(self, lib, path, age=24 * 60 * 60, *args, **kwargs ):
+    def add(self, lib, path, age=None, *args, **kwargs ):
         """
         Create new link with default age 24h
         """
+        if age == None:
+            age = settings.LIMITED_LINK_MAX_AGE
+
         kwargs['lib'] = lib
         kwargs['path'] = path
         kwargs['hash'] = self.model.get_hash( lib.id, path )
