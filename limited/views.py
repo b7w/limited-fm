@@ -186,6 +186,7 @@ def ActionView( request, id, command ):
     """
     Action add, delete, rename, movem link
     GET 'h' - home id, 'p' - path
+    than redirect back
     """
     lib_id = int( id )
     path = request.GET.get('p', '')
@@ -346,6 +347,37 @@ def ActionView( request, id, command ):
         size = Storage.size( path, dir=True, cached=True )
         size = filesizeformat( size )
         return HttpResponse( size )
+
+    return HttpResponseReload( request )
+
+
+def ActionClear( request, id, command ):
+    """
+    Clear trash or cache folders
+    and than redirect back
+    """
+    lib_id = int( id )
+
+    home = get_home( request.user, lib_id)
+    Storage = FileStorage( home.lib.get_path() )
+
+    if command == u"trash":
+        try:
+            if not request.user.is_staff:
+                raise PermissionError( u"You have no permission to clear trash" )
+            Storage.clear( u".TrashBin" )
+        except PermissionError as e:
+            logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
+            messages.error( request, e )
+
+    elif command == u"cache":
+        try:
+            if not request.user.is_staff:
+                raise PermissionError( u"You have no permission to clear cache" )
+            Storage.clear( u".cache" )
+        except PermissionError as e:
+            logger.info( u"Action clear cache. {0}. home_id:{1}".format( e, lib_id ) )
+            messages.error( request, e )
 
     return HttpResponseReload( request )
 

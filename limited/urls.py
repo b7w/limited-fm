@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^lib(?P<id>\d+)/trash/$', 'limited.views.TrashView', name='trash' ),
     url(r'^lib(?P<id>\d+)/history/$', 'limited.views.HistoryView', name='history' ),
     url(r'^lib(?P<id>\d+)/action/(?P<command>\w+)/$', 'limited.views.ActionView', name='action' ),
+    url(r'^lib(?P<id>\d+)/clear/(?P<command>\w+)/$', 'limited.views.ActionClear', name='clear' ),
 
     url(r'^lib(?P<id>\d+)/download/$', 'limited.views.DownloadView', name='download' ),
     url(r'^lib(?P<id>\d+)/upload/$', 'limited.views.UploadView', name='upload' ),

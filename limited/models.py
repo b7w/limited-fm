@@ -10,7 +10,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.encoding import smart_str
 
-from limited.files.storage import FilePath
+from limited.files.storage import FilePath, FileStorage
 
 class PermissionError( Exception ):
     pass
@@ -65,6 +65,14 @@ class FileLib( models.Model ):
         if root == None:
             root = settings.LIMITED_ROOT_PATH
         return FilePath.join( root, self.path )
+
+    def get_cache_size(self):
+        File = FileStorage( self.get_path() )
+        return File.size( u".cache", dir=True  )
+
+    def get_trash_size(self):
+        File = FileStorage( self.get_path() )
+        return File.size( u".TrashBin", dir=True  )
 
     class Meta:
         verbose_name = 'File Lib'
