@@ -220,11 +220,8 @@ def ActionView( request, id, command ):
                 #history.path = dir
                 #history.save( )
 
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Delete from FS
@@ -238,11 +235,8 @@ def ActionView( request, id, command ):
             history.type = History.DELETE
             history.name = FilePath.name( path )
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Move to special directory
@@ -256,11 +250,8 @@ def ActionView( request, id, command ):
             history.type = History.TRASH
             history.name = FilePath.name( path )
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'n' - new file name
@@ -275,11 +266,8 @@ def ActionView( request, id, command ):
             history.type = History.RENAME
             history.name = name
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'p2' - new directory path
@@ -296,11 +284,8 @@ def ActionView( request, id, command ):
             history.name = FilePath.name( path )
             history.path = path2
             history.save( )
-        except FileError as e:
-            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
+        except ( PermissionError, FileError ) as e:
+            logger.error( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     elif command == u"link":
@@ -326,7 +311,7 @@ def ActionView( request, id, command ):
                 logger.error( u"Action link. You have no permission to create links. home_id:{0}, path:{0}".format( lib_id, path ) )
                 raise PermissionError( u"You have no permission to create links" )
 
-        except PermissionError as e:
+        except ( PermissionError, FileError ) as e:
             logger.info( u"Action link. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
@@ -339,7 +324,7 @@ def ActionView( request, id, command ):
                 Storage.unzip( path )
             else:
                 Storage.zip( path )
-        except PermissionError as e:
+        except ( PermissionError, FileError ) as e:
             logger.info( u"Action zip. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
@@ -366,7 +351,7 @@ def ActionClear( request, id, command ):
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear trash" )
             Storage.clear( settings.LIMITED_TRASH_PATH )
-        except PermissionError as e:
+        except ( PermissionError, FileError ) as e:
             logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )
 
@@ -375,8 +360,8 @@ def ActionClear( request, id, command ):
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear cache" )
             Storage.clear( settings.LIMITED_CACHE_PATH )
-        except PermissionError as e:
-            logger.info( u"Action clear cache. {0}. home_id:{1}".format( e, lib_id ) )
+        except ( PermissionError, FileError ) as e:
+            logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )
 
     return HttpResponseReload( request )

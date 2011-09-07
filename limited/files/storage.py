@@ -2,11 +2,11 @@
 
 from datetime import datetime, timedelta
 from hashlib import md5
-import logging
 import os
 import shutil
 import urllib
 import zipfile
+import errno
 
 from django.conf import settings
 from django.core.cache import cache
@@ -14,7 +14,6 @@ from django.core.files.base import File
 from django.utils.encoding import smart_str, iri_to_uri
 from django.utils.http import urlquote
 
-logger = logging.getLogger(__name__)
 
 class FileError( Exception ):
     """
@@ -78,7 +77,11 @@ class FileStorage( object ):
         self.home = home
 
     def open(self, name, mode='rb'):
-        return File( open( self.abspath( name ), mode ) )
+        try:
+            return File( open( self.abspath( name ), mode ) )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, open. Permission denied '%s'" % name )
 
     def create(self, name, content):
         name = self.available_name( name )
@@ -122,21 +125,35 @@ class FileStorage( object ):
     def mkdir(self, name):
         if self.exists( name ):
             raise FileError( u"Directory '%s' already exists" % name )
-        os.mkdir( self.abspath( name ) )
+        try:
+            os.mkdir( self.abspath( name ) )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, mkdir. Permission denied '%s'" % name )
 
     def abspath(self, name):
+        """
+        Return abs filesystem path to file
+        """
         return FilePath.join( self.root, name )
 
     def homepath(self, name):
+        """
+        return path from storage home
+        """
         return FilePath.join( self.home, name )
 
     def remove(self, name):
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
-        if self.isdir( name ):
-            shutil.rmtree( self.abspath( name ) )
-        else:
-            os.remove( self.abspath( name ) )
+        try:
+            if self.isdir( name ):
+                shutil.rmtree( self.abspath( name ) )
+            else:
+                os.remove( self.abspath( name ) )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, remove. Permission denied '%s'" % name )
 
     def clear(self, name, older=None):
         """
@@ -173,7 +190,11 @@ class FileStorage( object ):
 
         dst = FilePath.join( dst, name )
         dst = self.available_name( dst )
-        shutil.move( self.abspath( src ), self.abspath( dst ) )
+        try:
+            shutil.move( self.abspath( src ), self.abspath( dst ) )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, move. Permission denied '%s'" % src )
 
     def rename(self, path, name):
         if '/' in name:
@@ -183,7 +204,11 @@ class FileStorage( object ):
         new_path = FilePath.join( FilePath.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
-        os.rename( self.abspath( path ), self.abspath( new_path ) )
+        try:
+            os.rename( self.abspath( path ), self.abspath( new_path ) )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, rename. Permission denied '%s'" % path )
 
     def totrash(self, name):
         if not self.exists( name ):
@@ -296,10 +321,12 @@ class FileStorage( object ):
             archive.close( )
             zfile.seek( 0 )
             self.rename( newfile, FilePath.name( file ) )
-        except Exception:
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, zip. Permission denied '%s'" % name )
+        finally:
             if self.exists( newfile ):
                 self.remove( newfile )
-            raise
 
     def unzip(self, path ):
         file = self.abspath( path )
@@ -310,6 +337,9 @@ class FileStorage( object ):
             zip.extractall( FilePath.dirname( file ) )
         except UnicodeDecodeError as e:
             raise FileError( u"Unicode decode error, try unzip yourself" )
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                raise FileError( u"IOError, unzip. Permission denied '%s'" % path )
 
     def url(self, name):
         return urlquote(name)
