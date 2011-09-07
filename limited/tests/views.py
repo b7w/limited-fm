@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.utils.html import escape
@@ -53,10 +54,10 @@ class ViewsTest( TestCase ):
         """
         lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path( ) )
-        if storage.exists( u".TrashBin" ):
-            storage.remove( u".TrashBin" )
+        if storage.exists( settings.LIMITED_TRASH_PATH ):
+            storage.remove( settings.LIMITED_TRASH_PATH )
         resp = self.client.get( urlbilder( 'trash', lib.id ) )
-        assert storage.exists( u".TrashBin" )
+        assert storage.exists( settings.LIMITED_TRASH_PATH )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 0
 

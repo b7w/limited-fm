@@ -29,7 +29,7 @@ class DownloadManager:
         """
         if self.cache.has_key( path ):
             return self.cache[path]
-        cache = FilePath.join( u".cache", self.hash( path ) )
+        cache = FilePath.join( settings.LIMITED_CACHE_PATH, self.hash( path ) )
         self.cache[path] = cache
         return cache
 
@@ -48,8 +48,8 @@ class DownloadManager:
         return False
 
     def process(self, path):
-        if not self.storage.exists( u".cache" ):
-            self.storage.mkdir( u".cache" )
+        if not self.storage.exists( settings.LIMITED_CACHE_PATH ):
+            self.storage.mkdir( settings.LIMITED_CACHE_PATH )
         cache = self.cache_path( path )
         part = self.cache_path( path ) + u".part"
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
@@ -66,8 +66,8 @@ class DownloadManager:
     def build(self, path ):
         url_path = None
         if self.storage.isdir( path ):
-            if not self.storage.exists( u".cache" ):
-                self.storage.mkdir( u".cache" )
+            if not self.storage.exists( settings.LIMITED_CACHE_PATH ):
+                self.storage.mkdir( settings.LIMITED_CACHE_PATH )
             if not self.storage.exists( self.cache_path( path ) ):
                 self.storage.zip( path, self.cache_path( path ) )
             url_path = self.cache_path( path )

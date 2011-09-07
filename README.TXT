@@ -29,10 +29,16 @@ Need Django 1.3
 # setup settings.py
 cp settings.py.smpl settings.py
 nano settings.py
-    INSTALLED_APPS += 'limited'
+# and edit it
+
+# default settings, for more look settings.py.smpl
     LIMITED_ANONYMOUS = True
     LIMITED_ANONYMOUS_ID = 2
-    LIMITED_ROOT_PATH = "/home/{user}/FileManager"
+    LIMITED_ROOT_PATH = "/home/{user}"
+    LIMITED_CACHE_PATH = ".cache"
+    LIMITED_TRASH_PATH = ".TrashBin"
+    LIMITED_LINK_MAX_AGE = 7 * 24 * 60 * 60
+    LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
 
 # create tables
 python manage.py syncdb --settings=settings

@@ -118,20 +118,20 @@ class FileStorageTest( StorageTestCase ):
         self.assertRaises( FileNotExist, self.storage.clear, u"No Folder" )
         self.assertRaises( FileError, self.storage.clear, u"content.txt" )
 
-        self.storage.clear( u".TrashBin", older=60 )
-        assert self.storage.exists( u".TrashBin/Crash Test" ) == True
+        self.storage.clear( settings.LIMITED_TRASH_PATH, older=60 )
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
         time.sleep( 1 )
-        self.storage.clear( u".TrashBin", older=1 )
-        assert self.storage.exists( u".TrashBin/Crash Test" ) == False
+        self.storage.clear( settings.LIMITED_TRASH_PATH, older=1 )
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
-        self.storage.create( u".TrashBin/test.bin", u"Test" )
-        self.storage.clear( u".TrashBin" )
-        assert self.storage.exists( u".TrashBin/Crash Test" ) == False
+        self.storage.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
+        self.storage.clear( settings.LIMITED_TRASH_PATH )
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
-        self.storage.create( u".TrashBin/test.bin", u"Test" )
+        self.storage.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
         clear_folders( u"NoFolder" )
-        clear_folders( u".TrashBin", 0 )
-        assert self.storage.exists( u".TrashBin/test.bin" ) == False
+        clear_folders( settings.LIMITED_TRASH_PATH, 0 )
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/test.bin" ) == False
 
     def test_mkdir(self):
         """
@@ -188,13 +188,13 @@ class FileStorageTest( StorageTestCase ):
         self.storage.mkdir( u"Crash Test" )
         self.storage.create( u"Crash Test/test.bin", u"Test" )
 
-        self.storage.remove( u".TrashBin" )
+        self.storage.remove( settings.LIMITED_TRASH_PATH )
         self.storage.totrash( u"Crash Test/test.bin" )
-        assert self.storage.exists( u".TrashBin" ) == True
-        assert self.storage.exists( u".TrashBin/test.bin" ) == True
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH ) == True
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/test.bin" ) == True
 
         self.storage.totrash( u"Crash Test" )
-        assert self.storage.exists( u".TrashBin/Crash Test" ) == True
+        assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
 
     def test_size(self):
         """

@@ -180,6 +180,12 @@ LIMITED_ANONYMOUS_ID = 2
 # FileLib.path will be added
 LIMITED_ROOT_PATH = "/home/user"
 
+# Path to filelib local cache folder
+LIMITED_CACHE_PATH = ".cache"
+
+# Path to filelib local trash folder
+LIMITED_TRASH_PATH = ".TrashBin"
+
 # Time in seconds after witch link will be expired
 LIMITED_LINK_MAX_AGE = 7 * 24 * 60 * 60
 

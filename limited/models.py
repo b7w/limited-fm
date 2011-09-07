@@ -68,11 +68,11 @@ class FileLib( models.Model ):
 
     def get_cache_size(self):
         File = FileStorage( self.get_path() )
-        return File.size( u".cache", dir=True  )
+        return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
 
     def get_trash_size(self):
         File = FileStorage( self.get_path() )
-        return File.size( u".TrashBin", dir=True  )
+        return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
 
     class Meta:
         verbose_name = 'File Lib'

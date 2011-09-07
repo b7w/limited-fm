@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from django.core.management import call_command
@@ -31,8 +32,8 @@ class CodeTest( TestCase ):
         Test management command clearfolder.
         If no exceptions - pretty good
         """
-        call_command( 'clearfolder', '.TrashBin' )
-        call_command( 'clearfolder', '.TrashBin', '24*60*60' )
+        call_command( 'clearfolder', settings.LIMITED_TRASH_PATH )
+        call_command( 'clearfolder', settings.LIMITED_TRASH_PATH, '24*60*60' )
         call_command( 'clearfolder', 'NoFolder', '24*60*60' )
 
     def test_urlbilder(self):

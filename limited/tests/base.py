@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.test import TestCase
 
 from limited.models import FileLib
@@ -32,8 +33,8 @@ class StorageTestCase( TestCase ):
             if self.storage.exists( u"" ):
                 self.storage.remove( u"" )
             self.storage.mkdir( u"" )
-            self.storage.mkdir( u".TrashBin" )
-            self.storage.mkdir( u".TrashBin/Crash Test" )
+            self.storage.mkdir( settings.LIMITED_TRASH_PATH )
+            self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
             self.storage.mkdir( u"Test Folder" )
             self.storage.create( u"content.txt", u"Test line in file" )
             self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )

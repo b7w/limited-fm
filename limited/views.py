@@ -159,9 +159,9 @@ def TrashView( request, id ):
         patharr = split_path( 'Trash' )
 
         File = FileStorage( home.lib.get_path() )
-        if not File.exists( u".TrashBin" ):
-            File.mkdir( u".TrashBin" )
-        files = File.listdir( u".TrashBin" )
+        if not File.exists( settings.LIMITED_TRASH_PATH ):
+            File.mkdir( settings.LIMITED_TRASH_PATH )
+        files = File.listdir( settings.LIMITED_TRASH_PATH )
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -172,7 +172,7 @@ def TrashView( request, id ):
 
     return render( request, u"limited/trash.html", {
         'pathname': request.path,
-        'path': '.TrashBin',
+        'path': settings.LIMITED_TRASH_PATH,
         'patharr': patharr,
         'history': history,
         'home_id': lib_id,
@@ -365,7 +365,7 @@ def ActionClear( request, id, command ):
         try:
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear trash" )
-            Storage.clear( u".TrashBin" )
+            Storage.clear( settings.LIMITED_TRASH_PATH )
         except PermissionError as e:
             logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )
@@ -374,7 +374,7 @@ def ActionClear( request, id, command ):
         try:
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear cache" )
-            Storage.clear( u".cache" )
+            Storage.clear( settings.LIMITED_CACHE_PATH )
         except PermissionError as e:
             logger.info( u"Action clear cache. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )

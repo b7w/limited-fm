@@ -8,12 +8,11 @@ import shutil
 import urllib
 import zipfile
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import File
 from django.utils.encoding import smart_str, iri_to_uri
 from django.utils.http import urlquote
-
-from limited.files.utils import DownloadThread
 
 logger = logging.getLogger(__name__)
 
@@ -189,9 +188,9 @@ class FileStorage( object ):
     def totrash(self, name):
         if not self.exists( name ):
             raise FileNotExist( u"%s not found" % name )
-        if not self.exists( u".TrashBin" ):
-            self.mkdir( u".TrashBin"  )
-        self.move( name, u".TrashBin"  )
+        if not self.exists( settings.LIMITED_TRASH_PATH ):
+            self.mkdir( settings.LIMITED_TRASH_PATH  )
+        self.move( name, settings.LIMITED_TRASH_PATH  )
 
     def exists(self, name):
         return os.path.exists( self.abspath( name ) )
