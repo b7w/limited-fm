@@ -171,30 +171,7 @@ LOGGING = {
 
 LOGIN_URL = "/login/"
 
-# To allow Anonymous access
-# Need user "Anonymous" in DB
-LIMITED_ANONYMOUS = True
-LIMITED_ANONYMOUS_ID = 2
 
 # Absolute root path to witch
 # FileLib.path will be added
 LIMITED_ROOT_PATH = "/home/user"
-
-# Path to filelib local cache folder
-LIMITED_CACHE_PATH = ".cache"
-
-# Path to filelib local trash folder
-LIMITED_TRASH_PATH = ".TrashBin"
-
-# Time in seconds after witch link will be expired
-LIMITED_LINK_MAX_AGE = 7 * 24 * 60 * 60
-
-# Max size in bytes after witch
-# zipping will be async
-LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
-
-# Set backen for serving files
-# Now only default and nginx
-LIMITED_SERVE = {
-    'BACKEND': 'limited.serve.backends.default',
-}

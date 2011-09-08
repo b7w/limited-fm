@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
+from limited import settings
 from django.test import TestCase
 
 from limited.models import FileLib

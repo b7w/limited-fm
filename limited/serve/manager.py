@@ -2,7 +2,7 @@
 
 from hashlib import md5
 
-from django.conf import settings
+from limited import settings
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 

@@ -2,7 +2,7 @@
 
 import time
 
-from django.conf import settings
+from limited import settings
 
 from limited.serve.backends import BaseDownloadResponse
 from limited.serve.manager import DownloadManager

@@ -2,7 +2,7 @@
 
 import time
 
-from django.conf import settings
+from limited import settings
 from django.core.files.base import File
 
 from limited.controls import clear_folders

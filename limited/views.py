@@ -2,7 +2,7 @@
 
 import logging
 
-from django.conf import settings
+from limited import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist

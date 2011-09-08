@@ -30,15 +30,10 @@ Need Django 1.3
 cp settings.py.smpl settings.py
 nano settings.py
 # and edit it
-
-# default settings, for more look settings.py.smpl
     LIMITED_ANONYMOUS = True
     LIMITED_ANONYMOUS_ID = 2
     LIMITED_ROOT_PATH = "/home/{user}"
-    LIMITED_CACHE_PATH = ".cache"
-    LIMITED_TRASH_PATH = ".TrashBin"
-    LIMITED_LINK_MAX_AGE = 7 * 24 * 60 * 60
-    LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
+# for more look limited.settings
 
 # create tables
 python manage.py syncdb --settings=settings
@@ -101,6 +96,7 @@ LIMITED_SERVE = {
 
 Also you can add 'Content-Type' in this setting.
 default is 'application/octet-stream'
+or set '' to allow nginx select it
 
 
 [[ Test ]]

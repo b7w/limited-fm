@@ -2,7 +2,7 @@
 import logging
 import re
 
-from django.conf import settings
+from limited import settings
 from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 

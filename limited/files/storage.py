@@ -8,7 +8,7 @@ import urllib
 import zipfile
 import errno
 
-from django.conf import settings
+from limited import settings
 from django.core.cache import cache
 from django.core.files.base import File
 from django.utils.encoding import smart_str, iri_to_uri

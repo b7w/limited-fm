@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
+from limited import settings
 from django.core.exceptions import ValidationError
 
 from django.core.management import call_command

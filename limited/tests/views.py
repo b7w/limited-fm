@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
+from limited import settings
 from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.utils.html import escape
