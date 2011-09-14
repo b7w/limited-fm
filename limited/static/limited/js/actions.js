@@ -58,7 +58,7 @@ function Move( obj ) {
 
     var data = jQuery.parseJSON( jQuery(obj).parent().parent().parent().children('.info').text() );
     var path2 = prompt( 'Enter new path', '' );
-    alert(data)
+    
     if (path2!=null && path2!="")
     {
         var link = "/lib"+data.home+"/action/move/?p="+data.path+"&amp;p2=" + encodeURIComponent(path2);

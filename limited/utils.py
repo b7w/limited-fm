@@ -34,11 +34,11 @@ def split_path( path ):
         if name != '':
             newpath = os.path.dirname( path )
             data = _split_path( newpath, data )
-            data[name] = path
+            data.append( (name, path) )
             return data
         return data
 
-    return _split_path( path, SortedDict() )
+    return _split_path( path, [] )
 
 
 def load_permissions( using=None ):

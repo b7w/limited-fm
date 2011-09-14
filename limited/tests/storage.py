@@ -35,12 +35,12 @@ class FileStorageTest( StorageTestCase ):
         assert FilePath.dirname( u"/path/name/file" ) == u"/path/name"
         assert FilePath.dirname( u"/path/name/file.ext" ) == u"/path/name"
 
-        assert FilePath.norm( u"/root/base", "file.ext" ) == u"file.ext"
-        assert FilePath.norm( u"/root/base", "../file.ext" ) == u"root/file.ext"
-        assert FilePath.norm( u"/root/base", ".././file.ext" ) == u"root/file.ext"
-        assert FilePath.norm( u"/root/base", "../../file.ext" ) == u"file.ext"
-        assert FilePath.norm( u"/root", "./file.ext" ) == u"root/file.ext"
-        assert FilePath.norm( u"/root", "././file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"root/file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"root/base/../file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"root/base/.././file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"root/base/../../file.ext" ) == u"file.ext"
+        assert FilePath.norm( u"root/./file.ext" ) == u"root/file.ext"
+        assert FilePath.norm( u"root/././file.ext" ) == u"root/file.ext"
 
     def test_storage_open(self):
         """

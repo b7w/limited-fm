@@ -48,13 +48,15 @@ class CodeTest( TestCase ):
         assert url_get_filename( u"http://domen.ru/share/Исчисление высказываний.pdf" ) == u"Исчисление высказываний.pdf"
 
     def test_split_path(self):
-        assert split_path( '' ) == { }
-        assert split_path( '/root' ) == { 'root': '/root' }
-        assert split_path( '/root/path1' ) == { 'root': '/root', 'path1': '/root/path1' }
-        assert split_path( '/root/path1/path2' ) == { 'root': '/root', 'path1': '/root/path1',
-                                                      'path2': '/root/path1/path2' }
+        assert split_path( '' ) == []
+        assert split_path( '/root' ) == [('root', '/root')]
+        assert split_path( '/root/path1' ) == [('root', '/root'), ('path1', '/root/path1')]
+        assert split_path( '/root/path1/path2' ) == [('root', '/root'), ('path1', '/root/path1'),
+            ('path2', '/root/path1/path2')]
+        assert split_path( '/root/path/path' ) == [('root', '/root'), ('path', '/root/path'),
+            ('path', '/root/path/path')]
         # test rigth order
-        assert split_path( '/c/b/a' ) == { 'c': '/c', 'b': '/c/b', 'a': '/c/b/a' }
+        assert split_path( '/c/b/a' ) == [('c', '/c'), ('b', '/c/b'), ('a', '/c/b/a')]
 
     def test_truncate_path(self):
         assert truncate_path( 'mordovia forever, karapusi must die' ) == 'mordovia forever, karapusi must die'
