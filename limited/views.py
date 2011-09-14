@@ -276,8 +276,19 @@ def ActionView( request, id, command ):
             if not home.permission.move:
                 raise PermissionError( u"You have no permission to move" )
             path2 = request.GET['p2']
-            path2 = FilePath.norm( FilePath.dirname( path ), path2 )
-            Storage.move( path, path2 )
+            if path2[0] == u'/':
+                path2 = path2[1:]
+                logger.error( path2 )
+                Storage.move( path, path2 )
+            elif path2[0] == u'.':
+                tmp = FilePath.join( FilePath.dirname( path ), path2 )
+                path2 = FilePath.norm( tmp )
+                Storage.move( path, path2 )
+            else:
+                path2 = FilePath.join( FilePath.dirname( path ), path2 )
+                Storage.move( path, path2 )
+            #path2 = FilePath.norm( FilePath.dirname( path ), path2 )
+            #Storage.move( path, path2 )
             messages.success( request, u"'%s' successfully moved to '%s'" % ( FilePath.name( path ), path2) )
             history.user = user
             history.type = History.MOVE

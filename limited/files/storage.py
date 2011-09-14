@@ -61,22 +61,11 @@ class FilePath( object ):
         return os.path.dirname( path )
 
     @staticmethod
-    def norm( root, src ):
+    def norm( path ):
         """
-        If src include '../' or './'
-          join root and src and normalise it
-        Else return src
+        If src include '../' or './' normalise it
         """
-        if src.find( '../' ) != -1 or src.find( './' ) != -1:
-            path = FilePath.join( root, src )
-            path = os.path.normpath( path )
-        else:
-            path = src
-
-        # delete first '/'
-        if path[0] == '/':
-            path = path[1:]
-        return path
+        return os.path.normpath( path )
 
 
 class FileStorage( object ):
