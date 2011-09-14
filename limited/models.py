@@ -17,6 +17,11 @@ class PermissionError( Exception ):
 
 
 class Permission( models.Model ):
+    """
+    Basic restrictions for files.
+    Permits are not dependent on the file system.
+    Base actions or boolean fields: edit,move,delete,create,upload,http_get
+    """
     edit = models.BooleanField( default=False )
     move = models.BooleanField( default=False )
     delete = models.BooleanField( default=False )
@@ -24,16 +29,20 @@ class Permission( models.Model ):
     upload = models.BooleanField( default=False )
     http_get = models.BooleanField( default=False )
 
-    # Return names of boolean fields ( not id )
-    # generated depending on the number of fields
     @classmethod
     def fields(self):
+        """
+        Return names of boolean fields ( not id )
+        generated depending on the number of fields
+        """
         return [k.name for k in self._meta.fields if k.name != 'id']
 
-    # Return all True
-    # generated depending on the number of fields
     @classmethod
     def Full(self):
+        """
+        Return all True
+        generated depending on the number of fields
+        """
         fieldcount = len(self._meta.fields)-1
         fields = self.fields()
         perm = Permission()
@@ -55,6 +64,10 @@ class Permission( models.Model ):
 
 
 class FileLib( models.Model ):
+    """
+    File lib represent some folder in file system.
+    It have name, description, and path from LIMITED_ROOT_PATH
+    """
     validators = [ RegexValidator(r"^\w+.*$","Path can start only with letters or numbers" ), ]
 
     name = models.CharField( max_length=64, null=False )
@@ -83,6 +96,9 @@ class FileLib( models.Model ):
 
 
 class Home( models.Model ):
+    """
+    Users home file libs with permission per lib.
+    """
     user = models.ForeignKey( User )
     lib = models.ForeignKey( FileLib )
     permission = models.ForeignKey( Permission, default=1 )
@@ -96,6 +112,11 @@ class Home( models.Model ):
 
 
 class History( models.Model ):
+    """
+    Simple history for create,upload,rename,move,trash,delete,link.
+    With path, extra path, user and file lib foreign keys.
+    Extra path, for example for link action it is a url to object.
+    """
     CREATE = 1
     UPLOAD = 2
     RENAME = 3
@@ -129,21 +150,28 @@ class History( models.Model ):
     extra = models.CharField( max_length=256, null=True, blank=True  )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
-    # Return image type
-    # depend of ACTION
     def get_image_type(self):
+        """
+        Return image type
+        depend of ACTION
+        """
         for key,val in self.image:
             if key == self.type:
                 return val
 
     def is_extra(self):
+        """
+        If field extra is not empty
+        """
         if self.extra:
             return True
         return False
 
-    # Return html for extra field
-    # depend of type
     def get_extra(self):
+        """
+        Return html for extra field
+        depend of type
+        """
         if self.type == self.LINK:
             link = reverse( 'link', args=[self.extra] )
             return u"<a href=\"{0}\">direct link</a>".format( link )
@@ -158,9 +186,13 @@ class History( models.Model ):
 
 
 class LinkManager( models.Manager ):
+    """
+    Object manager for simpler creating links
+    and find them by hash
+    """
     def add(self, lib, path, age=None, *args, **kwargs ):
         """
-        Create new link with default age 24h
+        Create new link with default age
         """
         if age == None:
             age = settings.LIMITED_LINK_MAX_AGE
@@ -187,6 +219,10 @@ class LinkManager( models.Manager ):
         return None
 
 class Link( models.Model ):
+    """
+    Link that provide a simple way to download file without having any permission.
+    Store hash to find, path, expires DateTime, and lib lib foreign key
+    """
     hash = models.CharField( max_length=12, null=False )
     lib = models.ForeignKey( FileLib )
     path = models.CharField( max_length=256, null=False )
@@ -197,7 +233,9 @@ class Link( models.Model ):
 
     @classmethod
     def get_hash(self, lib_id, path ):
-        """ Return hash for link, need lib id and file path"""
+        """
+        Return hash for link, need lib id and file path
+        """
         return hashlib.md5( str(lib_id) + smart_str( path ) ).hexdigest( )[0:12]
 
     class Meta:
@@ -209,6 +247,10 @@ class Link( models.Model ):
 
 
 class LUser( User ):
+    """
+    Simple proxy for django user
+    with Home Inline.
+    """
     class Meta:
         ordering = ["username"]
         proxy = True

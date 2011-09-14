@@ -7,7 +7,7 @@ from django.conf import settings
 LIMITED_ANONYMOUS = getattr( settings, 'LIMITED_ANONYMOUS', False )
 
 # Anonymous user ID
-LIMITED_ANONYMOUS_ID = getattr( settings, 'LIMITED_ANONYMOUS_ID', 2 )
+LIMITED_ANONYMOUS_ID = getattr( settings, 'LIMITED_ANONYMOUS_ID', 0 )
 
 # Absolute root BasePath to witch
 # FileLib.BasePath will be added
@@ -26,10 +26,9 @@ LIMITED_LINK_MAX_AGE = getattr( settings, 'LIMITED_LINK_MAX_AGE', 7 * 24 * 60 * 
 # zipping will be async
 LIMITED_ZIP_HUGE_SIZE = getattr( settings, 'LIMITED_ZIP_HUGE_SIZE', 32 * 1024 ** 2 )
 
-# Set backen for serving files
+# Set backend for serving files
 # Now only default and nginx
 LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {
     'BACKEND': 'limited.serve.backends.default',
     'INTERNAL_URL': '/protected',
-    'Content-Type': '',
 } )

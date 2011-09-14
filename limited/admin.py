@@ -9,6 +9,10 @@ from limited.models import FileLib, Permission, Home, History, Link, LUser
 from limited.utils import urlbilder
 
 class AdminFileLib( admin.ModelAdmin ):
+    """
+    File lib admin with simple file size notes of trash and cache
+    and links to clear it.
+    """
     list_display = ( '__unicode__', 'get_cache', 'get_trash', )
     fieldsets = (
         ('Main', {
@@ -56,6 +60,10 @@ admin.site.register( Permission, AdminPermission )
 
 
 class HomeForm( forms.ModelForm ):
+    """
+    Some hacks to represent permission like check boxes.
+    If checked permits record not found it will be created.
+    """
     # Override 'permission' to set it readonly
     perm_id = forms.CharField( widget=forms.TextInput( attrs={ 'readonly': 'readonly' } ), required=False )
     perm = forms.MultipleChoiceField(
@@ -133,6 +141,9 @@ class HomeInline( admin.TabularInline ):
     raw_id_fields = ( "permission", )
 
 class AdminUser( UserAdmin ):
+    """
+    Simple LUser with Home Inline
+    """
     list_select_related = True
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
     fieldsets = (
