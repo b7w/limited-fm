@@ -8,12 +8,20 @@ import urllib
 import zipfile
 import errno
 
-from limited import settings
 from django.core.cache import cache
 from django.core.files.base import File
+from django.dispatch import Signal
 from django.utils.encoding import smart_str, iri_to_uri
 from django.utils.http import urlquote
 
+from limited import settings
+
+
+# Signal before file change
+# basedir - dir in witch file or dir changed
+# Main idea of signal to stop zipping dir or delete cache
+# Signal sent in ``open```( create, save ), ``remove``( clear, totrash ), ``zip``
+file_pre_change = Signal( providing_args=["basedir"] )
 
 class FileError( Exception ):
     """
@@ -75,8 +83,17 @@ class FileStorage( object ):
     def __init__(self, root, home=u''  ):
         self.root = root
         self.home = home
+        self.changed = None
+        file_pre_change.connect( self.file_change )
+
+    def file_change(self, **kwargs):
+        """
+        Callback file change for zipping
+        """
+        self.changed = kwargs["basedir"]
 
     def open(self, name, mode='rb'):
+        file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         try:
             return File( open( self.abspath( name ), mode ) )
         except EnvironmentError as e:
@@ -146,6 +163,7 @@ class FileStorage( object ):
     def remove(self, name):
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
+        file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         try:
             if self.isdir( name ):
                 shutil.rmtree( self.abspath( name ) )
@@ -188,6 +206,10 @@ class FileStorage( object ):
 
         name = FilePath.name( src )
 
+        # send signal to source src and dst
+        file_pre_change.send( self, basedir=src_dir )
+        file_pre_change.send( self, basedir=dst )
+
         dst = FilePath.join( dst, name )
         dst = self.available_name( dst )
         try:
@@ -204,6 +226,7 @@ class FileStorage( object ):
         new_path = FilePath.join( FilePath.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
+        file_pre_change.send( self, basedir=FilePath.dirname( path ) )
         try:
             os.rename( self.abspath( path ), self.abspath( new_path ) )
         except EnvironmentError as e:
@@ -313,6 +336,8 @@ class FileStorage( object ):
             if self.isdir( path ):
                 dirname = FilePath.name( path )
                 for abspath, name in self.listfiles( path ).items( ):
+                    if self.changed and self.changed == path:
+                        raise RuntimeError("Files changed: " + self.changed)
                     name = FilePath.join( dirname, name )
                     archive.write( abspath, name )
             elif self.isfile( path ):
@@ -333,6 +358,7 @@ class FileStorage( object ):
         zip = zipfile.ZipFile( file )
         # To lazy to do converting
         # maybe chardet help later
+        file_pre_change.send( self, basedir=FilePath.dirname( path ) )
         try:
             zip.extractall( FilePath.dirname( file ) )
         except UnicodeDecodeError as e:
