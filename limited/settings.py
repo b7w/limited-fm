@@ -2,6 +2,10 @@
 
 from django.conf import settings
 
+# Some default settings that needed in app
+LOGIN_URL = getattr( settings, 'LOGIN_URL' )
+
+
 # To allow Anonymous access
 # Need user "Anonymous" in DB
 LIMITED_ANONYMOUS = getattr( settings, 'LIMITED_ANONYMOUS', False )

@@ -6,7 +6,7 @@ from limited import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
@@ -28,6 +28,8 @@ def IndexView( request ):
     template :template:`limited/index.html`
     """
     user = request.user
+    if user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     Homes = get_homes( user )
 
@@ -70,6 +72,9 @@ def FilesView( request, id ):
 
     template :template:`limited/browser.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
     path = request.GET.get('p', '')
 
@@ -112,6 +117,9 @@ def HistoryView( request, id ):
 
     template :template:`limited/history.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
 
     try:
@@ -145,6 +153,9 @@ def TrashView( request, id ):
     
     template :template:`limited/trash.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
 
     try:
@@ -188,6 +199,9 @@ def ActionView( request, id, command ):
     GET 'h' - home id, 'p' - path
     than redirect back
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
     path = request.GET.get('p', '')
     
@@ -352,6 +366,9 @@ def ActionClear( request, id, command ):
     Clear trash or cache folders
     and than redirect back
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
 
     home = get_home( request.user, lib_id)
@@ -384,6 +401,9 @@ def UploadView( request, id ):
     Files upload to
     POST 'h' - home id, 'p' - path, 'files'
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     if request.method == u"POST":
         try:
             lib_id = int(id)
@@ -425,6 +445,9 @@ def DownloadView( request, id ):
     Download files, folders whit checked permissions
     GET 'h' - home id, 'p' - path
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )

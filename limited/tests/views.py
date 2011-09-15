@@ -12,6 +12,26 @@ from limited.utils import urlbilder
 class ViewsTest( TestCase ):
     fixtures = ['dump.json']
 
+    def setUp(self):
+        settings.LIMITED_ANONYMOUS = True
+        
+    def test_Anon_Redirects(self):
+        """
+        Test redirect to login page when user is Anonymous
+        and settings.LIMITED_ANONYMOUS = False
+        """
+        settings.LIMITED_ANONYMOUS = False
+        
+        assert self.client.get( '/' ).status_code == 302
+        assert self.client.get( urlbilder( 'browser', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'trash', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'history', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'action', 1, 'delete', p='' )  ).status_code == 302
+        assert self.client.get( urlbilder( 'clear', 1, 'cache' )  ).status_code == 302
+        assert self.client.get( urlbilder( 'download', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'upload', 1 )  ).status_code == 302
+        
+        
     def test_Admin_Homes(self):
         """
         Look home page of admin
@@ -40,6 +60,7 @@ class ViewsTest( TestCase ):
         Look home page of User
         and his libs
         """
+        assert settings.LIMITED_ANONYMOUS == True
         assert self.client.login( username='B7W', password='root' )
         resp = self.client.get( '/' )
         assert resp.status_code == 200
