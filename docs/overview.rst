@@ -2,6 +2,8 @@
 Overview
 ************************************
 
+.. index:: Overview
+
 About
 ===================================
 
@@ -32,7 +34,7 @@ About
 | File manager have simple history and Trash bin.
   All deleted file first move to trash.
 
-| For feedback look here :doc:`click <feedback>`
+| For feedback look here :doc:`click </feedback>`
 
 | Working application you can look `here <http://limited.isudo.ru/>`__
 
