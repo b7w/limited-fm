@@ -218,7 +218,7 @@ class FileStorageTest( StorageTestCase ):
         testimage = { "class": 'file', "name": u"Фото 007.bin", "url": u"%D0%A4%D0%BE%D1%82%D0%BE%20007.bin" }
 
         assert self.storage.listdir( "Test Folder" ).__len__( ) == 0
-        assert self.storage.listdir( "", hidden=True ).__len__( ) == 4
+        assert self.storage.listdir( "", hidden=True ).__len__( ) == 5
 
         assert self.storage.listdir( "" ).__len__( ) == 3
         assert self.storage.listdir( "" )[0]['class'] == testfolder['class']

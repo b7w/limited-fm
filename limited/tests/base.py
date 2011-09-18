@@ -35,6 +35,7 @@ class StorageTestCase( TestCase ):
             self.storage.mkdir( u"" )
             self.storage.mkdir( settings.LIMITED_TRASH_PATH )
             self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
+            self.storage.mkdir( settings.LIMITED_CACHE_PATH )
             self.storage.mkdir( u"Test Folder" )
             self.storage.create( u"content.txt", u"Test line in file" )
             self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )
