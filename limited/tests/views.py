@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from limited import settings
 from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.utils.html import escape
@@ -11,6 +12,26 @@ from limited.utils import urlbilder
 class ViewsTest( TestCase ):
     fixtures = ['dump.json']
 
+    def setUp(self):
+        settings.LIMITED_ANONYMOUS = True
+        
+    def test_Anon_Redirects(self):
+        """
+        Test redirect to login page when user is Anonymous
+        and settings.LIMITED_ANONYMOUS = False
+        """
+        settings.LIMITED_ANONYMOUS = False
+        
+        assert self.client.get( '/' ).status_code == 302
+        assert self.client.get( urlbilder( 'browser', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'trash', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'history', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'action', 1, 'delete', p='' )  ).status_code == 302
+        assert self.client.get( urlbilder( 'clear', 1, 'cache' )  ).status_code == 302
+        assert self.client.get( urlbilder( 'download', 1 )  ).status_code == 302
+        assert self.client.get( urlbilder( 'upload', 1 )  ).status_code == 302
+        
+        
     def test_Admin_Homes(self):
         """
         Look home page of admin
@@ -39,6 +60,7 @@ class ViewsTest( TestCase ):
         Look home page of User
         and his libs
         """
+        assert settings.LIMITED_ANONYMOUS == True
         assert self.client.login( username='B7W', password='root' )
         resp = self.client.get( '/' )
         assert resp.status_code == 200
@@ -53,10 +75,10 @@ class ViewsTest( TestCase ):
         """
         lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path( ) )
-        if storage.exists( u".TrashBin" ):
-            storage.remove( u".TrashBin" )
+        if storage.exists( settings.LIMITED_TRASH_PATH ):
+            storage.remove( settings.LIMITED_TRASH_PATH )
         resp = self.client.get( urlbilder( 'trash', lib.id ) )
-        assert storage.exists( u".TrashBin" )
+        assert storage.exists( settings.LIMITED_TRASH_PATH )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 0
 

@@ -3,12 +3,49 @@
 from django.contrib import admin
 from django import forms
 from django.contrib.auth.admin import UserAdmin
+from django.template.defaultfilters import filesizeformat
 
 from limited.models import FileLib, Permission, Home, History, Link, LUser
-
+from limited.utils import urlbilder
 
 class AdminFileLib( admin.ModelAdmin ):
-    pass
+    """
+    File lib admin with simple file size notes of trash and cache
+    and links to clear it.
+    """
+    list_display = ( '__unicode__', 'get_cache', 'get_trash', )
+    fieldsets = (
+        ('Main', {
+            'fields': ( 'name', 'description', 'path', )
+        }),
+        ('Advanced info', {
+            'classes': ('wide',),
+            'fields': ('cache', 'trash', )
+        }),
+    )
+    readonly_fields = ( 'cache', 'trash', 'get_cache', 'get_trash', )
+
+    def get_cache(self, obj):
+        return filesizeformat( obj.get_cache_size( ) )
+    get_cache.short_description = u'Cache size'
+
+    def get_trash(self, obj):
+        return filesizeformat( obj.get_trash_size( ) )
+    get_trash.short_description = u'Trash size'
+
+    def cache(self, obj):
+        size = filesizeformat( obj.get_cache_size( ) )
+        url = urlbilder( u'clear', obj.id, u'cache' )
+        return u'{0} / <a href="{1}">clear</a>'.format( size, url )
+    cache.short_description = 'Cache size'
+    cache.allow_tags = True
+
+    def trash(self, obj):
+        size = filesizeformat( obj.get_trash_size( ) )
+        url = urlbilder( u'clear', obj.id, u'trash' )
+        return u'{0} / <a href="{1}">clear</a>'.format( size, url )
+    trash.short_description = u'Trash size'
+    trash.allow_tags = True
 
 admin.site.register( FileLib, AdminFileLib )
 
@@ -23,6 +60,10 @@ admin.site.register( Permission, AdminPermission )
 
 
 class HomeForm( forms.ModelForm ):
+    """
+    Some hacks to represent permission like check boxes.
+    If checked permits record not found it will be created.
+    """
     # Override 'permission' to set it readonly
     perm_id = forms.CharField( widget=forms.TextInput( attrs={ 'readonly': 'readonly' } ), required=False )
     perm = forms.MultipleChoiceField(
@@ -100,6 +141,9 @@ class HomeInline( admin.TabularInline ):
     raw_id_fields = ( "permission", )
 
 class AdminUser( UserAdmin ):
+    """
+    Simple LUser with Home Inline
+    """
     list_select_related = True
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
     fieldsets = (

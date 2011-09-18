@@ -19,17 +19,6 @@ class HttpResponseReload( HttpResponse ):
         self[u"Location"] = iri_to_uri( referer or "/" )
 
 
-class Singleton( type ):
-    def __init__(cls, name, bases, dict):
-        super( Singleton, cls ).__init__( name, bases, dict )
-        cls.instance = None
-
-    def __call__(cls, *args, **kw):
-        if cls.instance is None:
-            cls.instance = super( Singleton, cls ).__call__( *args, **kw )
-            return cls.instance
-
-
 def split_path( path ):
     """
     Split path for folders name
@@ -45,11 +34,11 @@ def split_path( path ):
         if name != '':
             newpath = os.path.dirname( path )
             data = _split_path( newpath, data )
-            data[name] = path
+            data.append( (name, path) )
             return data
         return data
 
-    return _split_path( path, SortedDict() )
+    return _split_path( path, [] )
 
 
 def load_permissions( using=None ):

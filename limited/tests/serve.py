@@ -2,7 +2,7 @@
 
 import time
 
-from django.conf import settings
+from limited import settings
 
 from limited.serve.backends import BaseDownloadResponse
 from limited.serve.manager import DownloadManager
@@ -35,8 +35,42 @@ class DownloadManagerTest( StorageTestCase ):
         assert self.manager.is_need_processing( u"Test Folder" ) == True
         self.manager.process( u"Test Folder" )
         time.sleep( 1 )
-        assert self.storage.exists( self.manager.cache_path( u"Test Folder" ) ) == True
+        assert self.storage.exists( self.manager.cache_file( u"Test Folder" ) ) == True
         assert self.manager.is_need_processing( u"Test Folder" ) == False
+
+    def test_processing2(self):
+        """
+        Test signals when manager.process is working
+        """
+        cache_file = self.manager.cache_file( u"Test Folder" )
+        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 20 )
+        self.manager.process( u"Test Folder" )
+        self.storage.create( u"Test Folder/test2.bin", "XXX" )
+        time.sleep( 1 )
+        assert self.storage.exists( cache_file + u".part" ) == False
+        assert self.storage.exists( cache_file ) == False
+
+    def test_remove_cache(self):
+        """
+        Test signals when files create
+        and it is need to delete old cache
+        """
+        cache_file = self.manager.cache_file( u"Test Folder" )
+        cache_file2 = self.manager.cache_file( u"Test Folder/New dir" )
+        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
+        self.storage.mkdir( u"Test Folder/New dir" )
+        self.storage.create( u"Test Folder/New dir/test.bin", "XXX" * 2 ** 16 )
+
+        self.manager.process( u"Test Folder/New dir" )
+        self.manager.process( u"Test Folder" )
+        time.sleep( 1 )
+
+        assert self.storage.exists( cache_file ) == True
+        assert self.storage.exists( cache_file2 ) == True
+
+        self.storage.create( u"Test Folder/New dir/test2.bin", "XXX" )
+        assert self.storage.exists( cache_file ) == False
+        assert self.storage.exists( cache_file2 ) == False
 
     def test_backend(self):
         """

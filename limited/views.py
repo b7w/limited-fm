@@ -2,11 +2,11 @@
 
 import logging
 
-from django.conf import settings
+from limited import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
@@ -28,6 +28,8 @@ def IndexView( request ):
     template :template:`limited/index.html`
     """
     user = request.user
+    if user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     Homes = get_homes( user )
 
@@ -70,6 +72,9 @@ def FilesView( request, id ):
 
     template :template:`limited/browser.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
     path = request.GET.get('p', '')
 
@@ -112,6 +117,9 @@ def HistoryView( request, id ):
 
     template :template:`limited/history.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
 
     try:
@@ -145,6 +153,9 @@ def TrashView( request, id ):
     
     template :template:`limited/trash.html`
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
 
     try:
@@ -159,9 +170,9 @@ def TrashView( request, id ):
         patharr = split_path( 'Trash' )
 
         File = FileStorage( home.lib.get_path() )
-        if not File.exists( u".TrashBin" ):
-            File.mkdir( u".TrashBin" )
-        files = File.listdir( u".TrashBin" )
+        if not File.exists( settings.LIMITED_TRASH_PATH ):
+            File.mkdir( settings.LIMITED_TRASH_PATH )
+        files = File.listdir( settings.LIMITED_TRASH_PATH )
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -172,7 +183,7 @@ def TrashView( request, id ):
 
     return render( request, u"limited/trash.html", {
         'pathname': request.path,
-        'path': '.TrashBin',
+        'path': settings.LIMITED_TRASH_PATH,
         'patharr': patharr,
         'history': history,
         'home_id': lib_id,
@@ -186,7 +197,11 @@ def ActionView( request, id, command ):
     """
     Action add, delete, rename, movem link
     GET 'h' - home id, 'p' - path
+    than redirect back
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     lib_id = int( id )
     path = request.GET.get('p', '')
     
@@ -219,11 +234,8 @@ def ActionView( request, id, command ):
                 #history.path = dir
                 #history.save( )
 
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action add. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Delete from FS
@@ -237,11 +249,8 @@ def ActionView( request, id, command ):
             history.type = History.DELETE
             history.name = FilePath.name( path )
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # Move to special directory
@@ -255,11 +264,8 @@ def ActionView( request, id, command ):
             history.type = History.TRASH
             history.name = FilePath.name( path )
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'n' - new file name
@@ -274,11 +280,8 @@ def ActionView( request, id, command ):
             history.type = History.RENAME
             history.name = name
             history.save( )
-        except FileError as e:
+        except ( PermissionError, FileError ) as e:
             logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     # GET 'p2' - new directory path
@@ -287,19 +290,27 @@ def ActionView( request, id, command ):
             if not home.permission.move:
                 raise PermissionError( u"You have no permission to move" )
             path2 = request.GET['p2']
-            path2 = FilePath.norm( FilePath.dirname( path ), path2 )
-            Storage.move( path, path2 )
+            if path2[0] == u'/':
+                path2 = path2[1:]
+                logger.error( path2 )
+                Storage.move( path, path2 )
+            elif path2[0] == u'.':
+                tmp = FilePath.join( FilePath.dirname( path ), path2 )
+                path2 = FilePath.norm( tmp )
+                Storage.move( path, path2 )
+            else:
+                path2 = FilePath.join( FilePath.dirname( path ), path2 )
+                Storage.move( path, path2 )
+            #path2 = FilePath.norm( FilePath.dirname( path ), path2 )
+            #Storage.move( path, path2 )
             messages.success( request, u"'%s' successfully moved to '%s'" % ( FilePath.name( path ), path2) )
             history.user = user
             history.type = History.MOVE
             history.name = FilePath.name( path )
             history.path = path2
             history.save( )
-        except FileError as e:
-            logger.error( "Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
-            messages.error( request, e )
-        except PermissionError as e:
-            logger.info( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
+        except ( PermissionError, FileError ) as e:
+            logger.error( u"Action move. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
     elif command == u"link":
@@ -325,7 +336,7 @@ def ActionView( request, id, command ):
                 logger.error( u"Action link. You have no permission to create links. home_id:{0}, path:{0}".format( lib_id, path ) )
                 raise PermissionError( u"You have no permission to create links" )
 
-        except PermissionError as e:
+        except ( PermissionError, FileError ) as e:
             logger.info( u"Action link. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
@@ -338,7 +349,7 @@ def ActionView( request, id, command ):
                 Storage.unzip( path )
             else:
                 Storage.zip( path )
-        except PermissionError as e:
+        except ( PermissionError, FileError ) as e:
             logger.info( u"Action zip. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
 
@@ -350,12 +361,49 @@ def ActionView( request, id, command ):
     return HttpResponseReload( request )
 
 
+def ActionClear( request, id, command ):
+    """
+    Clear trash or cache folders
+    and than redirect back
+    """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
+    lib_id = int( id )
+
+    home = get_home( request.user, lib_id)
+    Storage = FileStorage( home.lib.get_path() )
+
+    if command == u"trash":
+        try:
+            if not request.user.is_staff:
+                raise PermissionError( u"You have no permission to clear trash" )
+            Storage.clear( settings.LIMITED_TRASH_PATH )
+        except ( PermissionError, FileError ) as e:
+            logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
+            messages.error( request, e )
+
+    elif command == u"cache":
+        try:
+            if not request.user.is_staff:
+                raise PermissionError( u"You have no permission to clear cache" )
+            Storage.clear( settings.LIMITED_CACHE_PATH )
+        except ( PermissionError, FileError ) as e:
+            logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
+            messages.error( request, e )
+
+    return HttpResponseReload( request )
+
+
 @csrf_exempt
 def UploadView( request, id ):
     """
     Files upload to
     POST 'h' - home id, 'p' - path, 'files'
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     if request.method == u"POST":
         try:
             lib_id = int(id)
@@ -397,6 +445,9 @@ def DownloadView( request, id ):
     Download files, folders whit checked permissions
     GET 'h' - home id, 'p' - path
     """
+    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+        return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
+    
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )

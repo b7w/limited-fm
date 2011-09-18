@@ -1,105 +1,44 @@
-###########################
-#  Limited File Manager   #
-###########################
+About
+===================================
 
-[[ About ]]
-It is a simple file manager.
-it is support base action limitations:
-    edit - rename
-    move - move file and folders
-    create - create new folded
-    upload - multiple file upload ( provide by html5 )
-    http_get - download files wia http protocol
-also manager can zip/unzip and create direct link that free of permission.
+| Limited is a simple file manager written in python with django.
+  There isn't a lot of javascript, heavy interfaces and etc.
+  It's work pretty well with mobile devices.
+  You can upload multiple files, download folders and make base file operations.
 
-Limited can manage various file libs for each user with specified permission,
-plus Anonymous libs if turn on and in database created special user.
-if User have the some lib as Anonymous, the Users permissions will be taken.
+| This project develop with 2 main ideas: various file shares and permissions for them.
+  So manager support action limitations:
 
-Super user can view and edit all libs.
+* edit - rename
+* move - move file and folders
+* create - create new folded
+* upload - multiple file upload ( provide by html5 )
+* http_get - download files wia http protocol from other resources
 
-File manager have simple history and Trash bin.
-Trash bin stored in ".TrashBin" and created automatic.
-All deleted file first move to trash.
+| Also manager can zip/unzip and create direct link that free of permission and have max age.
 
+| Limited can manage various file libs for each user with specified permission,
+  plus Anonymous libs if turn on and in database created special user.
+  if User have the some lib as Anonymous, the Users permission will be taken.
 
-[[ Installation ]]
-Need Django 1.3
+| Super user can view and edit all libs.
 
-# setup settings.py
-cp settings.py.smpl settings.py
-nano settings.py
-    INSTALLED_APPS += 'limited'
-    LIMITED_ANONYMOUS = True
-    LIMITED_ANONYMOUS_ID = 2
-    LIMITED_ROOT_PATH = "/home/{user}/FileManager"
+| File manager have simple history and Trash bin.
+  All deleted file first move to trash.
 
-# create tables
-python manage.py syncdb --settings=settings
+| For feedback look here :doc:`click <feedback>`
 
-# collect static
-python manage.py collectstatic --settings=settings
+| Working application you can look `here <http://limited.isudo.ru/>`__
 
-# fill permission table, optional
-# generate and append 64 unic permissions
-# 2^5 - edit, move, create, upload, http_get
-python manage.py loadpermissions
+| For more read documentation, /docs/
 
-# create Anonymous user if you need it
-http://domain.com/admin/auth/user/add/
-set him permission and file libs.
+Functional features
+===================================
 
-add file libs in http://domain.com/admin/limited/filelib/
+| Here I'd like to tell about some specific function.
 
-associate members, file libs and permission you can
-in http://domain.com/admin/limited/home/
-
-also you can look libs per user in http://domain.com/admin/limited/user/
-
-[[ Management ]]
-# All deleted file are moved to trash - `.TrashBin`
-# so if you need to clear it up, use this
-python manage.py clearfolder .TrashBin '24*60*60'
-
-# Also you need to clear `.cache` folder,
-# where zip folders are stored
-
-
-[[ Serve files ]]
-
-Some folders can be rather big to zip and serve on a fly
-So there is a a max folder size
-after witch processing will be in a thread
-and user will get a message to come later. size in bytes.
-
-LIMITED_ZIP_HUGE_SIZE = 32 * 1024**2
-
-Serving files with django is hard work.
-Limited can tell http server to serve files
-
-Now only nginx is available. To config it, add smth like this
-location /protected {
-    internal;
-    alias settings.LIMITED_ROOT_PATH;
-}
-
-and in settings
-
-LIMITED_SERVE = {
-    'BACKEND': 'limited.serve.backends.nginx',
-    'INTERNAL_URL': '/protected',
-}
-
-* this work only in debug=False,
-* because django don't no nothing about /protected url
-
-Also you can add 'Content-Type' in this setting.
-default is 'application/octet-stream'
-
-
-[[ Test ]]
-
-Tests better to run in sqlite without debug_toolbar and other helpers.
-They can rais errors and sqlite is much faster and safer to test
-just copy settings and run smth like that
-    python manage.py test limited --settings=settings2
+* | Limited can delegate serving files to nginx with 'X-Sendfile'.
+    It can greatly save resources.
+    Also you can write you backend for other http servers.
+* | Downloading big folders that pack to zip archive are running in background.
+    User just see message to wait a little and try latter. Also archived folders are caching.

@@ -1,17 +1,16 @@
-syntax: glob
+syntax: regexp
 
-settings*.py
+^settings.*py$
 
-*.pyc
-*.pyo
-*.log
-.idea
-FileManager.ids
+\.pyc
+\.pyo
+\.log
 
-debug_toolbar
-django_coverage
+\.idea/
 
-special
-static
-extra
+^debug_toolbar/
+^django_coverage/
+
+^special/
+^static/
 

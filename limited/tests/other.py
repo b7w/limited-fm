@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from limited import settings
 from django.core.exceptions import ValidationError
 
 from django.core.management import call_command
@@ -31,8 +32,8 @@ class CodeTest( TestCase ):
         Test management command clearfolder.
         If no exceptions - pretty good
         """
-        call_command( 'clearfolder', '.TrashBin' )
-        call_command( 'clearfolder', '.TrashBin', '24*60*60' )
+        call_command( 'clearfolder', settings.LIMITED_TRASH_PATH )
+        call_command( 'clearfolder', settings.LIMITED_TRASH_PATH, '24*60*60' )
         call_command( 'clearfolder', 'NoFolder', '24*60*60' )
 
     def test_urlbilder(self):
@@ -47,13 +48,15 @@ class CodeTest( TestCase ):
         assert url_get_filename( u"http://domen.ru/share/Исчисление высказываний.pdf" ) == u"Исчисление высказываний.pdf"
 
     def test_split_path(self):
-        assert split_path( '' ) == { }
-        assert split_path( '/root' ) == { 'root': '/root' }
-        assert split_path( '/root/path1' ) == { 'root': '/root', 'path1': '/root/path1' }
-        assert split_path( '/root/path1/path2' ) == { 'root': '/root', 'path1': '/root/path1',
-                                                      'path2': '/root/path1/path2' }
+        assert split_path( '' ) == []
+        assert split_path( '/root' ) == [('root', '/root')]
+        assert split_path( '/root/path1' ) == [('root', '/root'), ('path1', '/root/path1')]
+        assert split_path( '/root/path1/path2' ) == [('root', '/root'), ('path1', '/root/path1'),
+            ('path2', '/root/path1/path2')]
+        assert split_path( '/root/path/path' ) == [('root', '/root'), ('path', '/root/path'),
+            ('path', '/root/path/path')]
         # test rigth order
-        assert split_path( '/c/b/a' ) == { 'c': '/c', 'b': '/c/b', 'a': '/c/b/a' }
+        assert split_path( '/c/b/a' ) == [('c', '/c'), ('b', '/c/b'), ('a', '/c/b/a')]
 
     def test_truncate_path(self):
         assert truncate_path( 'mordovia forever, karapusi must die' ) == 'mordovia forever, karapusi must die'
