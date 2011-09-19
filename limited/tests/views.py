@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from limited import settings
+
 from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.utils.html import escape
 
+from limited import settings
 from limited.models import FileLib, Link
 from limited.files.storage import FileStorage, FilePath
 from limited.utils import urlbilder

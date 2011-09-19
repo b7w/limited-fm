@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from limited import settings
 from django.core.exceptions import ValidationError
-
 from django.core.management import call_command
 from django.template import Token, TOKEN_BLOCK
 from django.test import TestCase
 
+from limited import settings
 from limited.controls import truncate_path
 from limited.models import FileLib, Permission, History
 from limited.templatetags.limited_filters import truncatepath, joinpath

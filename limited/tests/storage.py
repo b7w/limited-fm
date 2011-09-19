@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import time
-
-from limited import settings
 from django.core.files.base import File
 
+from limited import settings
 from limited.controls import clear_folders
 from limited.files.storage import FileError, FileNotExist, FilePath
 from limited.files.utils import ZipThread, DownloadThread
@@ -120,7 +118,7 @@ class FileStorageTest( StorageTestCase ):
 
         self.storage.clear( settings.LIMITED_TRASH_PATH, older=60 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
-        time.sleep( 1 )
+        self.timer.sleep()
         self.storage.clear( settings.LIMITED_TRASH_PATH, older=1 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 

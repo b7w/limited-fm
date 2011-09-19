@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time
-
 from limited import settings
-
 from limited.serve.backends import BaseDownloadResponse
 from limited.serve.manager import DownloadManager
 from limited.tests.base import StorageTestCase
@@ -34,7 +31,7 @@ class DownloadManagerTest( StorageTestCase ):
         self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
         assert self.manager.is_need_processing( u"Test Folder" ) == True
         self.manager.process( u"Test Folder" )
-        time.sleep( 1 )
+        self.timer.sleep()
         assert self.storage.exists( self.manager.cache_file( u"Test Folder" ) ) == True
         assert self.manager.is_need_processing( u"Test Folder" ) == False
 
@@ -46,7 +43,7 @@ class DownloadManagerTest( StorageTestCase ):
         self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 20 )
         self.manager.process( u"Test Folder" )
         self.storage.create( u"Test Folder/test2.bin", "XXX" )
-        time.sleep( 1 )
+        self.timer.sleep( 2 )
         assert self.storage.exists( cache_file + u".part" ) == False
         assert self.storage.exists( cache_file ) == False
 
@@ -63,7 +60,7 @@ class DownloadManagerTest( StorageTestCase ):
 
         self.manager.process( u"Test Folder/New dir" )
         self.manager.process( u"Test Folder" )
-        time.sleep( 1 )
+        self.timer.sleep()
 
         assert self.storage.exists( cache_file ) == True
         assert self.storage.exists( cache_file2 ) == True
