@@ -39,10 +39,11 @@ About
 | Working application you can look `here <http://limited.isudo.ru/>`__
 
 
-Functional features
-===================================
 
 .. index:: Features
+
+Functional features
+===================================
 
 | Here I'd like to tell about some specific function.
 
@@ -52,10 +53,12 @@ Functional features
 * | Downloading big folders that pack to zip archive are running in background.
     User just see message to wait a little and try latter. Also archived folders are caching.
 
-Screen shots
-===================================
+
 
 .. index:: Screen shots
+
+Screen shots
+===================================
 
 **User home page, with private and open file repositories.**
 

@@ -4,8 +4,6 @@ Settings
 
 .. index:: Settings
 
-.. note:: This document file in developing!
-
 
 .. _SETTINGS_ANONYMOUS:
 

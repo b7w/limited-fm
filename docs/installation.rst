@@ -37,10 +37,11 @@ We would set up project from scratch. So we need to copy default setting file. A
     python manage.py syncdb --settings=settings
     python manage.py collectstatic --settings=settings
 
-Permission
-====================================
 
 .. index:: loadpermissions
+
+Permission
+====================================
 
 | Permission table is empty, you can generate and append 64 unic permissions.
   2^5 - edit, move, create, upload, http_get.
@@ -58,10 +59,12 @@ Permission
   So if you add some fields, just run command again.
   But be carefully, all old data in table will be removed.
 
-Run server
-====================================
+
 
 .. index:: Run server
+
+Run server
+====================================
 
 | All main preference are set up.
   Now you can run test Django server.
