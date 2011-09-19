@@ -273,19 +273,17 @@ ul.messagelist {
 
 ul.messagelist li {
     font-size: 12px;
+    line-height: 24px;
     display: block;
-    padding: 4px 5px 4px 25px;
+    padding: 4px 5px 4px 50px;
     border-bottom: 1px solid #ddd;
     color: #666;
-    background: #ffc url(../img/icon_success.gif) 5px .3em no-repeat;
-}
-
-ul.messagelist li.warning {
-    background-image: url(../img/icon_alert.gif);
+    background: #ffc url(../img/create.png) 25px no-repeat;
 }
 
 ul.messagelist li.error {
-    background-image: url(../img/icon_error.gif);
+    background-image: url(../img/delete.png);
+    line-height: 24px;
 }
 
 /* BREADCRUMBS */

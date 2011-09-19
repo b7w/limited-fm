@@ -4,9 +4,6 @@ function Notify( message ) {
 function NotifyError( message ) {
     jQuery('.messagelist').append('<li class="error">'+message+'</li>');
 }
-function NotifyWarning( message ) {
-    jQuery('.messagelist').append('<li class="warning">'+message+'</li>');
-}
 
 function Trash( obj ) {
 
@@ -17,10 +14,6 @@ function Trash( obj ) {
     {
         var link = "/lib"+data.home+"/action/trash/?p="+data.path;
         window.location = link;
-    }
-    else
-    {
-        NotifyWarning('Deleting canceled by user');
     }
 }
 
@@ -34,10 +27,6 @@ function Delete( obj ) {
         var link = "/lib"+data.home+"/action/delete/?p="+data.path;
         window.location = link;
     }
-    else
-    {
-        NotifyWarning('Deleting canceled by user');
-    }
 }
 
 function Rename( obj ) {
@@ -48,9 +37,6 @@ function Rename( obj ) {
     {
         var link = "/lib"+data.home+"/action/rename/?p="+data.path+"&amp;n=" + encodeURIComponent(name);
         window.location = link;
-    }
-    else {
-        NotifyWarning('Rename canceled by user');
     }
 }
 
@@ -63,9 +49,6 @@ function Move( obj ) {
     {
         var link = "/lib"+data.home+"/action/move/?p="+data.path+"&amp;p2=" + encodeURIComponent(path2);
         window.location = link;
-    }
-    else {
-        NotifyWarning('Moving canceled by user');
     }
 }
 

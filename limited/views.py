@@ -319,7 +319,7 @@ def ActionView( request, id, command ):
             link = Link.objects.find( Link.get_hash( home.lib_id, path ) )
             # if exist and not expired
             if link:
-                messages.success( request, u"link already exists '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
+                messages.success( request, u"link already exists <a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>".format(domain, link.hash) )
             # else create new one
             elif home.permission.create:
                 #Link( hash=hash, lib=home.lib, path=path ).save( )
