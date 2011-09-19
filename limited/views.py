@@ -140,7 +140,7 @@ def HistoryView( request, id ):
     return render( request, u"limited/history.html", {
         'pathname': request.path,
         'patharr': patharr,
-        'history': history,
+        'history': list(history),
         'home_id': lib_id,
         'home': home.lib.name,
         'permission': home.permission,

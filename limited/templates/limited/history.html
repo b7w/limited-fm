@@ -32,6 +32,8 @@
 
     {% include "limited/includes/info.html" %}
 
+    {% include "limited/includes/history.html" with history=history|slice:":5" %}
+
 {% endblock %}
 
 {% block main %}
