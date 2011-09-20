@@ -222,7 +222,7 @@ def ActionView( request, id, command ):
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
-                DownloadThread( Storage, name. path ).start()
+                DownloadThread( Storage, name, path ).start()
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
