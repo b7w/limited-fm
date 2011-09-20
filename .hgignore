@@ -8,9 +8,9 @@ syntax: regexp
 
 \.idea/
 
-debug_toolbar/
-django_coverage/
+^debug_toolbar/
+^django_coverage/
 
-special/
-static/
+^special/
+^static/
 
