@@ -73,3 +73,21 @@ class ActionTest( StorageTestCase ):
         resp = self.client.get( link_trash )
         assert resp.status_code == 302
         assert self.storage.exists( file_trash ) == False
+
+    def test_Add(self):
+        """
+        Test action add.
+		Create directory and upload file.
+        """
+        url = u"http://www.google.ru/images/srpr/logo3w.png"
+        link_mkdir = urlbilder( 'action', self.lib.id, 'add', n='New dir', p='' )
+        link_url = urlbilder( 'action', self.lib.id, 'add', n=url, p='' )
+		
+        resp = self.client.get( link_mkdir, follow=True )
+        assert resp.status_code == 200
+        assert self.storage.exists( u"New dir" ) == True
+
+        resp = self.client.get( link_url, follow=True )
+        assert resp.status_code == 200
+        self.timer.sleep()
+        assert self.storage.exists( u"logo3w.png" ) == True
