@@ -29,7 +29,9 @@ Page layout
   It can be error messages - |error.png|, or success message - |success.png|.
   They all differs by icons. The colour of background is one - pale yellow.
 
-
+| In file, history, trash tables the header have 3 links.
+  :ref:`Home <user_guide_home_page>`, :ref:`History <user_guide_history_page>`, :ref:`Trash <user_guide_trash_page>`.
+  So from any page with table you can go to home directory of file lib, history page and trash page.
 
 .. index:: Login page
 
@@ -47,6 +49,7 @@ Login page
 
 
 .. index:: Home page
+.. _user_guide_home_page:
 
 Home page
 ====================================
@@ -155,6 +158,7 @@ Information
 
 
 .. index:: Widget History
+.. _user_guide_widgets_history:
 
 Recent Actions
 ------------------------------------
@@ -201,11 +205,20 @@ Upload
 
 
 .. index:: History page
+.. _user_guide_history_page:
 
 History page
 ====================================
 
-Turn you brain OFF :-)  The documentation is not ready yet
+| History page is more extended version of :ref:`history widget <user_guide_widgets_history>`.
+  It is a table with type, path, user and time colums.
+  Type show a icon of action and short name for it.
+  So if in widget you can't understand what :ref:`action <user_guide_actions>` has happend, look hisory page.
+  User and time columns are pretty clear.
+  Path fields are very rich for links. First is a path to folder or file.
+  Click it to see the place where the action happend.
+  Second is a link to dowload file or directory that mentioned in previous link.
+  Also if there is a direct link you will see it.
 
 
 
@@ -215,4 +228,7 @@ Turn you brain OFF :-)  The documentation is not ready yet
 Trash page
 ====================================
 
-Relax, take a cup of tee :-)  The documentation is not ready yet
+| Trash page is very similar to :ref:`files table <user_guide_file_lib_page>`.
+  With some caveats, you can't see children directories.
+  And you can only move objects back to file lib or delete it forever.
+  Also you can not download it to your computer.  

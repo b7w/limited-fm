@@ -6,7 +6,7 @@
 Welcome to Limited File Manager's documentation!
 ================================================
 
-About:
+First steps:
 
 .. toctree::
     :maxdepth: 1
@@ -17,7 +17,7 @@ About:
 
     feedback.rst
 
-Contents:
+Guides:
 
 .. toctree::
     :maxdepth: 1
