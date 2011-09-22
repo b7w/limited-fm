@@ -18,12 +18,12 @@ Page layout
   Also the last name is name of current directory, but it isn't a link.
   The left panels side contains greeting and a login link.
   A slightly below the reference to feed back is situated.
-  To learn more about feed back go :doc:`click </feedback>`.
+  To learn more about feed back go :doc:`click </intro/feedback>`.
 
 .. index:: Messages
 
-.. |success.png| image:: /_static/actions/create.png
-.. |error.png| image:: /_static/actions/delete.png
+.. |success.png| image:: /_images/actions/create.png
+.. |error.png| image:: /_images/actions/delete.png
 
 | Directly below this panel messages are displayed.
   It can be error messages - |error.png|, or success message - |success.png|.
@@ -83,12 +83,12 @@ File lib page
 .. index:: Actions
 .. _user_guide_actions:
 
-.. |down.png| image:: /_static/actions/down.png
-.. |zip.png| image:: /_static/actions/zip.png
-.. |rename.png| image:: /_static/actions/rename.png
-.. |move.png| image:: /_static/actions/move.png
-.. |create.png| image:: /_static/actions/create.png
-.. |delete.png| image:: /_static/actions/delete.png
+.. |down.png| image:: /_images/actions/down.png
+.. |zip.png| image:: /_images/actions/zip.png
+.. |rename.png| image:: /_images/actions/rename.png
+.. |move.png| image:: /_images/actions/move.png
+.. |create.png| image:: /_images/actions/create.png
+.. |delete.png| image:: /_images/actions/delete.png
 
 * | |down.png| - Download file or directory.
     File start downloading to your computer after you click it.

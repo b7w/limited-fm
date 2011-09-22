@@ -34,7 +34,7 @@ About
 | File manager have simple history and Trash bin.
   All deleted file first move to trash.
 
-| For feedback look here :doc:`click </feedback>`
+| For feedback look here :doc:`click </intro/feedback>`
 
 | Working application you can look `here <http://limited.isudo.ru/>`__
 
@@ -62,11 +62,11 @@ Screen shots
 
 **User home page, with private and open file repositories.**
 
-.. image:: _static/screen1.png
+.. image:: _images/screen1.png
     :width: 960
 
 
 **Files of one of repositories.**
 
-.. image:: _static/screen2.png
+.. image:: _images/screen2.png
     :width: 960

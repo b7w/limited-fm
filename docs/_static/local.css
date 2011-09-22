@@ -16,3 +16,13 @@ div.body h3 {
 div.body h4 {
     padding-left: 3em;
 }
+
+li div.line-block  {
+    display: block;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+li p.first {
+    margin: 0em;
+}
