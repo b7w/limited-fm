@@ -33,6 +33,8 @@ Page layout
   :ref:`Home <user_guide_home_page>`, :ref:`History <user_guide_history_page>`, :ref:`Trash <user_guide_trash_page>`.
   So from any page with table you can go to home directory of file lib, history page and trash page.
 
+
+
 .. index:: Login page
 
 Login page
@@ -190,7 +192,7 @@ Create
   To do that just start string with 'http'
 
 
-.. index:: Widget Create
+.. index:: Widget Upload
 
 Upload
 ------------------------------------

@@ -49,6 +49,6 @@ Indices and tables
 ====================================
 
 * :ref:`genindex`
-* :doc:`contents <contents>`
+* :doc:`Contents <contents>`
 * :ref:`search`
 

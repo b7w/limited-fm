@@ -153,3 +153,45 @@ Open access to file libs
 
 .. note:: To get user id in admin panel just click to edit user and look at query string.
           The last integer will be the user id.
+
+
+
+.. index:: Error reporting
+.. index:: Mail error reporting
+
+Error reporting
+====================================
+
+Mail error reporting
+------------------------------------
+
+| Django framework can report server error to email.
+  In sample setting file email handler already exists.
+  To use it you only need set up email settings.
+  Add lines below and modify it with your values.
+
+.. code-block:: python
+
+    EMAIL_HOST = 'smtp.mail.com'
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = 'user@mail.com'
+    EMAIL_HOST_PASSWORD = 'secret'
+    EMAIL_USE_TLS = True
+
+| You may stop notification by deleting handler.
+  Just remove from variable
+  LOGGING > loggers > django.request > handlers 'mail_admins' handler.
+
+
+.. index:: Logging error reporting
+
+Logging error reporting
+------------------------------------
+
+| There is a great capabilities get logs from application.
+  But it is really difficult to set up.
+  So if you want to change something it better to visit
+  `official logging documentation <http://docs.djangoproject.com/en/dev/topics/logging>`__.
+  By default there is a 'app.log' in project directory.
+  With info level.
+  
