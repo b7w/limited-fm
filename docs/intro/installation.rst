@@ -4,6 +4,8 @@ Quick install guide
 
 .. index:: Installation
 
+.. _installation:
+
 Requirements
 ====================================
 
@@ -30,6 +32,9 @@ We would set up project from scratch. So we need to copy default setting file. A
 
 | Set up database settings and others you need. Set home directory for storage, **LIMITED_ROOT_PATH**.
   For more settings look :doc:`settings.py </ref/settings>`.
+  Also it good practice to set debug True.
+  In this case you will see all errors in web browser.
+  Do not forget to turn it False back!
   Now we have to add tables to database, and collect all static files.
 
 .. code-block:: bash
@@ -104,3 +109,12 @@ Run server
 
 | For other settings go to :doc:`here </ref/settings>`.
   If you need administration help pleas read :doc:`this </guide/administrator>`.
+
+
+
+What to read next
+====================================
+
+| Read :doc:`administrator guide </guide/administrator>`.
+  There how to configure the application and environment.
+  As well as some installation parts with some details.

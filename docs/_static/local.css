@@ -26,3 +26,7 @@ li div.line-block  {
 li p.first {
     margin: 0em;
 }
+
+a.reference em {
+    font-style: normal;
+}
