@@ -58,8 +58,20 @@ class StorageTestCase( TestCase ):
 
     def setUp(self):
         self.timer = Timer( DEFAULT_SLEEP_TINE )
+
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
+        self.lib2 = FileLib.objects.get( name="FileManager" )
+        self.storage2 = FileStorage( self.lib2.get_path( ), self.lib2.path )
+
+        settings.LIMITED_ANONYMOUS = False
+        settings.LIMITED_ANONYMOUS_ID = 2
+        settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 ** 2
+        settings.LIMITED_SERVE = {
+            'BACKEND': 'limited.serve.backends.default',
+            'INTERNAL_URL': '/protected',
+        }
+
         try:
             if self.storage.exists( u"" ):
                 self.storage.remove( u"" )
@@ -83,3 +95,9 @@ class StorageTestCase( TestCase ):
 
         result.failfast = True
         super( TestCase, self ).run( result )
+
+    def setAnonymous(self, bool):
+        """
+        Turn ON/OFF ANONYMOUS Open file libs
+        """
+        settings.LIMITED_ANONYMOUS = bool
