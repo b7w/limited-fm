@@ -47,9 +47,9 @@ Limited testing
 | There is some features that differ limited tests and django tests.
   Limited test moved to directory and split to files.
   It help to make easier to navigate in the tests.
-  But it break possibility to test possibility test cases adn even functions.
+  But it break possibility to test separate test cases and even functions.
   And another is that all of test inherit not TestCase
-  but :py:class:`limited.tests.base.StorageTestCase`
+  but :class:`limited.tests.base.StorageTestCase`.
 
 
 .. autoclass:: limited.tests.base.StorageTestCase

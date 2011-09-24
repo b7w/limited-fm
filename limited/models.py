@@ -32,16 +32,15 @@ class Permission( models.Model ):
     @classmethod
     def fields(self):
         """
-        Return names of boolean fields ( not id )
-        generated depending on the number of fields
+        Return names of field, except id.
+        Generated for any count of fields.
         """
         return [k.name for k in self._meta.fields if k.name != 'id']
 
     @classmethod
-    def Full(self):
+    def full(self):
         """
-        Return all True
-        generated depending on the number of fields
+        Return object with all fields equal True
         """
         fieldcount = len(self._meta.fields)-1
         fields = self.fields()
@@ -75,15 +74,25 @@ class FileLib( models.Model ):
     path = models.CharField( max_length=256, null=False, validators=validators )
 
     def get_path(self, root=None ):
+        """
+        Return absolute path.
+        If root is None FileLib.path will be added to LIMITED_ROOT_PATH.
+        """
         if root == None:
             root = settings.LIMITED_ROOT_PATH
         return FilePath.join( root, self.path )
 
     def get_cache_size(self):
+        """
+        Return size of a cache directory
+        """
         File = FileStorage( self.get_path() )
         return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
 
     def get_trash_size(self):
+        """
+        Return size of a trash directory
+        """
         File = FileStorage( self.get_path() )
         return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
 

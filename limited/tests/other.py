@@ -118,7 +118,7 @@ class CodeTest( TestCase ):
     def test_Model_Permission(self):
         assert Permission.fields( ).__len__( ) == 6, "It seems you add permission, correct tests right now"
         assert Permission.fields( ) == ['edit', 'move', 'delete', 'create', 'upload', 'http_get']
-        assert Permission.Full( ) == Permission( edit=True, move=True, delete=True, create=True, upload=True,
+        assert Permission.full( ) == Permission( edit=True, move=True, delete=True, create=True, upload=True,
                                                  http_get=True )
 
     def test_Model_FileLib(self):
