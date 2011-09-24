@@ -299,13 +299,15 @@ class FileStorage( object ):
 
         if dir and self.isdir( self.abspath( name ) ):
             key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
-            size = cache.get( key ) or 0
-            if size:
-                return size
+            if cached == True:
+                size = cache.get( key )
+                if size != None:
+                    return size
 
+            size = 0
             for item in os.listdir( self.abspath( name ) ):
                 file = FilePath.join( name, item )
-                size += self.size( file, dir=True )
+                size += self.size( file, dir=True, cached=cached )
 
             if cached: cache.set( key, size, 120 )
             return size

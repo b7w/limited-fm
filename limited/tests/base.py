@@ -70,8 +70,8 @@ class StorageTestCase( TestCase ):
             self.storage.mkdir( u"Test Folder" )
             self.storage.create( u"content.txt", u"Test line in file" )
             self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )
-        except Exception:
-            raise Exception( u"Error happened while init test files in 'setUp'" )
+        except Exception as e:
+            raise Exception( u"Error happened while init test files in 'setUp'." + str(e) )
 
     def run(self, result=None):
         """

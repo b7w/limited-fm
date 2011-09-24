@@ -33,7 +33,7 @@ class DownloadManager:
         if self.storage.exists( self.cache_file( path ) ):
             return False
         if self.storage.isdir( path ):
-            size = self.storage.size( path, dir=True )
+            size = self.storage.size( path, dir=True, cached=False )
             max_size = settings.LIMITED_ZIP_HUGE_SIZE
             if size > max_size:
                 return True

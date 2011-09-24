@@ -74,6 +74,7 @@ class ViewsTest( TestCase ):
         """
         Test Trash of file libs for Admin
         """
+        assert self.client.login( username='admin', password='root' )
         lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path( ) )
         if storage.exists( settings.LIMITED_TRASH_PATH ):
@@ -96,7 +97,7 @@ class ViewsTest( TestCase ):
         """
         Test Trash of file libs for Anonymous
         """
-        self.assertTrue( self.client.login( username='admin', password='root' ) )
+        assert self.client.login( username='admin', password='root' )
         lib = FileLib.objects.get( name='FileManager' )
         resp = self.client.get( urlbilder( 'trash', lib.id ) )
         assert resp.status_code == 200
@@ -134,6 +135,7 @@ class ViewsTest( TestCase ):
         """
         Test History of History for Admin
         """
+        assert self.client.login( username='admin', password='root' )
         lib = FileLib.objects.get( name='FileManager' )
         resp = self.client.get( urlbilder( 'history', lib.id ) )
         assert resp.status_code == 200
@@ -240,6 +242,8 @@ class ViewsTest( TestCase ):
         in  ID1: FileManager
         with  ID5: Edit False, Move False, Delete False, Create True, Upload False, Http_get False,
         """
+        settings.LIMITED_ANONYMOUS = True
+        settings.LIMITED_ANONYMOUS_ID = 2
         lib = FileLib.objects.get( name='FileManager' )
         storage = FileStorage( lib.get_path( ) )
         # add True
