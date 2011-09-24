@@ -18,6 +18,8 @@ Limited documentation contents
 
     releases/index
 
+    topics/index
+
 
 
 

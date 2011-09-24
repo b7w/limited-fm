@@ -194,4 +194,13 @@ Logging error reporting
   `official logging documentation <http://docs.djangoproject.com/en/dev/topics/logging>`__.
   By default there is a 'app.log' in project directory.
   With info level.
-  
+
+
+
+What to read next
+====================================
+
+| Some links to help find out more information.
+  Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
+
+* | :doc:`Testing django project </topics/testing>`.

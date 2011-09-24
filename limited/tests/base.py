@@ -12,15 +12,13 @@ class StorageTestCase( TestCase ):
     Base class to init test data in every tests.
 
     It creates 'test' folder in LIMITED_ROOT_PATH with
-    '.TrashBin/Crash Test'
-    'Test Folder'
-    'content.txt' - Test line in file
+    '.TrashBin/Crash Test',
+    'Test Folder',
+    'content.txt' - Test line in file,
     'Фото 007.bin'
 
-    class doesn't delete test data!
-
+    Class doesn't delete test data!
     It is run always with '--failfast' option
-
     Best way is to test ``create``, ``mkdir`` and ``clear``
     by your own separately
     """
