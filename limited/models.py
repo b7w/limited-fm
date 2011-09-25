@@ -117,7 +117,7 @@ class Home( models.Model ):
         verbose_name_plural = 'Home'
 
     def __unicode__(self):
-        return u'ID' + unicode( self.id ) + u': ' + unicode( self.user ) + u', ' + unicode( self.lib )
+        return u'ID' + unicode( self.id ) + u': lib ' + unicode( self.lib.id ) + u', permission ' + unicode( self.permission.id )
 
 
 class History( models.Model ):

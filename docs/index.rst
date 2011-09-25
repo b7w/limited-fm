@@ -2,6 +2,14 @@
 Limited documentation
 ====================================
 
+.. |gnome-foot.png| image:: /_images/gnome-foot.png
+
+.. sidebar:: |gnome-foot.png| Limited file manager
+
+    Limited is a web base file manager. Developed to make file sharing easier.
+    With simple interface without a lot of js. With multiple file upload.
+    It also permissions and separate file libs.
+
 First steps:
 ------------------------------------
 
