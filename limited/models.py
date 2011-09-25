@@ -161,8 +161,7 @@ class History( models.Model ):
 
     def get_image_type(self):
         """
-        Return image type
-        depend of ACTION
+        Return image type depend of ACTION
         """
         for key,val in self.image:
             if key == self.type:
@@ -178,8 +177,7 @@ class History( models.Model ):
 
     def get_extra(self):
         """
-        Return html for extra field
-        depend of type
+        Return html for extra field depend of type
         """
         if self.type == self.LINK:
             link = reverse( 'link', args=[self.extra] )
@@ -201,7 +199,7 @@ class LinkManager( models.Manager ):
     """
     def add(self, lib, path, age=None, *args, **kwargs ):
         """
-        Create new link with default age
+        Create new link with default LIMITED_LINK_MAX_AGE or age in seconds
         """
         if age == None:
             age = settings.LIMITED_LINK_MAX_AGE
@@ -230,7 +228,7 @@ class LinkManager( models.Manager ):
 class Link( models.Model ):
     """
     Link that provide a simple way to download file without having any permission.
-    Store hash to find, path, expires DateTime, and lib lib foreign key
+    Store hash to find, path, expires DateTime, and lib lib foreign key.
     """
     hash = models.CharField( max_length=12, null=False )
     lib = models.ForeignKey( FileLib )
@@ -257,8 +255,7 @@ class Link( models.Model ):
 
 class LUser( User ):
     """
-    Simple proxy for django user
-    with Home Inline.
+    Simple proxy for django user with Home Inline.
     """
     class Meta:
         ordering = ["username"]

@@ -9,6 +9,8 @@ Limited documentation
     Limited is a web base file manager. Developed to make file sharing easier.
     With simple interface without a lot of js. With multiple file upload.
     It also permissions and separate file libs.
+    
+    *Open source, BSD license*
 
 First steps:
 ------------------------------------
@@ -33,6 +35,17 @@ Guides:
 
 * | **For developers:** 
 	:doc:`Developer guide <guide/developer>`
+
+
+
+The development process
+------------------------------------
+
+* | **Models:**
+	:doc:`Overview <ref/models>`
+
+* | **Testing:**
+	:doc:`Overview <topics/testing>`
 
 
 

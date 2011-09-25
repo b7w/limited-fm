@@ -101,6 +101,9 @@ Temporary files
 Limited management
 ====================================
 
+Adding Data
+------------------------------------
+
 | It is assumed that we have already installed limited and it is already running.
   And now we need to make some step. Add users, add file libs.
   Log in with administrator rights. Ang go to admin page.
@@ -136,7 +139,7 @@ Limited management
 .. index:: Open access to file libs
 
 Open access to file libs
-====================================
+------------------------------------
 
 | There is opportunity to make file libs open to anonymous users.
   All open file lib will be available to registered users too.
@@ -153,6 +156,20 @@ Open access to file libs
 
 .. note:: To get user id in admin panel just click to edit user and look at query string.
           The last integer will be the user id.
+
+
+
+.. index:: Open access to file libs
+
+Templates
+------------------------------------
+
+| Basic style was taken from Django admin.
+  Main templates are stored in ``limited.templates``, static files in ``limited.static``.
+  It has ``base.html`` file where all main css styles, js libraries are included.
+  In meta added no archive instructions, so by default any search bots must ignore this resource.
+  In template ``includes`` directory some widget are stored. Plus part of table to render 'no items'.
+  404 and 500 error templates are stored in ``templates`` directory.
 
 
 
