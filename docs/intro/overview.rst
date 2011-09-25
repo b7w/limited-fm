@@ -38,7 +38,7 @@ About
 
 | Working application you can look `here <http://limited.isudo.ru/>`__
 
-
+| Limited file manager is open source project, released by BSD license.
 
 .. index:: Features
 
