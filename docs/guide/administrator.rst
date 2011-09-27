@@ -44,6 +44,7 @@ Better web server
 
 
 .. index:: Serve files
+.. _administrator_serve_files:
 
 Serve files
 ====================================

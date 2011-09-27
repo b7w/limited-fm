@@ -55,6 +55,9 @@ API Reference:
 * | **Settings:**
 	:doc:`Full list of settings <ref/settings>`
 
+* | **Files:**
+	:doc:`Serving backens <ref/serving>`
+
 
 
 Releases notes:
