@@ -56,6 +56,7 @@ API Reference:
 	:doc:`Full list of settings <ref/settings>`
 
 * | **Files:**
+    :doc:`Storage <ref/storage>` |
 	:doc:`Serving backens <ref/serving>`
 
 

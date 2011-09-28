@@ -4,8 +4,6 @@ Serve backend
 
 .. index:: Serve backend
 
-.. index:: Serve files
-
 
 Serve files
 ====================================

@@ -8,6 +8,8 @@ API Reference
 
     models
 
+    storage
+
     serving
 
     settings

@@ -160,7 +160,7 @@ Open access to file libs
 
 
 
-.. index:: Open access to file libs
+.. index:: Templates
 
 Templates
 ------------------------------------
