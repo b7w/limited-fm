@@ -34,7 +34,6 @@ Storage model
 
 * | Editing: :func:`~limited.files.storage.FileStorage.rename` |
     :func:`~limited.files.storage.FileStorage.move` |
-    :func:`~limited.files.storage.FileStorage.create` |
     :func:`~limited.files.storage.FileStorage.zip` |
     :func:`~limited.files.storage.FileStorage.unzip`
 
@@ -66,4 +65,38 @@ Storage model
 .. autoclass:: limited.files.storage.FileStorage
     :show-inheritance:
     :undoc-members:
-    :members: 
+    :members:
+    :exclude-members: file_change
+
+
+
+.. index:: Storage utils
+
+Storage utils
+====================================
+
+| Wrapper for ``os.path`` for working with file paths.
+  The class is static, no needed to create instance.
+  For more utils look 'limited.files.utils' file.
+  In it you can find wrappers to download and zip in a tread.
+  Hash name builder for files.
+
+.. autoclass:: limited.files.storage.FilePath
+    :show-inheritance:
+    :undoc-members:
+    :members:
+
+
+
+.. index:: Storage exceptions
+
+Storage exceptions
+====================================
+
+| Some storage exceptions. All other errors are caught.
+
+.. autoexception:: limited.files.storage.FileError
+    :show-inheritance:
+
+.. autoexception:: limited.files.storage.FileNotExist
+    :show-inheritance:
