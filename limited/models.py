@@ -10,6 +10,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.encoding import smart_str
 
+from limited.fields import JsonTreeField
 from limited.files.storage import FilePath, FileStorage
 
 class PermissionError( Exception ):
@@ -72,6 +73,7 @@ class FileLib( models.Model ):
     name = models.CharField( max_length=64, null=False )
     description = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=False, validators=validators )
+    cache = JsonTreeField( null=True, blank=True )
 
     def get_path(self, root=None ):
         """

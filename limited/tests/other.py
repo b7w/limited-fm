@@ -9,7 +9,7 @@ from limited import settings
 from limited.controls import truncate_path
 from limited.models import FileLib, Permission, History
 from limited.templatetags.limited_filters import truncatepath, joinpath
-from limited.utils import split_path, urlbilder, url_get_filename
+from limited.utils import split_path, urlbilder, url_get_filename, TreeNode
 
 
 class CodeTest( TestCase ):
@@ -148,3 +148,34 @@ class CodeTest( TestCase ):
         assert history.get_image_type( ) == 'create'
         assert history.is_extra( ) == True
         assert history.get_extra( ) == '<a href=\"/link/d89d9baa47e8/\">direct link</a>'
+
+    def test_TreeNode(self):
+        """
+        Test TreeNode for find children, save and load to dict type.
+        """
+        tree = TreeNode( "root", 1 )
+        node1 = TreeNode( "node1", 1 )
+        tree.setChild( node1 )
+        node2 = TreeNode( "node2", 1 )
+        tree.setChild( node2 )
+
+        assert tree.getName( '' ).name == "root"
+        assert tree.getName( "node1" ).name == "node1"
+        assert tree.getName( "node2" ).name == "node2"
+        assert tree.getName( "node3" ) == None
+
+        tree.getName( "node1" ).setHash( 2 )
+        assert tree.hash == 2
+        assert tree.getName( "node1" ).hash == 2
+        assert tree.getName( "node2" ).hash == 1
+
+        DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
+        DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
+        DictTree = { 'name': 'root', 'hash': 3, 'children': [DictNode1, DictNode2], }
+        tree = TreeNode.build( DictTree )
+        assert tree.name == "root"
+        assert tree.hash == 3
+        assert tree.children[0].name == "node1"
+        assert tree.children[1].name == "node2"
+
+        assert tree.toDict() == DictTree

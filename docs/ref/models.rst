@@ -96,6 +96,13 @@ File lib model
         | Path from :ref:`SETTINGS_ROOT_PATH <SETTINGS_ROOT_PATH>`.
           Path can start only with letters or numbers.
 
+    .. attribute:: cache
+
+        | *JsonTreeField*, *TextField*, max_length=256, null=False.
+        | Store a hashes for cached directories in a database.
+        | Data represent a tree that serialised to json.
+        | In python it is a :class:`limited.utils.TreeNode`.
+
 | Some code examples:
 
 .. code-block:: python

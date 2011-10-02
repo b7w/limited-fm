@@ -2,10 +2,10 @@
 import logging
 import re
 
-from limited import settings
 from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 
+from limited import settings
 from limited.models import Home, FileLib, Permission
 from limited.files.storage import FileStorage
 
