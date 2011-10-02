@@ -22,7 +22,7 @@ def get_home( user, lib_id ):
         if user.is_superuser:
             home = Home()
             home.lib = FileLib.objects.get( id=lib_id )
-            home.permission = Permission.Full()
+            home.permission = Permission.full()
             return home
         elif settings.LIMITED_ANONYMOUS:
             home = Home.objects.select_related( 'lib', 'permission' ).\

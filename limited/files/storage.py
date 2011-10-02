@@ -25,7 +25,7 @@ file_pre_change = Signal( providing_args=["basedir"] )
 
 class FileError( Exception ):
     """
-    File Storage Error
+    File Storage Error. Base for all storage errors.
     """
     pass
 
@@ -82,6 +82,9 @@ class FileStorage( object ):
         self.changed = kwargs["basedir"]
 
     def open(self, name, mode='rb'):
+        """
+        Return open django :class:`~django.core.files.base.File` instance
+        """
         file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         try:
             return File( open( self.abspath( name ), mode ) )
@@ -90,6 +93,9 @@ class FileStorage( object ):
                 raise FileError( u"IOError, open. Permission denied '%s'" % name )
 
     def create(self, name, content):
+        """
+        Write to file ``name`` same data ``content``
+        """
         name = self.available_name( name )
         
         newfile = self.open( name, 'wb' )
@@ -98,8 +104,8 @@ class FileStorage( object ):
 
     def save(self, name, file):
         """
-        Save to disk open ``django.core.files.base.File`` object
-        also you need to close it yourself
+        Copy to disk to ``name`` open :class:`~django.core.files.base.File` object ``file``.
+        Also you need to close it yourself.
         """
         name = self.available_name( name )
 
@@ -111,7 +117,10 @@ class FileStorage( object ):
 
     def download(self, url, path):
         """
-        Download file from url
+        Download file from ``url`` to file ``path``.
+        The process goes to a file ``path + '.part'``.
+        On error file will be remove.
+        To get file name from url use :class:`~limited.utils.url_get_filename`.
         """
         path = self.available_name( path )
         newfile = path + u".part"
@@ -129,6 +138,9 @@ class FileStorage( object ):
             raise
 
     def mkdir(self, name):
+        """
+        Create directory, on exist raise :class:`~limited.files.storage.FileError`
+        """
         if self.exists( name ):
             raise FileError( u"Directory '%s' already exists" % name )
         try:
@@ -139,17 +151,20 @@ class FileStorage( object ):
 
     def abspath(self, name):
         """
-        Return abs filesystem path to file
+        Return absolute filesystem path to file
         """
         return FilePath.join( self.root, name )
 
     def homepath(self, name):
         """
-        return path from storage home
+        Return path from :ref:`LIMITED_ROOT_PATH <SETTINGS_ROOT_PATH>`
         """
         return FilePath.join( self.home, name )
 
     def remove(self, name):
+        """
+        Remove directory or file, on not exist raise :class:`~limited.files.storage.FileNotExist`
+        """
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
         file_pre_change.send( self, basedir=FilePath.dirname( name ) )
@@ -164,10 +179,10 @@ class FileStorage( object ):
 
     def clear(self, name, older=None):
         """
-        Remove all files and dirs in namme directory.
-        
-        ``older`` needs seconds,
-        only top sub dirs checked
+        Remove all files and dirs in ``name`` directory.
+        ``older`` takes seconds for max age from created_time, only top sub dirs checked.
+        On not exist raise :class:`~limited.files.storage.FileNotExist`.
+        On not directory raise :class:`~limited.files.storage.FileError`.
         """
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
@@ -185,6 +200,11 @@ class FileStorage( object ):
                     self.remove( file )
 
     def move(self, src, dst):
+        """
+        Move file or dir from ``src`` to ``dst``.
+        On the same directory raise :class:`~limited.files.storage.FileError`.
+        On not exist for both paths raise :class:`~limited.files.storage.FileNotExist`.
+        """
         src_dir = FilePath.dirname( src )
         if src == dst or src_dir == dst:
             raise FileError( u"Moving to the same directory" )
@@ -208,6 +228,11 @@ class FileStorage( object ):
                 raise FileError( u"IOError, move. Permission denied '%s'" % src )
 
     def rename(self, path, name):
+        """
+        Rename file or dir path ``path`` to name ``name``.
+        On '/' in ``name`` raise :class:`~limited.files.storage.FileError`.
+        On not exist or already exist raise :class:`~limited.files.storage.FileNotExist`.
+        """
         if '/' in name:
             raise FileError( u"'%s' contains not supported symbols" % name )
         if not self.exists( path ):
@@ -223,22 +248,41 @@ class FileStorage( object ):
                 raise FileError( u"IOError, rename. Permission denied '%s'" % path )
 
     def totrash(self, name):
-        if not self.exists( name ):
-            raise FileNotExist( u"%s not found" % name )
+        """
+        Shortcut for :func:`~limited.files.storage.FileStorage.move`
+        where second var is :ref:`LIMITED_TRASH_PATH <SETTINGS_TRASH_PATH>`.
+        """
         if not self.exists( settings.LIMITED_TRASH_PATH ):
             self.mkdir( settings.LIMITED_TRASH_PATH  )
         self.move( name, settings.LIMITED_TRASH_PATH  )
 
     def exists(self, name):
+        """
+        Return ``True`` if file exists or ``False``
+        """
         return os.path.exists( self.abspath( name ) )
 
     def isfile(self, name):
+        """
+        Return ``True`` if it is a file or ``False``
+        """
         return os.path.isfile( self.abspath( name ) )
 
     def isdir(self, name):
+        """
+        Return ``True`` if it is a directory or ``False``
+        """
         return os.path.isdir( self.abspath( name ) )
 
     def listdir(self, path, hidden=False):
+        """
+        Return list of files in directory.
+        Each item is a dict with class:'file'|'dir', name: file name, url - url encode path,
+        size: file size, time: modified_time.
+        If ``hidden`` ``True`` than hidden files will be include.
+        Data sorted first by name and than by directory.
+        On not dir exist raise :class:`~limited.files.storage.FileNotExist`.
+        """
         if not (self.exists( path ) and self.isdir( path ) ):
             raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
 
@@ -267,9 +311,14 @@ class FileStorage( object ):
 
     def listfiles(self, path, hidden=False ):
         """
-        List files recursive
-        Return dict { abspath : path from root }
+        List files recursive.
+        Return dict ``{ abspath : path from root, }``.
+        If ``hidden`` ``True`` than hidden files will be include.
+        On not dir exist raise :class:`~limited.files.storage.FileNotExist`.
         """
+        if not (self.exists( path ) and self.isdir( path ) ):
+            raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
+
         def _listfiles( path, dir, array, hidden=False ):
             root = self.abspath( path )
             absdir = os.path.join( root, dir )
@@ -290,10 +339,13 @@ class FileStorage( object ):
 
     def size(self, name, dir=False, cached=True):
         """
-        return dir and files size
-        if dir, size will be sum recursive else 0
-        if cached, dirs size will be cached
+        Return dir and files size. If ``dir`` ``True``, size will be sum recursive else return 0
+        if ``cached``, dirs size will be cached.
+        On not exist raise :class:`~limited.files.storage.FileNotExist`.
         """
+        if not self.exists( name ):
+            raise FileNotExist( u"'%s' not found" % name )
+
         if self.isfile( self.abspath( name ) ):
             return os.path.getsize( self.abspath( name ) )
 
@@ -315,8 +367,12 @@ class FileStorage( object ):
 
     def zip(self, path, file=None ):
         """
-        zip file or directory `path` to `file` or to `path`.zip if file=None
+        Zip file or directory ``path`` to ``file`` or to ``path + '.zip'``.
+        On not exist raise :class:`~limited.files.storage.FileNotExist`.
         """
+        if not self.exists( path ):
+            raise FileNotExist( u"'%s' not found" % path )
+
         if file == None:
             file = self.available_name( path + u".zip" )
 
@@ -345,6 +401,13 @@ class FileStorage( object ):
                 self.remove( newfile )
 
     def unzip(self, path ):
+        """
+        Unzip file or directory ``path``.
+        On not exist raise :class:`~limited.files.storage.FileNotExist`.
+        """
+        if not self.exists( path ):
+            raise FileNotExist( u"'%s' not found" % path )
+
         file = self.abspath( path )
         zip = zipfile.ZipFile( file )
         # To lazy to do converting
@@ -359,10 +422,16 @@ class FileStorage( object ):
                 raise FileError( u"IOError, unzip. Permission denied '%s'" % path )
 
     def url(self, name):
+        """
+        Return urlquote path name
+        """
         return urlquote(name)
 
     def available_name(self, path):
-        # if file exists add [i] to file name
+        """
+        Return available file path.
+        If file exists add '[i]' to file name.
+        """
         file, ext = os.path.splitext( path )
         i = 1
         while i != 0:
@@ -374,10 +443,19 @@ class FileStorage( object ):
         return path
 
     def accessed_time(self, name):
+        """
+        Return accessed time
+        """
         return datetime.fromtimestamp( os.path.getatime( self.abspath( name ) ) )
 
     def created_time(self, name):
+        """
+        Return created time
+        """
         return datetime.fromtimestamp( os.path.getctime( self.abspath( name ) ) )
 
     def modified_time(self, name):
+        """
+        Return modified time
+        """
         return datetime.fromtimestamp( os.path.getmtime( self.abspath( name ) ) )
