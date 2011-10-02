@@ -44,6 +44,7 @@ We would set up project from scratch. So we need to copy default setting file. A
 
 
 .. index:: loadpermissions
+.. _installation_loadpermissions:
 
 Permission
 ====================================

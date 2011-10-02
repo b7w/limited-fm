@@ -221,4 +221,5 @@ What to read next
 | Some links to help find out more information.
   Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
 
-* | :doc:`Testing django project </topics/testing>`.
+* | :doc:`/topics/testing`.
+* | :doc:`/guide/developer`.

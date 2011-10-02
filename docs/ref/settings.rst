@@ -4,6 +4,13 @@ Settings
 
 .. index:: Settings
 
+| Default settings is hard to use. Because you can not set default value.
+  So limited setting module help to fix it.
+  All you need to change is import statement.
+  To use settings do import like that ``from limited import settings``.
+  In limited.settings not all django settings are included.
+
+ 
 
 .. _SETTINGS_ANONYMOUS:
 
