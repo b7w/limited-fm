@@ -32,16 +32,15 @@ class Permission( models.Model ):
     @classmethod
     def fields(self):
         """
-        Return names of boolean fields ( not id )
-        generated depending on the number of fields
+        Return names of field, except id.
+        Generated for any count of fields.
         """
         return [k.name for k in self._meta.fields if k.name != 'id']
 
     @classmethod
-    def Full(self):
+    def full(self):
         """
-        Return all True
-        generated depending on the number of fields
+        Return object with all fields equal True
         """
         fieldcount = len(self._meta.fields)-1
         fields = self.fields()
@@ -75,15 +74,25 @@ class FileLib( models.Model ):
     path = models.CharField( max_length=256, null=False, validators=validators )
 
     def get_path(self, root=None ):
+        """
+        Return absolute path.
+        If root is None FileLib.path will be added to LIMITED_ROOT_PATH.
+        """
         if root == None:
             root = settings.LIMITED_ROOT_PATH
         return FilePath.join( root, self.path )
 
     def get_cache_size(self):
+        """
+        Return size of a cache directory
+        """
         File = FileStorage( self.get_path() )
         return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
 
     def get_trash_size(self):
+        """
+        Return size of a trash directory
+        """
         File = FileStorage( self.get_path() )
         return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
 
@@ -108,7 +117,7 @@ class Home( models.Model ):
         verbose_name_plural = 'Home'
 
     def __unicode__(self):
-        return u'ID' + unicode( self.id ) + u': ' + unicode( self.user ) + u', ' + unicode( self.lib )
+        return u'ID' + unicode( self.id ) + u': lib ' + unicode( self.lib.id ) + u', permission ' + unicode( self.permission.id )
 
 
 class History( models.Model ):
@@ -152,8 +161,7 @@ class History( models.Model ):
 
     def get_image_type(self):
         """
-        Return image type
-        depend of ACTION
+        Return image type depend of ACTION
         """
         for key,val in self.image:
             if key == self.type:
@@ -169,8 +177,7 @@ class History( models.Model ):
 
     def get_extra(self):
         """
-        Return html for extra field
-        depend of type
+        Return html for extra field depend of type
         """
         if self.type == self.LINK:
             link = reverse( 'link', args=[self.extra] )
@@ -192,7 +199,7 @@ class LinkManager( models.Manager ):
     """
     def add(self, lib, path, age=None, *args, **kwargs ):
         """
-        Create new link with default age
+        Create new link with default LIMITED_LINK_MAX_AGE or age in seconds
         """
         if age == None:
             age = settings.LIMITED_LINK_MAX_AGE
@@ -221,7 +228,7 @@ class LinkManager( models.Manager ):
 class Link( models.Model ):
     """
     Link that provide a simple way to download file without having any permission.
-    Store hash to find, path, expires DateTime, and lib lib foreign key
+    Store hash to find, path, expires DateTime, and lib lib foreign key.
     """
     hash = models.CharField( max_length=12, null=False )
     lib = models.ForeignKey( FileLib )
@@ -248,8 +255,7 @@ class Link( models.Model ):
 
 class LUser( User ):
     """
-    Simple proxy for django user
-    with Home Inline.
+    Simple proxy for django user with Home Inline.
     """
     class Meta:
         ordering = ["username"]

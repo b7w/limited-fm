@@ -1,0 +1,32 @@
+
+@import url("nature.css");
+
+div.section {
+    max-width: 960px;
+}
+
+div.body h2 {
+    padding-left: 1em;
+}
+
+div.body h3 {
+    padding-left: 2em;
+}
+
+div.body h4 {
+    padding-left: 3em;
+}
+
+li div.line-block  {
+    display: block;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+li p.first {
+    margin: 0em;
+}
+
+a.reference em {
+    font-style: normal;
+}

@@ -29,6 +29,7 @@ class DownloadManagerTest( StorageTestCase ):
 
         assert self.manager.is_need_processing( u"Test Folder" ) == False
         self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
+        assert self.storage.size( u"Test Folder/test.bin" ) > 16 * 1024
         assert self.manager.is_need_processing( u"Test Folder" ) == True
         self.manager.process( u"Test Folder" )
         self.timer.sleep()

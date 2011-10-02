@@ -2,26 +2,21 @@
 
 
 from django.template.defaultfilters import filesizeformat
-from django.test import TestCase
 from django.utils.html import escape
 
 from limited import settings
 from limited.models import FileLib, Link
 from limited.files.storage import FileStorage, FilePath
+from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder
 
-class ViewsTest( TestCase ):
-    fixtures = ['dump.json']
+class ViewsTest( StorageTestCase ):
 
-    def setUp(self):
-        settings.LIMITED_ANONYMOUS = True
-        
     def test_Anon_Redirects(self):
         """
         Test redirect to login page when user is Anonymous
         and settings.LIMITED_ANONYMOUS = False
         """
-        settings.LIMITED_ANONYMOUS = False
         
         assert self.client.get( '/' ).status_code == 302
         assert self.client.get( urlbilder( 'browser', 1 )  ).status_code == 302
@@ -38,7 +33,8 @@ class ViewsTest( TestCase ):
         Look home page of admin
         and his libs
         """
-        assert self.client.login( username='admin', password='root' ) == True
+        assert self.client.login( username='admin', password='root' )
+
         resp = self.client.get( '/' )
         assert resp.status_code == 200
         assert resp.context['Homes'].__len__( ) == 2
@@ -50,6 +46,8 @@ class ViewsTest( TestCase ):
         Look home page of Anonymous
         and his libs
         """
+        self.setAnonymous( True )
+
         resp = self.client.get( '/' )
         assert resp.status_code == 200
         assert resp.context['Homes'].__len__( ) == 2
@@ -61,8 +59,8 @@ class ViewsTest( TestCase ):
         Look home page of User
         and his libs
         """
-        assert settings.LIMITED_ANONYMOUS == True
         assert self.client.login( username='B7W', password='root' )
+
         resp = self.client.get( '/' )
         assert resp.status_code == 200
         assert resp.context['Homes'].__len__( ) == 1
@@ -74,17 +72,16 @@ class ViewsTest( TestCase ):
         """
         Test Trash of file libs for Admin
         """
-        lib = FileLib.objects.get( name='FileManager' )
-        storage = FileStorage( lib.get_path( ) )
-        if storage.exists( settings.LIMITED_TRASH_PATH ):
-            storage.remove( settings.LIMITED_TRASH_PATH )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
-        assert storage.exists( settings.LIMITED_TRASH_PATH )
+        assert self.client.login( username='admin', password='root' )
+
+        if self.storage2.exists( settings.LIMITED_TRASH_PATH ):
+            self.storage2.remove( settings.LIMITED_TRASH_PATH )
+        resp = self.client.get( urlbilder( 'trash', self.lib2.id ) )
+        assert self.storage2.exists( settings.LIMITED_TRASH_PATH ) == True
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        resp = self.client.get( urlbilder( 'trash', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 1
 
@@ -96,14 +93,13 @@ class ViewsTest( TestCase ):
         """
         Test Trash of file libs for Anonymous
         """
-        self.assertTrue( self.client.login( username='admin', password='root' ) )
-        lib = FileLib.objects.get( name='FileManager' )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        self.setAnonymous( True )
+
+        resp = self.client.get( urlbilder( 'trash', self.lib2.id ) )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        resp = self.client.get( urlbilder( 'trash', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 1
 
@@ -115,14 +111,14 @@ class ViewsTest( TestCase ):
         """
         Test Trash of file libs for User
         """
+        self.setAnonymous( True )
         assert self.client.login( username='B7W', password='root' )
-        lib = FileLib.objects.get( name='FileManager' )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+
+        resp = self.client.get( urlbilder( 'trash', self.lib2.id ) )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'trash', lib.id ) )
+        resp = self.client.get( urlbilder( 'trash', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['files'].__len__( ) == 1
 
@@ -134,13 +130,13 @@ class ViewsTest( TestCase ):
         """
         Test History of History for Admin
         """
-        lib = FileLib.objects.get( name='FileManager' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        assert self.client.login( username='admin', password='root' )
+
+        resp = self.client.get( urlbilder( 'history', self.lib2.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        resp = self.client.get( urlbilder( 'history', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 3
 
@@ -152,14 +148,13 @@ class ViewsTest( TestCase ):
         """
         Test History of History for Anonymous
         """
-        self.assertTrue( self.client.login( username='admin', password='root' ) )
-        lib = FileLib.objects.get( name='FileManager' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        self.setAnonymous( True )
+
+        resp = self.client.get( urlbilder( 'history', self.lib2.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        resp = self.client.get( urlbilder( 'history', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 3
 
@@ -171,14 +166,14 @@ class ViewsTest( TestCase ):
         """
         Test History of History for User
         """
+        self.setAnonymous( True )
         assert self.client.login( username='B7W', password='root' )
-        lib = FileLib.objects.get( name='FileManager' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+
+        resp = self.client.get( urlbilder( 'history', self.lib2.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 0
 
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'history', lib.id ) )
+        resp = self.client.get( urlbilder( 'history', self.lib.id ) )
         assert resp.status_code == 200
         assert resp.context['history'].__len__( ) == 3
 
@@ -197,8 +192,9 @@ class ViewsTest( TestCase ):
         """
         Test Error doesn't exist of file or FileLib
         """
-        lib = FileLib.objects.get( name='Test' )
-        resp = self.client.get( urlbilder( 'browser', lib.id, p="None" ) )
+        assert self.client.login( username='B7W', password='root' )
+
+        resp = self.client.get( urlbilder( 'browser', self.lib.id, p="None" ) )
         assert resp.status_code == 200
         assert escape( u"path 'None' doesn't exist or it isn't a directory" ) in unicode( resp.content, errors='ignore' )
 
@@ -212,6 +208,8 @@ class ViewsTest( TestCase ):
         we see equal history
         with actions from all users!
         """
+        self.setAnonymous( True )
+
         resp = self.client.get( '/' )
         assert resp.status_code == 200
         assert 1 in [x.id for x in resp.context['history']]
@@ -240,53 +238,54 @@ class ViewsTest( TestCase ):
         in  ID1: FileManager
         with  ID5: Edit False, Move False, Delete False, Create True, Upload False, Http_get False,
         """
-        lib = FileLib.objects.get( name='FileManager' )
-        storage = FileStorage( lib.get_path( ) )
+        self.setAnonymous( True )
+
+        storage = FileStorage( self.lib2.get_path( ) )
         # add True
-        link = urlbilder( 'action', lib.id, "add", p='', n='new dir' )
+        link = urlbilder( 'action', self.lib2.id, "add", p='', n='new dir' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'created' in [m.message for m in list( resp.context['messages'] )][0]
         storage.remove( FilePath.join( '', 'new dir' ) )
         # delete False
-        link = urlbilder( 'action', lib.id, "delete", p=u"Фото 007.bin" )
+        link = urlbilder( 'action', self.lib2.id, "delete", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # trash False
-        link = urlbilder( 'action', lib.id, "trash", p=u"Фото 007.bin" )
+        link = urlbilder( 'action', self.lib2.id, "trash", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # rename False
-        link = urlbilder( 'action', lib.id, "rename", p=u"Фото 007.bin", n='Фото070.jpg' )
+        link = urlbilder( 'action', self.lib2.id, "rename", p=u"Фото 007.bin", n='Фото070.jpg' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # move False
-        link = urlbilder( 'action', lib.id, "move", p=u"Фото 007.bin", n='/' )
+        link = urlbilder( 'action', self.lib2.id, "move", p=u"Фото 007.bin", n='/' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # link True
-        link = urlbilder( 'action', lib.id, "link", p=u"Фото 007.bin" )
+        link = urlbilder( 'action', self.lib2.id, "link", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'link' in [m.message for m in list( resp.context['messages'] )][0]
         # zip False
-        link = urlbilder( 'action', lib.id, "zip", p=u"Фото 007.bin" )
+        link = urlbilder( 'action', self.lib2.id, "zip", p=u"Фото 007.bin" )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # size very simple dir test
-        link = urlbilder( 'action', lib.id, "size", p='debug_toolbar' )
+        link = urlbilder( 'action', self.lib2.id, "size", p='debug_toolbar' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
         size = filesizeformat( storage.size( 'debug_toolbar', dir=True, cached=False ) )
@@ -298,9 +297,11 @@ class ViewsTest( TestCase ):
 
         The order is not important because we already check it in ``CodeTest.test_split_path``
         """
-        lib = FileLib.objects.get( name='FileManager' )
-        link = urlbilder( 'browser', lib.id, p='limited/templatetags' )
+        self.client.login( username='admin', password='root' )
+
+        link = urlbilder( 'browser', self.lib2.id, p='limited/templatetags' )
         resp = self.client.get( link )
+
         assert '<a href="/">#Home</a>' in resp.content
         assert '<a href="/lib1/">FileManager</a>' in resp.content
         assert '<a href="/lib1/?p=limited">limited</a>' in resp.content
@@ -310,18 +311,18 @@ class ViewsTest( TestCase ):
         """
         Test response of download page
         """
-        lib = FileLib.objects.get( name='Test' )
+        self.client.login( username='B7W', password='root' )
 
-        link = urlbilder( u'download', lib.id, p=u'No Folder' )
+        link = urlbilder( u'download', self.lib.id, p=u'No Folder' )
         resp = self.client.get( link )
         assert resp.status_code == 200
         assert escape( u"No file or directory find" ) in unicode( resp.content, errors='ignore' )
 
-        link = urlbilder( u'download', lib.id, p=u'content.txt' )
+        link = urlbilder( u'download', self.lib.id, p=u'content.txt' )
         resp = self.client.get( link )
         assert resp.status_code == 200
 
-        link = urlbilder( u'download', lib.id, p=u'Test Folder' )
+        link = urlbilder( u'download', self.lib.id, p=u'Test Folder' )
         resp = self.client.get( link )
         assert resp.status_code == 200
 

@@ -42,15 +42,13 @@ class StorageTestCase( TestCase ):
     Base class to init test data in every tests.
 
     It creates 'test' folder in LIMITED_ROOT_PATH with
-    '.TrashBin/Crash Test'
-    'Test Folder'
-    'content.txt' - Test line in file
+    '.TrashBin/Crash Test',
+    'Test Folder',
+    'content.txt' - Test line in file,
     'Фото 007.bin'
 
-    class doesn't delete test data!
-
+    Class doesn't delete test data!
     It is run always with '--failfast' option
-
     Best way is to test ``create``, ``mkdir`` and ``clear``
     by your own separately
     """
@@ -58,8 +56,20 @@ class StorageTestCase( TestCase ):
 
     def setUp(self):
         self.timer = Timer( DEFAULT_SLEEP_TINE )
+
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
+        self.lib2 = FileLib.objects.get( name="FileManager" )
+        self.storage2 = FileStorage( self.lib2.get_path( ), self.lib2.path )
+
+        settings.LIMITED_ANONYMOUS = False
+        settings.LIMITED_ANONYMOUS_ID = 2
+        settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 ** 2
+        settings.LIMITED_SERVE = {
+            'BACKEND': 'limited.serve.backends.default',
+            'INTERNAL_URL': '/protected',
+        }
+
         try:
             if self.storage.exists( u"" ):
                 self.storage.remove( u"" )
@@ -70,8 +80,8 @@ class StorageTestCase( TestCase ):
             self.storage.mkdir( u"Test Folder" )
             self.storage.create( u"content.txt", u"Test line in file" )
             self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )
-        except Exception:
-            raise Exception( u"Error happened while init test files in 'setUp'" )
+        except Exception as e:
+            raise Exception( u"Error happened while init test files in 'setUp'." + str(e) )
 
     def run(self, result=None):
         """
@@ -83,3 +93,9 @@ class StorageTestCase( TestCase ):
 
         result.failfast = True
         super( TestCase, self ).run( result )
+
+    def setAnonymous(self, bool):
+        """
+        Turn ON/OFF ANONYMOUS Open file libs
+        """
+        settings.LIMITED_ANONYMOUS = bool
