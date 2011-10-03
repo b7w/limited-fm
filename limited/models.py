@@ -75,6 +75,9 @@ class FileLib( models.Model ):
     path = models.CharField( max_length=256, null=False, validators=validators )
     cache = JsonTreeField( null=True, blank=True )
 
+    def getStorage(self):
+        return FileStorage( self )
+
     def get_path(self, root=None ):
         """
         Return absolute path.
@@ -88,14 +91,14 @@ class FileLib( models.Model ):
         """
         Return size of a cache directory
         """
-        File = FileStorage( self.get_path() )
+        File = self.getStorage()
         return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
 
     def get_trash_size(self):
         """
         Return size of a trash directory
         """
-        File = FileStorage( self.get_path() )
+        File = self.getStorage()
         return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
 
     class Meta:

@@ -101,6 +101,6 @@ def clear_folders( path, older=7 * 24 * 60 * 60 ):
     if no folder, nothing will happened
     """
     for lib in FileLib.objects.all( ):
-        storage = FileStorage( lib.get_path( ) )
+        storage = lib.getStorage()
         if storage.isdir( path ):
             storage.clear( path, older=older )

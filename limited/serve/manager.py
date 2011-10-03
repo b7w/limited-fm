@@ -10,7 +10,7 @@ from limited.files.utils import ZipThread, FileUnicName
 class DownloadManager:
     def __init__(self, lib):
         self.lib = lib
-        self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
+        self.storage = lib.getStorage()
         self.Hash = FileUnicName( )
         self.cache = { }
 

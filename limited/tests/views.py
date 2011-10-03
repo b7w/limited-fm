@@ -240,7 +240,7 @@ class ViewsTest( StorageTestCase ):
         """
         self.setAnonymous( True )
 
-        storage = FileStorage( self.lib2.get_path( ) )
+        storage = self.lib2.getStorage()
         # add True
         link = urlbilder( 'action', self.lib2.id, "add", p='', n='new dir' )
         resp = self.client.get( link, follow=True )

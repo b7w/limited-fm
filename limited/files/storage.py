@@ -67,11 +67,23 @@ class FilePath( object ):
         """
         return os.path.normpath( path )
 
+    @staticmethod
+    def split( path ):
+        """
+        Split path
+        """
+        if path[0] == '/':
+            path = path[1:]
+        if path[-1] == '/':
+            path = path[:-1]
+        return path.split( '/' )
+
 
 class FileStorage( object ):
-    def __init__(self, root, home=u''  ):
-        self.root = root
-        self.home = home
+    def __init__(self, lib ):
+        self.lib = lib
+        self.root = lib.get_path()
+        self.home = lib.path
         self.changed = None
         file_pre_change.connect( self.file_change )
 

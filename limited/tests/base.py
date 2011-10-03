@@ -58,9 +58,9 @@ class StorageTestCase( TestCase ):
         self.timer = Timer( DEFAULT_SLEEP_TINE )
 
         self.lib = FileLib.objects.get( name="Test" )
-        self.storage = FileStorage( self.lib.get_path( ), self.lib.path )
+        self.storage = self.lib.getStorage()
         self.lib2 = FileLib.objects.get( name="FileManager" )
-        self.storage2 = FileStorage( self.lib2.get_path( ), self.lib2.path )
+        self.storage2 = self.lib2.getStorage()
 
         settings.LIMITED_ANONYMOUS = False
         settings.LIMITED_ANONYMOUS_ID = 2

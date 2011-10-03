@@ -89,7 +89,7 @@ def FilesView( request, id ):
 
         patharr = split_path( path )
 
-        File = FileStorage( home.lib.get_path() )
+        File = home.lib.getStorage()
         files = File.listdir( path )
 
     except ObjectDoesNotExist:
@@ -169,7 +169,7 @@ def TrashView( request, id ):
 
         patharr = split_path( 'Trash' )
 
-        File = FileStorage( home.lib.get_path() )
+        File = home.lib.getStorage()
         if not File.exists( settings.LIMITED_TRASH_PATH ):
             File.mkdir( settings.LIMITED_TRASH_PATH )
         files = File.listdir( settings.LIMITED_TRASH_PATH )
@@ -207,7 +207,7 @@ def ActionView( request, id, command ):
     
     home = get_home( request.user, lib_id)
     user = get_user( request.user )
-    Storage = FileStorage( home.lib.get_path() )
+    Storage = home.lib.getStorage()
 
     history = History( lib=home.lib )
     history.path = FilePath.dirname( path )
@@ -372,7 +372,7 @@ def ActionClear( request, id, command ):
     lib_id = int( id )
 
     home = get_home( request.user, lib_id)
-    Storage = FileStorage( home.lib.get_path() )
+    Storage = home.lib.getStorage()
 
     if command == u"trash":
         try:
@@ -414,7 +414,7 @@ def UploadView( request, id ):
                 raise PermissionError( u"You have no permission to upload" )
 
             user = get_user( request.user )
-            storage = FileStorage( home.lib.get_path() )
+            storage = home.lib.getStorage()
 
             files = request.FILES.getlist( u'files' )
             # if files > 3 just send message 'Uploaded N files'
