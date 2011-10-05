@@ -182,6 +182,26 @@ class TreeNode:
                     return item
                 return item.getName( *args[1:] )
 
+    def createName(self, hash, *args ):
+        """
+        Create nodes where ``args`` is list of names and ``hash`` hash for all nodes.
+        If node exists only hash will be changed.
+        """
+        self.hash = hash
+        node = None
+        for item in self.children:
+            if item.name == args[0]:
+                node = item
+
+        if node == None:
+            node = TreeNode( args[0], hash )
+            self.setChild( node )
+        if args.__len__() != 1:
+            node.createName( hash, *args[1:] )
+        else:
+            # we not enter to the last so we need set hash manually
+            node.hash = hash
+
     def toDict(self):
         """
         Serialise TreeNode to DictType.

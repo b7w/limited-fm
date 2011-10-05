@@ -169,6 +169,23 @@ class CodeTest( TestCase ):
         assert tree.getName( "node1" ).hash == 2
         assert tree.getName( "node2" ).hash == 1
 
+        tree.createName( 3, "node2", "node21" )
+        assert tree.hash == 3
+        assert tree.getName( "node1" ).hash == 2
+        assert tree.getName( "node2" ).hash == 3
+        assert tree.getName( "node2", "node21" ).hash == 3
+
+        tree.createName( 4, "node3", "node31" )
+        assert tree.hash == 4
+        assert tree.getName( "node2" ).hash == 3
+        assert tree.getName( "node3" ).hash == 4
+        assert tree.getName( "node3", "node31" ).hash == 4
+
+        tree.createName( 5, "node1" )
+        assert tree.hash == 5
+        assert tree.getName( "node1" ).hash == 5
+        assert tree.getName( "node1" ).children.__len__() == 0
+
         DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
         DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
         DictTree = { 'name': 'root', 'hash': 3, 'children': [DictNode1, DictNode2], }

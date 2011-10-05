@@ -2,6 +2,7 @@
 
 import logging
 import threading
+import time
 from hashlib import md5
 
 from django.utils.encoding import smart_str
@@ -67,11 +68,18 @@ class FileUnicName:
         """
         return md5( "files.storage" + smart_str( name ) ).hexdigest( )
 
-    def build(self, path, extra=""):
+    def time(self):
+        return time.time()
+
+    def build(self, path, time=None, extra=None):
         """
         return unic name of path + [extra]
         """
-        full_name = settings.LIMITED_CACHE_PATH + path + extra
+        full_name = settings.LIMITED_CACHE_PATH + path
+        if time:
+            full_name += str(time)
+        if extra:
+            full_name += str(extra)
         return self.hash( full_name )
 
 
@@ -82,17 +90,17 @@ def remove_cache( sender, **kwargs ):
     if some files changed in directory.
     """
     HashBilder = FileUnicName( )
+    lib = sender.lib
     dir = kwargs["basedir"]
     # if not system directories
     if not dir.startswith( settings.LIMITED_CACHE_PATH ) and dir != settings.LIMITED_TRASH_PATH:
         try:
-            while dir != u'':
-                hash = HashBilder.build( dir )
-                cache_file = FilePath.join( settings.LIMITED_CACHE_PATH, hash )
-                if sender.exists( cache_file ):
-                    sender.remove( cache_file )
-                dir = FilePath.dirname( dir )
+            node = lib.cache.getName( *FilePath.split( dir ) )
+            if node != None:
+                node.setHash( HashBilder.time() )
+                from limited.models import FileLib
+                FileLib.objects.filter( id=lib.id ).update( cache=lib.cache )
         except Exception as e:
-            logger.error( u"remove_cache. {0}. dir:{1}, cache_file:{2}".format( e, dir, cache_file ) )
+            logger.error( u"{0}. dir:{1}".format( e, dir ) )
 
 file_pre_change.connect( remove_cache )
