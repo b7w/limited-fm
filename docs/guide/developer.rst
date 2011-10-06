@@ -64,6 +64,7 @@ Limited structure
     * | limited_filters: Some helpers. Truncate path, join path.
 
 * tests:
+    * | data: Init data for tests. It is more cross platform and easy to manage.
     * | base: Base StorageTestCase for more easier test files actions.
         For more look :doc:`here </topics/testing>`.
     * | storage: Tests of FileStorage.
@@ -78,6 +79,23 @@ Limited structure
 
 * | settings: Module to import default settings for limited app.
     For more look :doc:`here </ref/settings>`.
+
+
+
+.. index:: How folder cache works
+
+How folder cache works
+====================================
+
+| There is some magic about folder cache.
+  If in sub directories something changed we need to invalidate cache.
+  But we can't delete it because someone can work with it.
+  So we have to create one more with another key.
+  For this hack in :class:`~limited.models.Filelib` we have ``cache`` filed.
+  It is a three of folder names in json. In python field represented :class:`limited.utils.TreeNode`.
+  Main idea is when we update key for directory we need to set this key for all parents.
+  :class:`~limited.serve.manager.DownloadManager` concatenate path with key and get cache file.
+  If there is no cache it will be created.
 
 
 

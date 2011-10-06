@@ -62,6 +62,10 @@ Storage model
 
 .. note:: At the moment, methods of storage may vary from version to version
 
+| A lot of method have :obj:`limited.files.storage.file_pre_change` signal.
+  By default it is turn on. It is made to invalidate cache of a directory.
+  If you do something make clear that signal raise only once.
+
 .. autoclass:: limited.files.storage.FileStorage
     :show-inheritance:
     :undoc-members:

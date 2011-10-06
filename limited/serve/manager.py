@@ -4,7 +4,7 @@ from django.utils.importlib import import_module
 
 from limited import settings
 from limited.files.storage import FileNotExist, FilePath
-from limited.files.utils import ZipThread, FileUnicName
+from limited.files.utils import FileUnicName, Thread
 
 
 class DownloadManager:
@@ -58,8 +58,8 @@ class DownloadManager:
         cache = self.cache_file( path )
         part = self.cache_file( path ) + u".part"
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
-            th = ZipThread( self.storage, path, self.cache_file( path ) )
-            th.start( )
+            th = Thread( )
+            th.start( self.storage.zip, path, self.cache_file( path ) )
 
     def get_backend(self):
         """

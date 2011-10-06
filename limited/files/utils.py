@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 from limited import settings
 from limited.files.storage import file_pre_change, FilePath
 
+
 logger = logging.getLogger( __name__ )
 
 class Thread:
@@ -44,48 +45,6 @@ class Thread:
             logger.error( "Tread. args: {0}, kwargs:{1},".format( args, kwargs ) )
             if self.commit:
                 transaction.rollback( )
-
-
-class DownloadThread( threading.Thread ):
-    """
-    Wrapper to Download file in a thread.
-    storage - FileStorage object,
-    url - url link to download
-    path -  path to the file where result would be save
-    """
-
-    def __init__(self, storage, url, file, *args, **kwargs ):
-        super( DownloadThread, self ).__init__( *args, **kwargs )
-        self.storage = storage
-        self.url = url
-        self.file = file
-
-    def run(self):
-        try:
-            self.storage.download( self.url, self.file )
-        except Exception as e:
-            logger.error( u"DownloadThread. {0}. url:{1}, path:{2}".format( e, self.url, self.file ) )
-
-
-class ZipThread( threading.Thread ):
-    """
-    Wrapper to Zip in a thread.
-    storage - FileStorage object,
-    path - path to the folder or file,
-    file - path to the file where result would be save
-    """
-
-    def __init__(self, storage, path, file=None, *args, **kwargs ):
-        super( ZipThread, self ).__init__( *args, **kwargs )
-        self.storage = storage
-        self.path = path
-        self.file = file
-
-    def run(self):
-        try:
-            self.storage.zip( self.path, self.file )
-        except Exception as e:
-            logger.error( u"ZipThread. {0}. path:{1}, zipfile:{2}".format( e, self.path, self.file ) )
 
 
 class FileUnicName:

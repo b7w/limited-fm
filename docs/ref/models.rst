@@ -121,6 +121,12 @@ File lib model
     u'/home/bw/FileManager/test'
     >>> lib.get_path( "/root" )
     u'/root/test'
+    >>> lib.cache
+    <limited.utils.TreeNode instance at 0x9be91cc>
+    >>> lib.cache.hash
+    1317897723.37944
+    >>> lib.cache.children
+    [<limited.utils.TreeNode instance at 0x9be920c>]
     >>> lib.get_cache_size()
     0
     >>> lib.get_trash_size()
