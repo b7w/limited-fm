@@ -3,7 +3,7 @@
 from django.utils.importlib import import_module
 
 from limited import settings
-from limited.files.storage import FileStorage, FileNotExist, FilePath
+from limited.files.storage import FileNotExist, FilePath
 from limited.files.utils import ZipThread, FileUnicName
 
 
@@ -21,7 +21,16 @@ class DownloadManager:
         """
         if self.cache.has_key( path ):
             return self.cache[path]
-        cache = FilePath.join( settings.LIMITED_CACHE_PATH, self.Hash.build( path ) )
+        CacheDB = self.lib.cache.getName( *FilePath.split( path ) )
+        time = None
+        if CacheDB == None:
+            time = self.Hash.time()
+            self.lib.cache.createName( time, *FilePath.split( path ) )
+            self.lib.save()
+        else:
+            time = CacheDB.hash
+        hash = self.Hash.build( path, time=time )
+        cache = FilePath.join( settings.LIMITED_CACHE_PATH, hash )
         self.cache[path] = cache
         return cache
 

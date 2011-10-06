@@ -22,7 +22,7 @@ class JsonTreeField( models.TextField ):
 
     def to_python(self, value):
         if value == '' or value == None:
-            return None
+            return TreeNode( "root", "" )
         if not isinstance(value, basestring):
             return value
         DictData = simplejson.loads(value)

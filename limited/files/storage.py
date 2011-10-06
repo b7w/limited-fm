@@ -72,9 +72,9 @@ class FilePath( object ):
         """
         Split path
         """
-        if path[0] == '/':
+        if len(path) > 1 and path[0] == '/':
             path = path[1:]
-        if path[-1] == '/':
+        if len(path) > 1 and path[-1] == '/':
             path = path[:-1]
         return path.split( '/' )
 
@@ -84,50 +84,43 @@ class FileStorage( object ):
         self.lib = lib
         self.root = lib.get_path()
         self.home = lib.path
-        self.changed = None
-        file_pre_change.connect( self.file_change )
 
-    def file_change(self, **kwargs):
-        """
-        Callback file change for zipping
-        """
-        self.changed = kwargs["basedir"]
-
-    def open(self, name, mode='rb'):
+    def open(self, name, mode='rb', signal=True ):
         """
         Return open django :class:`~django.core.files.base.File` instance
         """
-        file_pre_change.send( self, basedir=FilePath.dirname( name ) )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         try:
             return File( open( self.abspath( name ), mode ) )
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, open. Permission denied '%s'" % name )
 
-    def create(self, name, content):
+    def create(self, name, content, signal=True ):
         """
         Write to file ``name`` same data ``content``
         """
         name = self.available_name( name )
         
-        newfile = self.open( name, 'wb' )
+        newfile = self.open( name, 'wb', signal=signal )
         newfile.write( content )
         newfile.close( )
 
-    def save(self, name, file):
+    def save(self, name, file, signal=True ):
         """
         Copy to disk to ``name`` open :class:`~django.core.files.base.File` object ``file``.
         Also you need to close it yourself.
         """
         name = self.available_name( name )
 
-        newfile = self.open( name, 'wb' )
+        newfile = self.open( name, 'wb', signal=signal )
         for chunk in file.chunks( ):
             newfile.write( chunk )
 
         newfile.close( )
 
-    def download(self, url, path):
+    def download(self, url, path, signal=True ):
         """
         Download file from ``url`` to file ``path``.
         The process goes to a file ``path + '.part'``.
@@ -139,14 +132,15 @@ class FileStorage( object ):
         try:
             # simple hook to stop File proxy access field 'name'
             # that is no exists
+            if signal:
+                file_pre_change.send( self, basedir=FilePath.dirname( path ) )
             data = urllib.urlopen( iri_to_uri( url ) )
             data.size = int( data.info( )['Content-Length'] )
-
-            self.save( newfile, File( data ) )
-            self.rename( newfile, FilePath.name( path ) )
+            self.save( newfile, File( data ), signal=False  )
+            self.rename( newfile, FilePath.name( path ), signal=False )
         except Exception:
             if self.exists( newfile ):
-                self.remove( newfile )
+                self.remove( newfile, signal=False  )
             raise
 
     def mkdir(self, name):
@@ -173,13 +167,14 @@ class FileStorage( object ):
         """
         return FilePath.join( self.home, name )
 
-    def remove(self, name):
+    def remove(self, name, signal=True ):
         """
         Remove directory or file, on not exist raise :class:`~limited.files.storage.FileNotExist`
         """
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
-        file_pre_change.send( self, basedir=FilePath.dirname( name ) )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         try:
             if self.isdir( name ):
                 shutil.rmtree( self.abspath( name ) )
@@ -189,7 +184,7 @@ class FileStorage( object ):
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, remove. Permission denied '%s'" % name )
 
-    def clear(self, name, older=None):
+    def clear(self, name, older=None, signal=True ):
         """
         Remove all files and dirs in ``name`` directory.
         ``older`` takes seconds for max age from created_time, only top sub dirs checked.
@@ -200,18 +195,20 @@ class FileStorage( object ):
             raise FileNotExist( u"'%s' not found" % name )
         if not self.isdir( name ):
             raise FileError( u"'%s' not directory" % name )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         if older == None:
             for item in os.listdir( self.abspath( name ) ):
                 file = FilePath.join( name, item )
-                self.remove( file )
+                self.remove( file, signal=False )
         else:
             for item in os.listdir( self.abspath( name ) ):
                 file = FilePath.join( name, item )
                 chenaged = self.created_time( file )
                 if datetime.now( ) - chenaged > timedelta( seconds=older ):
-                    self.remove( file )
+                    self.remove( file, signal=False )
 
-    def move(self, src, dst):
+    def move(self, src, dst, signal=True ):
         """
         Move file or dir from ``src`` to ``dst``.
         On the same directory raise :class:`~limited.files.storage.FileError`.
@@ -228,8 +225,9 @@ class FileStorage( object ):
         name = FilePath.name( src )
 
         # send signal to source src and dst
-        file_pre_change.send( self, basedir=src_dir )
-        file_pre_change.send( self, basedir=dst )
+        if signal:
+            file_pre_change.send( self, basedir=src_dir )
+            file_pre_change.send( self, basedir=dst )
 
         dst = FilePath.join( dst, name )
         dst = self.available_name( dst )
@@ -239,7 +237,7 @@ class FileStorage( object ):
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, move. Permission denied '%s'" % src )
 
-    def rename(self, path, name):
+    def rename(self, path, name, signal=True ):
         """
         Rename file or dir path ``path`` to name ``name``.
         On '/' in ``name`` raise :class:`~limited.files.storage.FileError`.
@@ -252,21 +250,24 @@ class FileStorage( object ):
         new_path = FilePath.join( FilePath.dirname( path ), name )
         if self.exists( new_path ):
             raise FileError( u"'%s' already exist!" % name )
-        file_pre_change.send( self, basedir=FilePath.dirname( path ) )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( path ) )
         try:
             os.rename( self.abspath( path ), self.abspath( new_path ) )
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, rename. Permission denied '%s'" % path )
 
-    def totrash(self, name):
+    def totrash(self, name, signal=True ):
         """
         Shortcut for :func:`~limited.files.storage.FileStorage.move`
         where second var is :ref:`LIMITED_TRASH_PATH <SETTINGS_TRASH_PATH>`.
         """
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( name ) )
         if not self.exists( settings.LIMITED_TRASH_PATH ):
             self.mkdir( settings.LIMITED_TRASH_PATH  )
-        self.move( name, settings.LIMITED_TRASH_PATH  )
+        self.move( name, settings.LIMITED_TRASH_PATH, signal=False )
 
     def exists(self, name):
         """
@@ -395,8 +396,6 @@ class FileStorage( object ):
             if self.isdir( path ):
                 dirname = FilePath.name( path )
                 for abspath, name in self.listfiles( path ).items( ):
-                    if self.changed and self.changed == path:
-                        raise RuntimeError("Files changed: " + self.changed)
                     name = FilePath.join( dirname, name )
                     archive.write( abspath, name )
             elif self.isfile( path ):
@@ -410,7 +409,7 @@ class FileStorage( object ):
                 raise FileError( u"IOError, zip. Permission denied '%s'" % name )
         finally:
             if self.exists( newfile ):
-                self.remove( newfile )
+                self.remove( newfile, signal=False )
 
     def unzip(self, path ):
         """

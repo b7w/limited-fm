@@ -10,10 +10,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
-from limited.files.utils import DownloadThread
+from limited.files.utils import Thread
 
 from limited.serve.manager import DownloadManager
-from limited.files.storage import FileStorage, FileError, FileNotExist, FilePath
+from limited.files.storage import FileError, FileNotExist, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
@@ -222,7 +222,8 @@ def ActionView( request, id, command ):
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
-                DownloadThread( Storage, name, path ).start()
+                T = Thread()
+                T.start( Storage.download, name, path )
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
@@ -292,7 +293,6 @@ def ActionView( request, id, command ):
             path2 = request.GET['p2']
             if path2[0] == u'/':
                 path2 = path2[1:]
-                logger.error( path2 )
                 Storage.move( path, path2 )
             elif path2[0] == u'.':
                 tmp = FilePath.join( FilePath.dirname( path ), path2 )

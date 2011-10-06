@@ -6,12 +6,14 @@ from django.test import TestCase
 
 from limited import settings
 from limited.models import FileLib
-from limited.files.storage import FileStorage
+from limited.tests.data import InitData
 
 # It can happen so that error in test
 # are raises because of not enough time
 # to wait async task.
 # So increase this value
+
+
 DEFAULT_SLEEP_TINE = 1.0
 
 class Timer:
@@ -52,10 +54,12 @@ class StorageTestCase( TestCase ):
     Best way is to test ``create``, ``mkdir`` and ``clear``
     by your own separately
     """
-    fixtures = ['dump.json']
 
     def setUp(self):
         self.timer = Timer( DEFAULT_SLEEP_TINE )
+
+        self.data = InitData()
+        self.data.LoadAll()
 
         self.lib = FileLib.objects.get( name="Test" )
         self.storage = self.lib.getStorage()

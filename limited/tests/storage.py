@@ -291,7 +291,8 @@ class FileStorageTest( StorageTestCase ):
         self.storage.remove( u"logo3w.png" )
         
         obj = DownloadThread( self.storage, url, u"logo3w.png" )
-        obj.run()
+        obj.start()
+        obj.join()
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_other(self):

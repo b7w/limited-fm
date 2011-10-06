@@ -66,7 +66,6 @@ Storage model
     :show-inheritance:
     :undoc-members:
     :members:
-    :exclude-members: file_change
 
 
 

@@ -36,39 +36,30 @@ class DownloadManagerTest( StorageTestCase ):
         assert self.storage.exists( self.manager.cache_file( u"Test Folder" ) ) == True
         assert self.manager.is_need_processing( u"Test Folder" ) == False
 
-    def test_processing2(self):
+    def test_processing_cache(self):
         """
-        Test signals when manager.process is working
+        Test manager cache
         """
-        cache_file = self.manager.cache_file( u"Test Folder" )
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 20 )
-        self.manager.process( u"Test Folder" )
-        self.storage.create( u"Test Folder/test2.bin", "XXX" )
-        self.timer.sleep( 2 )
-        assert self.storage.exists( cache_file + u".part" ) == False
-        assert self.storage.exists( cache_file ) == False
+        settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024
 
-    def test_remove_cache(self):
-        """
-        Test signals when files create
-        and it is need to delete old cache
-        """
-        cache_file = self.manager.cache_file( u"Test Folder" )
-        cache_file2 = self.manager.cache_file( u"Test Folder/New dir" )
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
-        self.storage.mkdir( u"Test Folder/New dir" )
-        self.storage.create( u"Test Folder/New dir/test.bin", "XXX" * 2 ** 16 )
-
-        self.manager.process( u"Test Folder/New dir" )
+        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
         self.manager.process( u"Test Folder" )
         self.timer.sleep()
 
-        assert self.storage.exists( cache_file ) == True
-        assert self.storage.exists( cache_file2 ) == True
+        cache1 = self.manager.cache_file( u"Test Folder" )
+        hash1 = self.lib.cache.hash
+        assert self.storage.exists( cache1 ) == True
 
-        self.storage.create( u"Test Folder/New dir/test2.bin", "XXX" )
-        assert self.storage.exists( cache_file ) == False
-        assert self.storage.exists( cache_file2 ) == False
+        self.storage.create( u"Test Folder/test2.bin", "XXX" * 2 ** 4 )
+        self.manager.cache = {}
+        self.manager.process( u"Test Folder" )
+        self.timer.sleep()
+        cache2 = self.manager.cache_file( u"Test Folder" )
+        hash2 = self.lib.cache.hash
+
+        assert self.storage.exists( cache1 ) == True
+        assert self.storage.exists( cache2 ) == True
+        assert hash1 != hash2
 
     def test_backend(self):
         """
