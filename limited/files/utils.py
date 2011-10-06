@@ -5,12 +5,46 @@ import threading
 import time
 from hashlib import md5
 
+from django.db import transaction
 from django.utils.encoding import smart_str
 
 from limited import settings
 from limited.files.storage import file_pre_change, FilePath
 
 logger = logging.getLogger( __name__ )
+
+class Thread:
+    """
+    Wrapper to run in a tread with commit_manually
+    """
+
+    def __init__(self, commit=True ):
+        self.commit = commit
+
+    def start(self, func, *args, **kwargs):
+        """
+        ``func`` - function, ``args`` and ``kwargs`` args for func
+        """
+        view = self.wrapper( func, *args, **kwargs )
+        if self.commit:
+            view = transaction.commit_manually( view )
+        else:
+            view = view
+        threading.Thread( target=view )
+
+    def wrapper(self, func, *args, **kwargs):
+        """
+        try except wrapper with logging and rollback
+        """
+        try:
+            func( *args, **kwargs )
+            if self.commit:
+                transaction.commit()
+        except Exception:
+            logger.error( "Tread. args: {0}, kwargs:{1},".format( args, kwargs ) )
+            if self.commit:
+                transaction.rollback( )
+
 
 class DownloadThread( threading.Thread ):
     """
