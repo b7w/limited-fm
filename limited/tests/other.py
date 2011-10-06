@@ -9,11 +9,15 @@ from limited import settings
 from limited.controls import truncate_path
 from limited.models import FileLib, Permission, History
 from limited.templatetags.limited_filters import truncatepath, joinpath
+from limited.tests.data import InitData
 from limited.utils import split_path, urlbilder, url_get_filename, TreeNode
 
 
 class CodeTest( TestCase ):
-    fixtures = ['dump.json']
+
+    def setUp(self):
+        self.data = InitData()
+        self.data.LoadAll()
 
     def test_load_permissions(self):
         """

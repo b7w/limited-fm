@@ -20,10 +20,10 @@ class AdminFileLib( admin.ModelAdmin ):
         }),
         ('Advanced info', {
             'classes': ('wide',),
-            'fields': ('cache', 'trash', )
+            'fields': ('dir_cache', 'dir_trash', 'cache', )
         }),
     )
-    readonly_fields = ( 'cache', 'trash', 'get_cache', 'get_trash', )
+    readonly_fields = ( 'dir_cache', 'dir_trash', 'get_cache', 'get_trash', 'cache', )
 
     def get_cache(self, obj):
         return filesizeformat( obj.get_cache_size( ) )
@@ -33,19 +33,19 @@ class AdminFileLib( admin.ModelAdmin ):
         return filesizeformat( obj.get_trash_size( ) )
     get_trash.short_description = u'Trash size'
 
-    def cache(self, obj):
+    def dir_cache(self, obj):
         size = filesizeformat( obj.get_cache_size( ) )
         url = urlbilder( u'clear', obj.id, u'cache' )
         return u'{0} / <a href="{1}">clear</a>'.format( size, url )
-    cache.short_description = 'Cache size'
-    cache.allow_tags = True
+    dir_cache.short_description = 'Cache size'
+    dir_cache.allow_tags = True
 
-    def trash(self, obj):
+    def dir_trash(self, obj):
         size = filesizeformat( obj.get_trash_size( ) )
         url = urlbilder( u'clear', obj.id, u'trash' )
         return u'{0} / <a href="{1}">clear</a>'.format( size, url )
-    trash.short_description = u'Trash size'
-    trash.allow_tags = True
+    dir_trash.short_description = u'Trash size'
+    dir_trash.allow_tags = True
 
 admin.site.register( FileLib, AdminFileLib )
 

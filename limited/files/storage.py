@@ -132,6 +132,8 @@ class FileStorage( object ):
         try:
             # simple hook to stop File proxy access field 'name'
             # that is no exists
+            if signal:
+                file_pre_change.send( self, basedir=FilePath.dirname( path ) )
             data = urllib.urlopen( iri_to_uri( url ) )
             data.size = int( data.info( )['Content-Length'] )
             self.save( newfile, File( data ), signal=False  )
