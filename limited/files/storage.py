@@ -107,7 +107,7 @@ class FileStorage( object ):
         newfile.write( content )
         newfile.close( )
 
-    def save(self, name, file, signal=False ):
+    def save(self, name, file, signal=True ):
         """
         Copy to disk to ``name`` open :class:`~django.core.files.base.File` object ``file``.
         Also you need to close it yourself.
@@ -167,7 +167,7 @@ class FileStorage( object ):
         """
         return FilePath.join( self.home, name )
 
-    def remove(self, name, signal=False ):
+    def remove(self, name, signal=True ):
         """
         Remove directory or file, on not exist raise :class:`~limited.files.storage.FileNotExist`
         """
@@ -184,7 +184,7 @@ class FileStorage( object ):
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, remove. Permission denied '%s'" % name )
 
-    def clear(self, name, older=None, signal=False ):
+    def clear(self, name, older=None, signal=True ):
         """
         Remove all files and dirs in ``name`` directory.
         ``older`` takes seconds for max age from created_time, only top sub dirs checked.
@@ -208,7 +208,7 @@ class FileStorage( object ):
                 if datetime.now( ) - chenaged > timedelta( seconds=older ):
                     self.remove( file, signal=False )
 
-    def move(self, src, dst, signal=False ):
+    def move(self, src, dst, signal=True ):
         """
         Move file or dir from ``src`` to ``dst``.
         On the same directory raise :class:`~limited.files.storage.FileError`.

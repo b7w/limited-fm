@@ -293,7 +293,6 @@ def ActionView( request, id, command ):
             path2 = request.GET['p2']
             if path2[0] == u'/':
                 path2 = path2[1:]
-                logger.error( path2 )
                 Storage.move( path, path2 )
             elif path2[0] == u'.':
                 tmp = FilePath.join( FilePath.dirname( path ), path2 )
