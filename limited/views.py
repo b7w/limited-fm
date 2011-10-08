@@ -92,6 +92,10 @@ def FilesView( request, id ):
         File = home.lib.getStorage()
         files = File.listdir( path )
 
+        allowed = {}
+        allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
+        allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
+
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
@@ -108,6 +112,7 @@ def FilesView( request, id ):
         'home': home.lib.name,
         'permission': home.permission,
         'files': files,
+        'allowed': allowed,
         } )
 
 

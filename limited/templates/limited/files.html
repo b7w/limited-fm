@@ -41,22 +41,6 @@
             <input type="hidden" name="p" value="{{ path }}">
             <input type="submit" name="submit" value="Upload" style="margin: 5px 5px;">
         </form>
-        <script type="text/javascript">
-            function handleFileSelect( evt )
-            {
-                var files = evt.target.files; // FileList object
-
-                // Loop through the FileList and render image files as thumbnails.
-                for (var i = 0, f; f = files[i]; i++) {
-                    Notify( f.name + " | " + f.size )
-                    if ( f.name.match(".*rar") ) {
-                        document.getElementById('files').value = "";
-                        NotifyError( '\'rar\' is not allowed!' )
-                    }
-                }
-            }
-            document.getElementById('files').addEventListener('change', handleFileSelect, false);
-        </script>
     </div>
 </div>
 {% endif %}
@@ -145,4 +129,9 @@
         </tbody>
     </table>
 </div>
+<script type="text/javascript">
+document.getElementById( 'files' ).addEventListener( 'change', function(ev) {
+    handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}" )
+}, false );
+</script>
 {% endblock %}

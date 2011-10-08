@@ -108,6 +108,19 @@ Default: ``32 * 1024 ** 2``
 
 
 
+.. _SETTINGS_ILES_ALLOWED:
+
+LIMITED_FILES_ALLOWED
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``{ 'ONLY': [], 'EXCEPT': ['rar', '7z', ], }``
+
+| Limitation for file extensions in upload zone. It is a dict with two lists.
+  Use ``ONLY`` list if you need to allowed upload only some range of extensions.
+  Add extensions to ``EXCEPT`` list to block them.
+
+
+
 .. _SETTINGS_SERVE:
 
 LIMITED_SERVE

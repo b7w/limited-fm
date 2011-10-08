@@ -30,6 +30,12 @@ LIMITED_LINK_MAX_AGE = getattr( settings, 'LIMITED_LINK_MAX_AGE', 7 * 24 * 60 * 
 # zipping will be async
 LIMITED_ZIP_HUGE_SIZE = getattr( settings, 'LIMITED_ZIP_HUGE_SIZE', 32 * 1024 ** 2 )
 
+# Allow and block some file extensions
+LIMITED_FILES_ALLOWED = getattr( settings, 'LIMITED_FILES_ALLOWED', {
+    'ONLY': [],
+    'EXCEPT': ['rar', ],
+} )
+
 # Set backend for serving files
 # Now only default and nginx
 LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {

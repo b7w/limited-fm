@@ -74,3 +74,25 @@ function Size( obj ) {
        jQuery(obj).text( size );
     });
 }
+
+function handleFileSelect(event, allowed, except) {
+    var files = event.target.files;
+    var flag = false;
+    for (var i = 0, f; f = files[i]; i++) {
+        if (allowed != '') {
+            if (!f.name.match( ".*\.(" + allowed + ")" )) {
+                flag = true
+                NotifyError( "This type of file '" + f.name + "' is not allowed for upload!" )
+            }
+        } else
+        if (except != '') {
+            if (f.name.match( ".*\.(" + except + ")" )) {
+                flag = true
+                NotifyError( "This type of file '" + f.name + "' is not allowed for upload!" )
+            }
+        }
+    }
+    if (flag == true) {
+        document.getElementById( 'files' ).value = "";
+    }
+}
