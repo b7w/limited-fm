@@ -314,6 +314,7 @@ class FileStorage( object ):
                     'class': ccl,
                     'name': item,
                     'url': self.url( fullpath ),
+                    'hash': self.hash( item ),
                     'size': self.size( fullpath ),
                     'time': self.modified_time( fullpath ),
                     } )
@@ -437,6 +438,22 @@ class FileStorage( object ):
         Return urlquote path name
         """
         return urlquote(name)
+
+    @staticmethod
+    def hash(name):
+        """
+        Return unic hash name for the file name.
+        Consists of 3 upper and lower cases letters and numbers.
+        """
+        id = abs( hash( name ) ) >> 8
+        xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        xlen = len( xdict )
+        value = ""
+        while id >= xlen:
+            id = id / xlen
+            remainder = id % xlen
+            value += xdict[remainder]
+        return value
 
     def available_name(self, path):
         """

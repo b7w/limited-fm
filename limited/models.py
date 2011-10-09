@@ -189,6 +189,12 @@ class History( models.Model ):
             return u"<a href=\"{0}\">direct link</a>".format( link )
         return None
 
+    def hash(self):
+        """
+        Return FileStorage :func:`~limited.files.storage.FileStorage.hash` for file name
+        """
+        return FileStorage.hash( self.name )
+
     class Meta:
         verbose_name = 'History'
         verbose_name_plural = 'History'

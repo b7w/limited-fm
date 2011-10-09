@@ -24,6 +24,14 @@
         jQuery('.size').click(function() {
             Size( this )
         })
+        var hl = getUrlVars()['hl'];
+        if (hl) {
+            var hlar = hl.split( ';' )
+            for (var key in hlar) {
+                var val = hlar[key]
+                jQuery( '#' + val ).addClass( 'hl' )
+            }
+        }
     });
 </script>
 {% endblock %}
@@ -88,7 +96,7 @@
         </thead>
         <tbody>
         {% for item in files %}
-            <tr class="{% cycle 'row1' 'row2' %}">
+            <tr class="{% cycle 'row1' 'row2' %}" id="{{ item.hash }}">
                 <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
                 <td class="nowrap" ondblclick="location.href='{% url download home_id %}?p={{ item.url }}'">
                     {% if item.class == 'dir' %}
