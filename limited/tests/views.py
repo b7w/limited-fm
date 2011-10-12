@@ -285,10 +285,10 @@ class ViewsTest( StorageTestCase ):
         assert resp.context['messages'].__len__( ) == 1
         assert 'You have no permission' in [m.message for m in list( resp.context['messages'] )][0]
         # size very simple dir test
-        link = urlbilder( 'action', self.lib2.id, "size", p='debug_toolbar' )
+        link = urlbilder( 'action', self.lib2.id, "size", p='docs' )
         resp = self.client.get( link, follow=True )
         assert resp.status_code == 200
-        size = filesizeformat( storage.size( 'debug_toolbar', dir=True, cached=False ) )
+        size = filesizeformat( storage.size( 'docs', dir=True, cached=False ) )
         assert size == resp.content.strip( )
 
     def test_Path_Arr(self):

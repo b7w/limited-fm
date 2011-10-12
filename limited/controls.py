@@ -91,16 +91,3 @@ def truncate_path( str, length=64, ext=False):
         return str
     else:
         return str[:length].strip() + u".."
-
-
-def clear_folders( path, older=7 * 24 * 60 * 60 ):
-    """
-    Clear objects in ``path`` in all filelibs,
-    older than one week by default.
-
-    if no folder, nothing will happened
-    """
-    for lib in FileLib.objects.all( ):
-        storage = lib.getStorage()
-        if storage.isdir( path ):
-            storage.clear( path, older=older )

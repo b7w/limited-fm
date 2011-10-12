@@ -3,7 +3,7 @@
 from django.core.files.base import File
 
 from limited import settings
-from limited.controls import clear_folders
+from limited.management.utils import clear_folders
 from limited.files.storage import FileError, FileNotExist, FilePath
 from limited.files.utils import Thread
 from limited.tests.base import StorageTestCase

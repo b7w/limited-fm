@@ -5,7 +5,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 
 from limited.models import FileLib, Home, Permission, Link, History
-from limited.utils import load_permissions
+from limited.management.utils import load_permissions
 
 class InitData:
     """

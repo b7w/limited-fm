@@ -10,6 +10,9 @@ syntax: regexp
 
 ^debug_toolbar/
 ^django_coverage/
+^coverage/
+^test/
+^.cache/
 
 ^special/
 ^static/

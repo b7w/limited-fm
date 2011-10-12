@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from limited import settings
 from limited.controls import truncate_path
+from limited.management.utils import clear_db_cache
 from limited.models import FileLib, Permission, History
 from limited.templatetags.limited_filters import truncatepath, joinpath
 from limited.tests.data import InitData
@@ -38,6 +39,26 @@ class CodeTest( TestCase ):
         call_command( 'clearfolder', settings.LIMITED_TRASH_PATH )
         call_command( 'clearfolder', settings.LIMITED_TRASH_PATH, '24*60*60' )
         call_command( 'clearfolder', 'NoFolder', '24*60*60' )
+
+    def test_clear_dbcache(self):
+        """
+        Test management command cleardbcache.
+        If no exceptions - pretty good
+        """
+        call_command( 'cleardbcache' )
+        call_command( 'cleardbcache', '24*60*60' )
+
+        DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
+        DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
+        DictTree = { 'name': 'node', 'hash': 3, 'children': [DictNode1, DictNode2], }
+        child = TreeNode.build( DictTree )
+        lib = FileLib.objects.get( id=1 )
+        lib.cache.setChild( child )
+        lib.save( )
+
+        clear_db_cache( )
+        lib = FileLib.objects.get( id=1 )
+        assert len( lib.cache.children ) == 0
 
     def test_urlbilder(self):
         assert urlbilder( 'action', 2, "add" ) == "/lib2/action/add/"
@@ -196,7 +217,11 @@ class CodeTest( TestCase ):
         tree = TreeNode.build( DictTree )
         assert tree.name == "root"
         assert tree.hash == 3
-        assert tree.children[0].name == "node1"
-        assert tree.children[1].name == "node2"
+        assert tree.children.has_key( "node1" ) == True
+        assert tree.children.has_key( "node2" ) == True
 
         assert tree.toDict() == DictTree
+
+        tree.deleteName( "node1" )
+        assert tree.children.has_key( "node1" ) == False
+        assert tree.children.has_key( "node2" ) == True

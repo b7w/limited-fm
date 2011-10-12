@@ -7,7 +7,7 @@ from django.core.management.color import no_style
 from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
 from limited.models import Permission
-from limited.utils import load_permissions
+from limited.management.utils import load_permissions
 
 class Command( NoArgsCommand ):
     help = "Flush Permissons table and generat new data for any count of columns in Permission"

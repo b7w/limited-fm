@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
-from limited.controls import clear_folders
+from limited.management.utils import clear_folders
 
 class Command( BaseCommand ):
     args = u"path [time]"
