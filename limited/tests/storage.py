@@ -3,9 +3,9 @@
 from django.core.files.base import File
 
 from limited import settings
-from limited.controls import clear_folders
+from limited.management.utils import clear_folders
 from limited.files.storage import FileError, FileNotExist, FilePath
-from limited.files.utils import ZipThread, DownloadThread
+from limited.files.utils import Thread
 from limited.tests.base import StorageTestCase
 
 
@@ -276,8 +276,9 @@ class FileStorageTest( StorageTestCase ):
         self.storage.unzip( u"Test Folder/Test Folder.zip" )
         assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
 
-        obj = ZipThread( self.storage, u"Test Folder", u"Test Folder2.zip" )
-        obj.run()
+        obj = Thread( )
+        obj.start( self.storage.zip, u"Test Folder", u"Test Folder2.zip" )
+        self.timer.sleep( )
         assert self.storage.exists( u"Test Folder2.zip" ) == True
 
     def test_download(self):
@@ -289,9 +290,10 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.exists( u"logo3w.png" ) == True
 
         self.storage.remove( u"logo3w.png" )
-        
-        obj = DownloadThread( self.storage, url, u"logo3w.png" )
-        obj.run()
+
+        obj = Thread( )
+        obj.start( self.storage.download, url, u"logo3w.png" )
+        self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_other(self):

@@ -10,10 +10,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
-from limited.files.utils import DownloadThread
+from limited.files.utils import Thread
 
 from limited.serve.manager import DownloadManager
-from limited.files.storage import FileStorage, FileError, FileNotExist, FilePath
+from limited.files.storage import FileError, FileNotExist, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
@@ -89,8 +89,12 @@ def FilesView( request, id ):
 
         patharr = split_path( path )
 
-        File = FileStorage( home.lib.get_path() )
+        File = home.lib.getStorage()
         files = File.listdir( path )
+
+        allowed = {}
+        allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
+        allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
 
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
@@ -108,6 +112,7 @@ def FilesView( request, id ):
         'home': home.lib.name,
         'permission': home.permission,
         'files': files,
+        'allowed': allowed,
         } )
 
 
@@ -169,7 +174,7 @@ def TrashView( request, id ):
 
         patharr = split_path( 'Trash' )
 
-        File = FileStorage( home.lib.get_path() )
+        File = home.lib.getStorage()
         if not File.exists( settings.LIMITED_TRASH_PATH ):
             File.mkdir( settings.LIMITED_TRASH_PATH )
         files = File.listdir( settings.LIMITED_TRASH_PATH )
@@ -207,7 +212,7 @@ def ActionView( request, id, command ):
     
     home = get_home( request.user, lib_id)
     user = get_user( request.user )
-    Storage = FileStorage( home.lib.get_path() )
+    Storage = home.lib.getStorage()
 
     history = History( lib=home.lib )
     history.path = FilePath.dirname( path )
@@ -222,7 +227,8 @@ def ActionView( request, id, command ):
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
-                DownloadThread( Storage, name, path ).start()
+                T = Thread()
+                T.start( Storage.download, name, path )
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
@@ -292,7 +298,6 @@ def ActionView( request, id, command ):
             path2 = request.GET['p2']
             if path2[0] == u'/':
                 path2 = path2[1:]
-                logger.error( path2 )
                 Storage.move( path, path2 )
             elif path2[0] == u'.':
                 tmp = FilePath.join( FilePath.dirname( path ), path2 )
@@ -372,7 +377,7 @@ def ActionClear( request, id, command ):
     lib_id = int( id )
 
     home = get_home( request.user, lib_id)
-    Storage = FileStorage( home.lib.get_path() )
+    Storage = home.lib.getStorage()
 
     if command == u"trash":
         try:
@@ -414,7 +419,7 @@ def UploadView( request, id ):
                 raise PermissionError( u"You have no permission to upload" )
 
             user = get_user( request.user )
-            storage = FileStorage( home.lib.get_path() )
+            storage = home.lib.getStorage()
 
             files = request.FILES.getlist( u'files' )
             # if files > 3 just send message 'Uploaded N files'

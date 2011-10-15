@@ -203,6 +203,8 @@ Upload
   To upload files just click the button ``select files`` and in a shown up window select files.
   You can do it with mouse or with help of ``Shift`` ``Ctrl`` buttons.
   Then click ``open`` button in window and ``upload`` in widget.
+  Some file extensions on a server can be blocked. So when adding file you can see this error.
+  
 
 
 

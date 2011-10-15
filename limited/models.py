@@ -10,6 +10,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.encoding import smart_str
 
+from limited.fields import JsonTreeField
 from limited.files.storage import FilePath, FileStorage
 
 class PermissionError( Exception ):
@@ -72,6 +73,10 @@ class FileLib( models.Model ):
     name = models.CharField( max_length=64, null=False )
     description = models.CharField( max_length=256, null=False )
     path = models.CharField( max_length=256, null=False, validators=validators )
+    cache = JsonTreeField( null=True, blank=True )
+
+    def getStorage(self):
+        return FileStorage( self )
 
     def get_path(self, root=None ):
         """
@@ -86,14 +91,14 @@ class FileLib( models.Model ):
         """
         Return size of a cache directory
         """
-        File = FileStorage( self.get_path() )
+        File = self.getStorage()
         return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
 
     def get_trash_size(self):
         """
         Return size of a trash directory
         """
-        File = FileStorage( self.get_path() )
+        File = self.getStorage()
         return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
 
     class Meta:
@@ -183,6 +188,12 @@ class History( models.Model ):
             link = reverse( 'link', args=[self.extra] )
             return u"<a href=\"{0}\">direct link</a>".format( link )
         return None
+
+    def hash(self):
+        """
+        Return FileStorage :func:`~limited.files.storage.FileStorage.hash` for file name
+        """
+        return FileStorage.hash( self.name )
 
     class Meta:
         verbose_name = 'History'

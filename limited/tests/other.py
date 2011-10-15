@@ -7,13 +7,18 @@ from django.test import TestCase
 
 from limited import settings
 from limited.controls import truncate_path
+from limited.management.utils import clear_db_cache
 from limited.models import FileLib, Permission, History
 from limited.templatetags.limited_filters import truncatepath, joinpath
-from limited.utils import split_path, urlbilder, url_get_filename
+from limited.tests.data import InitData
+from limited.utils import split_path, urlbilder, url_get_filename, TreeNode
 
 
 class CodeTest( TestCase ):
-    fixtures = ['dump.json']
+
+    def setUp(self):
+        self.data = InitData()
+        self.data.LoadAll()
 
     def test_load_permissions(self):
         """
@@ -34,6 +39,26 @@ class CodeTest( TestCase ):
         call_command( 'clearfolder', settings.LIMITED_TRASH_PATH )
         call_command( 'clearfolder', settings.LIMITED_TRASH_PATH, '24*60*60' )
         call_command( 'clearfolder', 'NoFolder', '24*60*60' )
+
+    def test_clear_dbcache(self):
+        """
+        Test management command cleardbcache.
+        If no exceptions - pretty good
+        """
+        call_command( 'cleardbcache' )
+        call_command( 'cleardbcache', '24*60*60' )
+
+        DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
+        DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
+        DictTree = { 'name': 'node', 'hash': 3, 'children': [DictNode1, DictNode2], }
+        child = TreeNode.build( DictTree )
+        lib = FileLib.objects.get( id=1 )
+        lib.cache.setChild( child )
+        lib.save( )
+
+        clear_db_cache( )
+        lib = FileLib.objects.get( id=1 )
+        assert len( lib.cache.children ) == 0
 
     def test_urlbilder(self):
         assert urlbilder( 'action', 2, "add" ) == "/lib2/action/add/"
@@ -148,3 +173,55 @@ class CodeTest( TestCase ):
         assert history.get_image_type( ) == 'create'
         assert history.is_extra( ) == True
         assert history.get_extra( ) == '<a href=\"/link/d89d9baa47e8/\">direct link</a>'
+
+    def test_TreeNode(self):
+        """
+        Test TreeNode for find children, save and load to dict type.
+        """
+        tree = TreeNode( "root", 1 )
+        node1 = TreeNode( "node1", 1 )
+        tree.setChild( node1 )
+        node2 = TreeNode( "node2", 1 )
+        tree.setChild( node2 )
+
+        assert tree.getName( '' ).name == "root"
+        assert tree.getName( "node1" ).name == "node1"
+        assert tree.getName( "node2" ).name == "node2"
+        assert tree.getName( "node3" ) == None
+
+        tree.getName( "node1" ).setHash( 2 )
+        assert tree.hash == 2
+        assert tree.getName( "node1" ).hash == 2
+        assert tree.getName( "node2" ).hash == 1
+
+        tree.createName( 3, "node2", "node21" )
+        assert tree.hash == 3
+        assert tree.getName( "node1" ).hash == 2
+        assert tree.getName( "node2" ).hash == 3
+        assert tree.getName( "node2", "node21" ).hash == 3
+
+        tree.createName( 4, "node3", "node31" )
+        assert tree.hash == 4
+        assert tree.getName( "node2" ).hash == 3
+        assert tree.getName( "node3" ).hash == 4
+        assert tree.getName( "node3", "node31" ).hash == 4
+
+        tree.createName( 5, "node1" )
+        assert tree.hash == 5
+        assert tree.getName( "node1" ).hash == 5
+        assert tree.getName( "node1" ).children.__len__() == 0
+
+        DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
+        DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
+        DictTree = { 'name': 'root', 'hash': 3, 'children': [DictNode1, DictNode2], }
+        tree = TreeNode.build( DictTree )
+        assert tree.name == "root"
+        assert tree.hash == 3
+        assert tree.children.has_key( "node1" ) == True
+        assert tree.children.has_key( "node2" ) == True
+
+        assert tree.toDict() == DictTree
+
+        tree.deleteName( "node1" )
+        assert tree.children.has_key( "node1" ) == False
+        assert tree.children.has_key( "node2" ) == True

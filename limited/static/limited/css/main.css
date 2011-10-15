@@ -175,6 +175,10 @@ thead th:first-child {
     background: white;
 }
 
+.hl {
+    background-color: #edeeff;
+}
+
 /* SORTABLE TABLES */
 
 thead th a:link, thead th a:visited {
@@ -211,6 +215,11 @@ input {
 
 input[type=text], input[type=password] {
     border: 1px solid #ccc;
+}
+
+.upload input[type=text] {
+    margin: 5px 5px;
+    width: 180px;
 }
 
 /* FORM BUTTONS */

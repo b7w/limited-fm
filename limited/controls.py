@@ -2,10 +2,10 @@
 import logging
 import re
 
-from limited import settings
 from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 
+from limited import settings
 from limited.models import Home, FileLib, Permission
 from limited.files.storage import FileStorage
 
@@ -91,16 +91,3 @@ def truncate_path( str, length=64, ext=False):
         return str
     else:
         return str[:length].strip() + u".."
-
-
-def clear_folders( path, older=7 * 24 * 60 * 60 ):
-    """
-    Clear objects in ``path`` in all filelibs,
-    older than one week by default.
-
-    if no folder, nothing will happened
-    """
-    for lib in FileLib.objects.all( ):
-        storage = FileStorage( lib.get_path( ) )
-        if storage.isdir( path ):
-            storage.clear( path, older=older )

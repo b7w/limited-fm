@@ -27,10 +27,10 @@ About
   All deleted file first move to trash.
 
 | For feedback look here :doc:`click <feedback>`
-
 | Working application you can look `here <http://limited.isudo.ru/>`__
+| For more read documentation, inf *docs* directory or `here <http://limited.isudo.ru/docs/>`__
 
-| For more read documentation, /docs/
+| Open source, BSD license
 
 Functional features
 ===================================
