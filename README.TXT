@@ -24,11 +24,10 @@ About
 | Super user can view and edit all libs.
 
 | File manager have simple history and Trash bin.
-  All deleted file first move to trash.
+  All deleted files first move to trash.
 
-| For feedback look here :doc:`click <feedback>`
-| Working application you can look `here <http://limited.isudo.ru/>`__
-| For more read documentation, inf *docs* directory or `here <http://limited.isudo.ru/docs/>`__
+| Working application you can look here http://limitedfm.isudo.ru/ user:demo, pass:demo
+| For more read documentation, inf *docs* directory or here <http://limitedfm.isudo.ru/docs/>
 
 | Open source, BSD license
 

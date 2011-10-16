@@ -92,14 +92,18 @@ class FileLib( models.Model ):
         Return size of a cache directory
         """
         File = self.getStorage()
-        return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
+        if File.isdir( settings.LIMITED_CACHE_PATH ):
+            return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
+        return 0
 
     def get_trash_size(self):
         """
         Return size of a trash directory
         """
         File = self.getStorage()
-        return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
+        if File.isdir( settings.LIMITED_TRASH_PATH ):
+            return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
+        return 0
 
     class Meta:
         verbose_name = 'File Lib'
