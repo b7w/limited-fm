@@ -85,7 +85,7 @@ def FilesView( request, id ):
                   select_related( 'user' ).\
                   only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
                   filter( lib=lib_id ).\
-                  order_by( '-id' )[0:5]
+                  order_by( '-id' )[0:8]
 
         patharr = split_path( path )
 
