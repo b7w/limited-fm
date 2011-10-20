@@ -126,6 +126,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'limited',
+    'iviewer',
 )
 
 # A sample logging configuration. The only tangible logging

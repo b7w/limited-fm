@@ -1,0 +1,140 @@
+body {
+    background: #000;
+    margin: 0px;
+    padding: 0px 0px 50px;
+    text-align: center;
+
+}
+
+#main {
+    text-align: left;
+    margin: 20px auto;
+    width: 920px;
+    background-image: url(../img/bg.jpg);
+    padding: 20px 30px 70px;
+    border-top: 2px solid #444;
+    border-right: 1px solid #444;
+    border-bottom: 1px solid #444;
+    border-left: 1px solid #444;
+}
+
+#gallerytitle {
+    border-bottom: 1px solid #E6E6DF;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+}
+
+#gallerytitle h2 {
+    font-weight: normal;
+    font-size: 12pt;
+    margin-top: 18px;
+}
+
+/* Link Styles */
+a:link, a:active, a:visited {
+    text-decoration: underline;
+    color: #86a1b6;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+    color: #94c2e5;
+}
+
+/* Text Styles */
+body {
+    font: normal 82%/200% "Helvetica Neue", "Lucida Grande", Helvetica, Arial, sans-serif;
+    color: #888;
+    line-height: 1.4em;
+}
+
+h2 {
+    font: 115% "Helvetica Neue", "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: #AAA;
+}
+
+h2 a:link, h2 a:visited {
+    color: #86a1b6;
+    text-decoration: none;
+}
+
+h2 span {
+    color: #666;
+}
+
+h2 a:hover {
+    color: #94c2e5;
+    text-decoration: none;
+}
+
+h3 {
+    font: 110% "Helvetica Neue", "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: #748da0;
+    margin-top: 30px;
+}
+
+h3 a:link, h3 a:visited {
+    text-decoration: none;
+}
+
+h3 a:hover {
+    text-decoration: underline;
+}
+
+img {
+    border: 0;
+}
+
+.float-right {
+    float: right;
+}
+
+.hide {
+    display: none;
+}
+
+.clear {
+    clear: both;
+}
+
+/* MESSAGES & ERRORS */
+
+ul.messagelist { }
+
+ul.messagelist li {
+    font-size: 16px;
+    /*display: block;*/
+    padding: 4px 5px;
+}
+
+/* Image Thumbnails */
+.imagethumb a, .imagethumb a:hover {
+    display: block;
+    padding: 9px;
+    margin: 0px 9px 9px 0px;
+    line-height: 0px;
+    border: 1px solid #444;
+    background-color: #000;
+}
+
+.imagethumb a:visited {
+    background-color: #000;
+    border: 1px solid #444;
+}
+
+.imagethumb a:hover {
+    background-color: #000;
+    border: 1px solid #ccc;
+}
+
+.imagethumb {
+    float: left;
+}
+
+.image {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
