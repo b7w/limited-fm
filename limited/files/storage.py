@@ -379,7 +379,7 @@ class FileStorage( object ):
             return size
         return 0
 
-    def zip(self, path, file=None ):
+    def zip(self, path, file=None, signal=False ):
         """
         Zip file or directory ``path`` to ``file`` or to ``path + '.zip'``.
         On not exist raise :class:`~limited.files.storage.FileNotExist`.
@@ -389,10 +389,12 @@ class FileStorage( object ):
 
         if file == None:
             file = self.available_name( path + u".zip" )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( path ) )
 
         newfile = file + u".part"
         try:
-            zfile = self.open( newfile, mode='wb' )
+            zfile = self.open( newfile, mode='wb', signal=False )
             archive = zipfile.ZipFile( zfile, 'w', zipfile.ZIP_DEFLATED )
             if self.isdir( path ):
                 dirname = FilePath.name( path )
@@ -404,7 +406,7 @@ class FileStorage( object ):
 
             archive.close( )
             zfile.seek( 0 )
-            self.rename( newfile, FilePath.name( file ) )
+            self.rename( newfile, FilePath.name( file ), signal=False )
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, zip. Permission denied '%s'" % name )
@@ -412,7 +414,7 @@ class FileStorage( object ):
             if self.exists( newfile ):
                 self.remove( newfile, signal=False )
 
-    def unzip(self, path ):
+    def unzip(self, path, signal=False ):
         """
         Unzip file or directory ``path``.
         On not exist raise :class:`~limited.files.storage.FileNotExist`.
@@ -424,7 +426,8 @@ class FileStorage( object ):
         zip = zipfile.ZipFile( file )
         # To lazy to do converting
         # maybe chardet help later
-        file_pre_change.send( self, basedir=FilePath.dirname( path ) )
+        if signal:
+            file_pre_change.send( self, basedir=FilePath.dirname( path ) )
         try:
             zip.extractall( FilePath.dirname( file ) )
         except UnicodeDecodeError as e:

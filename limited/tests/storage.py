@@ -277,7 +277,8 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
 
         obj = Thread( )
-        obj.start( self.storage.zip, u"Test Folder", u"Test Folder2.zip" )
+        obj.setView( self.storage.zip, u"Test Folder", u"Test Folder2.zip" )
+        obj.start()
         self.timer.sleep( )
         assert self.storage.exists( u"Test Folder2.zip" ) == True
 
@@ -292,7 +293,8 @@ class FileStorageTest( StorageTestCase ):
         self.storage.remove( u"logo3w.png" )
 
         obj = Thread( )
-        obj.start( self.storage.download, url, u"logo3w.png" )
+        obj.setView( self.storage.download, url, u"logo3w.png", signal=False )
+        obj.start()
         self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 

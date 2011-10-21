@@ -59,7 +59,8 @@ class DownloadManager:
         part = self.cache_file( path ) + u".part"
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
             th = Thread( )
-            th.start( self.storage.zip, path, self.cache_file( path ) )
+            th.setView( self.storage.zip, path, self.cache_file( path ) )
+            th.start()
 
     def get_backend(self):
         """

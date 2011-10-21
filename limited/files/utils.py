@@ -5,7 +5,6 @@ import threading
 import time
 from hashlib import md5
 
-from django.db import transaction
 from django.utils.encoding import smart_str
 
 from limited import settings
@@ -14,37 +13,29 @@ from limited.files.storage import file_pre_change, FilePath
 
 logger = logging.getLogger( __name__ )
 
-class Thread:
+class Thread( threading.Thread ):
     """
-    Wrapper to run in a tread with commit_manually
+    Wrapper to run in a tread. Do not use Database updating!!!
+    You will get ``TransactionManagementError``
     """
 
-    def __init__(self, commit=True ):
+    def __init__(self, commit=False ):
         self.commit = commit
+        self.view = None
+        self.args = None
+        self.kwargs = None
+        threading.Thread.__init__( self )
 
-    def start(self, func, *args, **kwargs):
-        """
-        ``func`` - function, ``args`` and ``kwargs`` args for func
-        """
-        view = self.wrapper( func, *args, **kwargs )
-        if self.commit:
-            view = transaction.commit_manually( view )
-        else:
-            view = view
-        threading.Thread( target=view )
+    def setView(self, func, *args, **kwargs ):
+        self.view = func
+        self.args = args
+        self.kwargs = kwargs
 
-    def wrapper(self, func, *args, **kwargs):
-        """
-        try except wrapper with logging and rollback
-        """
+    def run(self):
         try:
-            func( *args, **kwargs )
-            if self.commit:
-                transaction.commit()
-        except Exception:
-            logger.error( "Tread. args: {0}, kwargs:{1},".format( args, kwargs ) )
-            if self.commit:
-                transaction.rollback( )
+            self.view( *self.args, **self.kwargs )
+        except Exception as e:
+            logger.error( "Tread. {0}. args: {1}, kwargs:{2},".format( e, *self.args, **self.kwargs ) )
 
 
 class FileUnicName:
@@ -62,7 +53,7 @@ class FileUnicName:
         return md5( "files.storage" + smart_str( name ) ).hexdigest( )
 
     def time(self):
-        return time.time()
+        return time.time( )
 
     def build(self, path, time=None, extra=None):
         """
@@ -70,9 +61,9 @@ class FileUnicName:
         """
         full_name = settings.LIMITED_CACHE_PATH + path
         if time:
-            full_name += str(time)
+            full_name += str( time )
         if extra:
-            full_name += str(extra)
+            full_name += str( extra )
         return self.hash( full_name )
 
 
@@ -90,8 +81,9 @@ def remove_cache( sender, **kwargs ):
         try:
             node = lib.cache.getName( *FilePath.split( dir ) )
             if node != None:
-                node.setHash( HashBilder.time() )
+                node.setHash( HashBilder.time( ) )
                 from limited.models import FileLib
+
                 FileLib.objects.filter( id=lib.id ).update( cache=lib.cache )
         except Exception as e:
             logger.error( u"{0}. dir:{1}".format( e, dir ) )

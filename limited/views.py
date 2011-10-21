@@ -227,8 +227,11 @@ def ActionView( request, id, command ):
             if name.startswith( u"http://" ):
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
+                #TODO: Fucking TransactionManagementError don't now how to fix
+                # In a Thread we set signal=False to not update DB
                 T = Thread()
-                T.start( Storage.download, name, path )
+                T.setView( Storage.download, name, path, signal=False )
+                T.start()
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
