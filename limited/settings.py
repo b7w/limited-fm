@@ -42,3 +42,6 @@ LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {
     'BACKEND': 'limited.serve.backends.default',
     'INTERNAL_URL': '/protected',
 } )
+
+# Check if iViewer is loaded
+LIMITED_IVIEWER = "iviewer" in settings.INSTALLED_APPS

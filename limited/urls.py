@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls.defaults import patterns, url, include
+
+from limited import settings
 
 urlpatterns = patterns('',
     url(r'^$', 'limited.views.IndexView', name='index' ),
@@ -15,3 +17,6 @@ urlpatterns = patterns('',
     
     url(r'^link/(?P<hash>\w+)/$', 'limited.views.LinkView', name='link' ),
 )
+
+if settings.LIMITED_IVIEWER:
+    urlpatterns += patterns('', url(r'^', include('iviewer.urls') ), )

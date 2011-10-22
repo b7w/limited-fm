@@ -12,6 +12,21 @@ Settings
 
  
 
+.. _SETTINGS_IVIEWER:
+
+LIMITED_IVIEWER
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``False``
+
+| It is not a setting, it is a dynamic option. You don't need to set this variable.
+  Option check if "iviewer" in **INSTALLED_APPS**.
+  If ``True`` special url paterns will be loaded and link to gallery appear in files view.
+
+.. note:: Need at least 2 jpg file in folder.
+
+
+
 .. _SETTINGS_ANONYMOUS:
 
 LIMITED_ANONYMOUS

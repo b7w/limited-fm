@@ -29,6 +29,8 @@ About
   plus Anonymous libs if turn on and in database created special user.
   if User have the some lib as Anonymous, the Users permission will be taken.
 
+| Photos can be viewed in a beautiful gallery. Where implemented privies and full screen images.
+
 | Super user can view and edit all libs.
 
 | File manager have simple history and Trash bin.

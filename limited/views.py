@@ -92,6 +92,15 @@ def FilesView( request, id ):
         File = home.lib.getStorage()
         files = File.listdir( path )
 
+        # Check if iViewer is enable and there is at least 2 jpg
+        iViewer = False
+        if settings.LIMITED_IVIEWER:
+            images = 0
+            for file in files:
+                if file["name"].lower().endswith(".jpg"):
+                    images += 1
+            iViewer = images > 1
+
         allowed = {}
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
@@ -113,6 +122,7 @@ def FilesView( request, id ):
         'permission': home.permission,
         'files': files,
         'allowed': allowed,
+        'iviewer': iViewer,
         } )
 
 

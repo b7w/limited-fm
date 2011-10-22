@@ -11,7 +11,6 @@ urlpatterns = patterns('',
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes':True}),
 
     url(r'^', include('limited.urls') ),
-    url(r'^', include('iviewer.urls') ),
 
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'limited/login.html' }, name='login' ),
     url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout' ),
