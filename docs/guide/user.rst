@@ -147,6 +147,10 @@ Photo gallery
   It is a previews of images on a black background. On image click you see a fool screen image.
   In this mode you can move next/previous, or play slide show.
 
+| On a left part of header you see a path to that folder you look.
+  This paths are links, they go to the file manager not gallery.
+  On a right part of header you see a link Back to go to the file manager.
+  And link Download to download folder in a zip archive.
 
 
 .. index:: Widgets

@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}iviewer/css/main.css"/>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}iviewer/css/shadowbox.css"/>
-    <script type='text/javascript' src='{{ STATIC_URL }}limited/js/jquery-1.5.min.js'></script>
-    <script type='text/javascript' src='{{ STATIC_URL }}iviewer/js/shadowbox.js'></script>
+{% extends "iviewer/base.html" %}
+
+{% block media %}
     <script type="text/javascript">
         Shadowbox.init( {
             "overlayOpacity" : 0.95,
             "slideshowDelay" : 3,
-            onFinish: function(currentImage) {
+            onOpen: function(currentImage) {
                 Shadowbox.play();
                 Shadowbox.pause();
             }
@@ -19,65 +15,24 @@
                 jQuery( this ).fadeIn( 1000 );
             } )
         } )
-
     </script>
-</head>
+{% endblock %}
 
-<body>
-
-<div id="main">
-
-    <div id="gallerytitle">
-        <h2>
-            <span>
-                <a href="/">#Home</a>
-                {% if home_id %}
-                    | <a href="{% url browser home_id %}">{{ home }}</a>
-                {% endif %}
-
-                {% for key,value in patharr %}
-                    {% if not forloop.last %}
-                        | <a href="{% url browser home_id %}?p={{ value }}">{{ key }}</a>
-                    {% else %}
-                        | {{ key }}
-                    {% endif %}
-                {% endfor %}
-            </span>
-            <div class="float-right">
-                <a href="{% url browser home_id %}?p={{ path }}">Back</a>
-                | <a href="{% url download home_id %}?p={{ path }}">Download</a>
-            </div>
-            <span class="clear"></span>
-        </h2>
-    </div>
-
-    <div id="messages">
-        <ul class="messagelist">
-            {% if messages %}
-                {% for message in messages %}
-                    <li {% if message.tags %}
-                            class="{{ message.tags }}"{% endif %}> {{ message.tags|capfirst }}. {{ message|safe }}</li>
-                {% endfor %}
-            {% endif %}
-        </ul>
-    </div>
-
-    <div id="padbox">
-
+{% block main %}
         <div id="albums">
         </div>
 
         <div id="images">
             {% for item in files %}
-                <div class="image">
-                    <div class="imagethumb">
-                        <a rel="shadowbox[album];player=img" type="image/jpeg"
-                           href="{% url resize home_id '1280x720' %}?p={{ item.url }}"
-                           style="width: 200px;height: 200px;">
-                            <img class="hide" src="{% url resize home_id '200x200xC' %}?p={{ item.url }}"/>
-                        </a>
-                    </div>
+            <div class="image">
+                <div class="imagethumb">
+                    <a rel="shadowbox[album];player=img" type="image/jpeg"
+                       href="{% url resize home_id '1280x720' %}?p={{ item.url }}"
+                       style="width: 200px;height: 200px;">
+                        <img class="hide" src="{% url resize home_id '200x200xC' %}?p={{ item.url }}"/>
+                    </a>
                 </div>
+            </div>
             {% endfor %}
         </div>
 
@@ -86,9 +41,6 @@
         {% endif %}
 
         <div style="clear: both;"></div>
-    </div>
-</div>
+{% endblock %}
 
-</body>
-</html>
 
