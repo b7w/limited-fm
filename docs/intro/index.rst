@@ -11,5 +11,7 @@ Getting started
     overview
 	
     installation
+
+    FAQ
 	
     feedback

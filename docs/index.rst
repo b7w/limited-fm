@@ -19,7 +19,7 @@ First steps:
 	:doc:`Installation <intro/installation>`
 
 * | **Getting help:**
-    :doc:`feedback <intro/feedback>`
+    :doc:`Feedback <intro/feedback>`
 
 
 
