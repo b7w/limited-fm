@@ -8,12 +8,13 @@
     <h3>Nothig</h3>
     {% endif %}
 
-    <ul class="actionlist">
+    <ul class="actionlist history">
         {% for item in history %}
         <li class="{{ item.get_image_type }}-act">
-            <a href="{% url browser item.lib_id %}?p={{ item.path }}&hl={{ item.hash }}">{{ item.name|truncatepath:"24" }}</a>
+            <a href="{% url browser item.lib_id %}?p={{ item.path }}&hl={{ item.hash }}">{{ item.name|join:", "|truncatepath:"18" }}</a>
             <br/>
-            <span class="mini quiet">{{ item.user }}
+            <span class="mini quiet2">
+                {{ item.get_type_display|capfirst }} by <b>{{ item.user }}</b>
                 {% if item.is_extra %}
                 | {{ item.get_extra|safe }}
                 {% endif %}

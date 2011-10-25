@@ -171,12 +171,11 @@ Recent Actions
 
 | Nearly all changes are represented like list with icon, name of object and author.
   If you click to the name you will go to the directory where the action took place.
+  All changes files will be marked in purple.
   To understand what is the action is it look to the icon.
   For icons meaning look here :ref:`here <user_guide_actions>`.
   But there are some action that create specific items. For example it is direct link.
   In such history item near author you'll see direct link.
-  Or another example. In some item you can see something like *5 files*.
-  That is why when user upload more than 3 files server pack it into one history action.
 
 
 .. index:: Widget Create
@@ -219,10 +218,11 @@ History page
   Type show a icon of action and short name for it.
   So if in widget you can't understand what :ref:`action <user_guide_actions>` has happend, look hisory page.
   User and time columns are pretty clear.
-  Path fields are very rich for links. First is a path to folder or file.
-  Click it to see the place where the action happend.
+  Files field are very rich for links. First is a path to folder or files.
+  Click it to see the place where the action happened.
   Second is a link to dowload file or directory that mentioned in previous link.
   Also if there is a direct link you will see it.
+  Under the link can be a text with path fo folder, if it not in a root directory.
 
 
 

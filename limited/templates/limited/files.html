@@ -138,8 +138,11 @@
     </table>
 </div>
 <script type="text/javascript">
-document.getElementById( 'files' ).addEventListener( 'change', function(ev) {
-    handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}" )
-}, false );
+    var fl = document.getElementById( 'files' )
+    if (fl != null) {
+        fl.addEventListener( 'change', function(ev) {
+            handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}" )
+        }, false );
+    }
 </script>
 {% endblock %}

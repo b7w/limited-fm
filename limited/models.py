@@ -3,14 +3,14 @@
 from datetime import datetime, timedelta
 import hashlib
 
-from limited import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.encoding import smart_str
 
-from limited.fields import JsonTreeField
+from limited import settings
+from limited.fields import JsonTreeField, TextListField
 from limited.files.storage import FilePath, FileStorage
 
 class PermissionError( Exception ):
@@ -163,7 +163,7 @@ class History( models.Model ):
     user = models.ForeignKey( User )
     lib = models.ForeignKey( FileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
-    name = models.CharField( max_length=256, null=False )
+    name = TextListField( max_length=1024, null=False )
     path = models.CharField( max_length=256, null=True, blank=True )
     extra = models.CharField( max_length=256, null=True, blank=True  )
     time = models.DateTimeField( auto_now_add=True, null=False )
@@ -197,7 +197,7 @@ class History( models.Model ):
         """
         Return FileStorage :func:`~limited.files.storage.FileStorage.hash` for file name
         """
-        return FileStorage.hash( self.name )
+        return ';'.join( [FileStorage.hash( item ) for item in self.name] )
 
     class Meta:
         verbose_name = 'History'

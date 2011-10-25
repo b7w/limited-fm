@@ -2,7 +2,6 @@
 
 import logging
 
-from limited import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,10 +9,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.views.decorators.csrf import csrf_exempt
-from limited.files.utils import Thread
 
+from limited import settings
 from limited.serve.manager import DownloadManager
 from limited.files.storage import FileError, FileNotExist, FilePath
+from limited.files.utils import Thread
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
@@ -436,25 +436,23 @@ def UploadView( request, id ):
                     elif ext.lower() in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
                         raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
                     
-            # if files > 3 just send message 'Uploaded N files'
-            if len( files ) > 2:
-                history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
-                history.name = u"%s files" % len( files )
-                for file in files:
-                    fool_path = FilePath.join( path, file.name )
-                    storage.save( fool_path, file )
-                history.save( )
-            # else create message for each file
-            else:
-                for file in files:
-                    fool_path = FilePath.join( path, file.name )
-                    storage.save( fool_path, file )
-                    history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
-                    history.name = file.name
-                    history.save( )
+            history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
+            history.name = []
+            for file in files:
+                fool_path = FilePath.join( path, file.name )
+                storage.save( fool_path, file )
+                history.name.append( file.name )
+            history.save( )
+
         except PermissionError as e:
             logger.info( u"Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
+        except Exception:
+            for file in files:
+                fool_path = FilePath.join( path, file.name )
+                if storage.exists( fool_path ):
+                    storage.remove( fool_path )
+            raise 
 
     return HttpResponseReload( request )
 
