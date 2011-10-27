@@ -8,4 +8,6 @@ Releases notes
 	
     specification
 
+    notes
+    
     plan

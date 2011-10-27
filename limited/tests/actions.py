@@ -4,6 +4,7 @@ from django.utils.html import escape
 
 from limited import settings
 from limited.files.storage import FilePath
+from limited.models import History
 from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder
 
@@ -12,6 +13,9 @@ class ActionTest( StorageTestCase ):
     """
     Test Action api that need pre and post features
     """
+
+    def getLastHistory(self):
+        return History.objects.order_by('-pk')[0]
 
     def test_Upload(self):
         """
@@ -36,6 +40,12 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/content[1].txt" ) == True
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
         assert self.storage.exists( u"Test Folder/content[2].txt" ) == True
+
+        his = self.getLastHistory()
+        assert len(his.name) == 3
+        assert his.name[0] == u"content[1].txt"
+        assert his.name[1] == u"Фото 007.bin"
+        assert his.name[2] == u"content[2].txt"
 
     def test_Clear(self):
         """

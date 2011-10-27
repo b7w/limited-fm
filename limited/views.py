@@ -438,20 +438,22 @@ def UploadView( request, id ):
                     
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
             history.name = []
+            # file paths to delete them after any Exception
+            file_paths = []
             for file in files:
                 fool_path = FilePath.join( path, file.name )
-                storage.save( fool_path, file )
-                history.name.append( file.name )
+                name = storage.save( fool_path, file )
+                file_paths.append( name )
+            history.name = [ FilePath.name( i ) for i in file_paths ]
             history.save( )
 
         except PermissionError as e:
             logger.info( u"Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
         except Exception:
-            for file in files:
-                fool_path = FilePath.join( path, file.name )
-                if storage.exists( fool_path ):
-                    storage.remove( fool_path )
+            for file in file_paths:
+                if storage.exists( file ):
+                    storage.remove( file )
             raise 
 
     return HttpResponseReload( request )

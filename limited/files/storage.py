@@ -109,6 +109,7 @@ class FileStorage( object ):
 
     def save(self, name, file, signal=True ):
         """
+        Return path to the file, that can be another from ``name``.
         Copy to disk to ``name`` open :class:`~django.core.files.base.File` object ``file``.
         Also you need to close it yourself.
         """
@@ -119,6 +120,7 @@ class FileStorage( object ):
             newfile.write( chunk )
 
         newfile.close( )
+        return name
 
     def download(self, url, path, signal=True ):
         """

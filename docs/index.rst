@@ -64,6 +64,9 @@ API Reference:
 Releases notes:
 ------------------------------------
 
+* | **Versions:**
+    :doc:`Release notes <releases/notes>`
+
 * | **Advanced:**
     :doc:`Specification <releases/specification>` |
 	:doc:`Development plan <releases/plan>`
