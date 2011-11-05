@@ -447,6 +447,9 @@ def UploadView( request, id ):
             history.name = [ FilePath.name( i ) for i in file_paths ]
             history.save( )
 
+        except ObjectDoesNotExist:
+            logger.error( u"Upload. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
+            return RenderError( request, u"No such file lib or you don't have permissions" )
         except PermissionError as e:
             logger.info( u"Upload. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )
@@ -480,6 +483,10 @@ def DownloadView( request, id ):
                 return HttpResponseReload( request )
             else:
                 response = manager.build( path )
+
+        except ObjectDoesNotExist:
+            logger.error( u"Download. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
+            return RenderError( request, u"No such file lib or you don't have permissions" )
         except FileNotExist as e:
             logger.error( u"Download. No file or directory find. home_id:{0}, path:{1}".format( lib_id, path ) )
             return RenderError( request, u"No file or directory find" )
