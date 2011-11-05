@@ -123,7 +123,14 @@ admin.site.register( Home, AdminHome )
 class AdminHistory( admin.ModelAdmin ):
     list_display = ( 'user', 'lib', 'type', 'time', )
     list_filter = ( 'time', 'user', 'lib', )
-    readonly_fields = ( 'time', )
+    fieldsets = (
+        ('Reference', { 'fields': ('user', 'lib', 'type',  ) }),
+        ('Info', { 'fields': ('get_files', 'path', 'extra', ) }),
+    )
+    readonly_fields = ( 'time', 'get_files' )
+
+    def get_files(self, obj):
+        return u", ".join( obj.name )
 
 admin.site.register( History, AdminHistory )
 
@@ -147,8 +154,8 @@ class AdminUser( UserAdmin ):
     list_select_related = True
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
     fieldsets = (
-    ('Main', { 'fields': ('username', 'password') }),
-    ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
+        ('Main', { 'fields': ('username', 'password') }),
+        ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
     )
     readonly_fields = ( 'password', )
     inlines = [HomeInline, ]
