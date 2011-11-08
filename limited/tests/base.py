@@ -69,6 +69,7 @@ class StorageTestCase( TestCase ):
         settings.LIMITED_ANONYMOUS = False
         settings.LIMITED_ANONYMOUS_ID = 2
         settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 ** 2
+        settings.LIMITED_FILES_ALLOWED = { 'ONLY': [], 'EXCEPT': ['rar', ], }
         settings.LIMITED_SERVE = {
             'BACKEND': 'limited.serve.backends.default',
             'INTERNAL_URL': '/protected',

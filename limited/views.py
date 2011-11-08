@@ -8,7 +8,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
-from django.views.decorators.csrf import csrf_exempt
 
 from limited import settings
 from limited.serve.manager import DownloadManager
@@ -65,7 +64,6 @@ def IndexView( request ):
         } )
 
 
-@csrf_exempt
 def FilesView( request, id ):
     """
     Main browser and history widget
@@ -403,7 +401,6 @@ def ActionClear( request, id, command ):
     return HttpResponseReload( request )
 
 
-@csrf_exempt
 def UploadView( request, id ):
     """
     Files upload to
