@@ -80,6 +80,8 @@ class FilePath( object ):
 
 
 class FileStorage( object ):
+    xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
     def __init__(self, lib ):
         self.lib = lib
         self.root = lib.get_path()
@@ -450,14 +452,18 @@ class FileStorage( object ):
         Return unic hash name for the file name.
         Consists of 3 upper and lower cases letters and numbers.
         """
-        id = abs( hash( name ) ) >> 8
-        xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        xlen = len( xdict )
+        xlen = len( FileStorage.xdict )
+        id = abs( hash( name ) )
+        max = xlen**3
+
+        while id > max:
+            id = id >> 2
+            
         value = ""
-        while id >= xlen:
-            id = id / xlen
+        while id != 0:
             remainder = id % xlen
-            value += xdict[remainder]
+            value += FileStorage.xdict[remainder]
+            id = id / xlen
         return value
 
     def available_name(self, path):

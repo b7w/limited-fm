@@ -16,4 +16,5 @@ syntax: regexp
 
 ^special/
 ^static/
+^html/
 
