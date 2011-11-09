@@ -2,6 +2,7 @@
 import logging
 
 from django.db import models
+from django.forms.widgets import Textarea
 from django.utils import simplejson
 
 from limited.utils import TreeNode
@@ -16,11 +17,16 @@ class JsonTreeField( models.TextField ):
 
     description = "Json Tree object"
 
+    def formfield(self, **kwargs):
+        kwargs['widget'] = JSONWidget( attrs={ 'class': 'vLargeTextField' } )
+        return super( JsonTreeField, self ).formfield( **kwargs )
+
     def get_db_prep_value(self, value):
         if value == '' or value == None:
             return None
-        json = value.toDict( )
-        return simplejson.dumps( json )
+        if isinstance( value, basestring ):
+            return value
+        return simplejson.dumps( value.toDict( ) )
 
     def to_python(self, value):
         if value == '' or value == None:
@@ -29,6 +35,17 @@ class JsonTreeField( models.TextField ):
             return value
         DictData = simplejson.loads( value )
         return TreeNode.build( DictData )
+
+
+class JSONWidget( Textarea ):
+    """
+    Prettify dumps of all non-string JSON data.
+    """
+
+    def render(self, name, value, attrs=None):
+        if not isinstance( value, basestring ) and value is not None:
+            value = simplejson.dumps( value.toDict( ), indent=4, sort_keys=True )
+        return super( JSONWidget, self ).render( name, value, attrs )
 
 
 class TextListField( models.CharField ):

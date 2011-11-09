@@ -16,7 +16,6 @@ Limited structure
   Documentation is in `Sphinx <http://sphinx.pocoo.org/>`__ format.
   You can build it with ``make html`` in *docs* dir.
   For more look `here <http://sphinx.pocoo.org/contents.html>`__.
-  *dump.json* file is test data. *LICENSE* is a BSD license text.
   *settings.py.smpl* sample configuration file.
   *urls.py* provide basic Django auth with limited templates, admin site, and limited url module.
 

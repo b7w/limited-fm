@@ -23,7 +23,7 @@ class AdminFileLib( admin.ModelAdmin ):
             'fields': ('dir_cache', 'dir_trash', 'cache', )
         }),
     )
-    readonly_fields = ( 'dir_cache', 'dir_trash', 'get_cache', 'get_trash', 'cache', )
+    readonly_fields = ( 'dir_cache', 'dir_trash', 'get_cache', 'get_trash', )
 
     def get_cache(self, obj):
         return filesizeformat( obj.get_cache_size( ) )
