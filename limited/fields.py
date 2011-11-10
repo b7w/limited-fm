@@ -21,7 +21,7 @@ class JsonTreeField( models.TextField ):
         kwargs['widget'] = JSONWidget( attrs={ 'class': 'vLargeTextField' } )
         return super( JsonTreeField, self ).formfield( **kwargs )
 
-    def get_db_prep_value(self, value):
+    def get_db_prep_value(self, value, connection, prepared=False):
         if value == '' or value == None:
             return None
         if isinstance( value, basestring ):
@@ -56,7 +56,7 @@ class TextListField( models.CharField ):
 
     description = "Comma separated object"
 
-    def get_db_prep_value(self, value):
+    def get_db_prep_value(self, value, connection, prepared=False):
         """
         Truncate list if his items in sum greater than ``max_length``.
         And log this error.

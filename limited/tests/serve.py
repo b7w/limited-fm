@@ -89,6 +89,7 @@ class DownloadManagerTest( StorageTestCase ):
         assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"content.txt".encode( 'utf-8' )
         assert response.content.__len__( ) != 0
 
+        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
         response = self.manager.build( u"Test Folder" )
         assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"Test Folder.zip".encode( 'utf-8' )
         assert response.content.__len__( ) != 0
