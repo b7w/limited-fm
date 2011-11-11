@@ -3,43 +3,42 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 
-from iviewer.utils import ResizeImage
+from iviewer.utils import ResizeImage, ResizeOptions, ResizeOptionsError
 
 from limited import settings
 from limited.files.storage import FileError, FileNotExist, FilePath
 from limited.files.utils import FileUnicName
-from limited.models import History
 from limited.controls import get_home
 from limited.serve.manager import DownloadManager
 from limited.utils import split_path
 from limited.views import RenderError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger( __name__ )
 
 
 def ImagesView( request, id ):
     """
-    Main browser and history widget
+    Gallery view
 
-    template :template:`limited/files.html`
+    template :template:`iviewer/images.html`
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
-    path = request.GET.get('p', '')
+    path = request.GET.get( 'p', '' )
 
     try:
         home = get_home( request.user, lib_id )
 
         patharr = split_path( path )
 
-        File = home.lib.getStorage()
+        File = home.lib.getStorage( )
         files = File.listdir( path )
-        files = [ i for i in files if i["name"].lower().endswith(".jpg") ]
+        files = [i for i in files if i["name"].lower( ).endswith( ".jpg" )]
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
@@ -60,6 +59,7 @@ def ImagesView( request, id ):
 
 def ResizeView( request, id, size ):
     """
+    Resize view 
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
@@ -67,29 +67,29 @@ def ResizeView( request, id, size ):
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )
-        options = size.split( 'x' )
-        width = int( options[0] )
-        height = int( options[1] )
-        size = max( width, height )
+
+        options = ResizeOptions( size )
         try:
             home = get_home( request.user, lib_id )
             storage = home.lib.getStorage( )
 
             HashBuilder = FileUnicName( )
-            hash_path = HashBuilder.build( path, extra=size )
+            hash_path = HashBuilder.build( path, extra=options.size )
             hash_path = FilePath.join( settings.LIMITED_CACHE_PATH, hash_path + ".jpg" )
             bigger = False
+            if not storage.exists( settings.LIMITED_CACHE_PATH ):
+                storage.mkdir( settings.LIMITED_CACHE_PATH )
             if not storage.exists( hash_path ):
                 filein = storage.open( path, mode='rb', signal=False )
                 newImage = ResizeImage( filein )
-                bigger = newImage.isBigger( width, height )
+                bigger = newImage.isBigger( options.width, options.height )
                 if not bigger:
-                    if 'C' in options:
-                        w, h = newImage.minSize( size )
+                    if options.crop:
+                        w, h = newImage.minSize( options.size )
                         newImage.resize( w, h )
-                        newImage.cropCenter( width, height )
+                        newImage.cropCenter( options.width, options.height )
                     else:
-                        w, h = newImage.maxSize( size )
+                        w, h = newImage.maxSize( options.size )
                         newImage.resize( w, h )
                     fileout = storage.open( hash_path, mode='wb', signal=False )
                     newImage.saveTo( fileout )
@@ -100,9 +100,14 @@ def ResizeView( request, id, size ):
                 response = manager.build( hash_path )
             else:
                 response = manager.build( path )
+
+        except ResizeOptionsError:
+            raise Http404( u"Wrong resize option" )
+        except ObjectDoesNotExist:
+            logger.error( u"ResizeView. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
+            return RenderError( request, u"No such file lib or you don't have permissions" )
         except FileNotExist as e:
             logger.error( u"ResizeView. No file or directory find. home_id:{0}, path:{1}".format( lib_id, path ) )
-            #return RenderError( request, u"No file or directory find" + str( e ) )
-            raise 
+            raise Http404( u"No file or directory find" )
 
         return response
