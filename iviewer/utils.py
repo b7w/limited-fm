@@ -118,12 +118,18 @@ class ResizeOptions:
     crop - need or not.
     """
 
-    def __init__(self, string):
+    def __init__(self, options):
+        """
+        Get sting with options or settings dict
+        """
         self.width = 0
         self.height = 0
         self.size = 0
         self.crop = False
-        self.parse( string )
+        if isinstance( options, dict ):
+            self.setFromSetting( options )
+        else:
+            self.parse( options )
 
     def parse(self, string):
         """
@@ -138,3 +144,21 @@ class ResizeOptions:
         except Exception as e:
             logger.error( u"ResizeOptions. {0}. string:{1}".format( e, string ) )
             raise ResizeOptionsError( )
+
+    def setFromSetting(self, value):
+        """
+        Set values from settings.IVIEWER_BIG_IMAGE for example
+        """
+        self.width = value['WIDTH']
+        self.height = value['HEIGHT']
+        self.size = max( self.width, self.height )
+        self.crop = 'CROP' in value and value['CROP'] == True
+
+    def toString(self):
+        """
+        Return string from witch then parametrs can be parsed in ``self.parse``
+        """
+        tmp = u"{0}x{1}".format( self.width, self.height )
+        if self.crop:
+            tmp += u"xC"
+        return tmp

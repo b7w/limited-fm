@@ -39,6 +39,9 @@ def ImagesView( request, id ):
         File = home.lib.getStorage( )
         files = File.listdir( path )
         files = [i for i in files if i["name"].lower( ).endswith( ".jpg" )]
+
+        small_image = ResizeOptions( settings.IVIEWER_SMALL_IMAGE )
+        big_image = ResizeOptions( settings.IVIEWER_BIG_IMAGE )
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
@@ -54,6 +57,8 @@ def ImagesView( request, id ):
         'home': home.lib.name,
         'permission': home.permission,
         'files': files,
+        'small_image' : small_image,
+        'big_image': big_image,
         } )
 
 

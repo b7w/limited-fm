@@ -150,3 +150,30 @@ Default: ``{ 'BACKEND': 'limited.serve.backends.default', 'INTERNAL_URL': '/prot
 
 | Also there is 'Content-Type' argument, his default value 'application/octet-stream'.
   But if set '', nginx will detect content-type automatic.
+
+
+
+.. _SETTINGS_SMALL_IMAGE:
+
+IVIEWER_SMALL_IMAGE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``{ 'WIDTH': 200, 'HEIGHT': 200, 'CROP': True, }``
+
+| Limited Viewer small image size and crop options, that used in picture preview.
+  By default crop is turn on. This makes the picture more lined.
+  Crop option can be omitted and set by default false.
+  If crop option is false, image will be resized so that would be fully fit in the width and height.
+
+
+
+.. _SETTINGS_BIG_IMAGE:
+
+IVIEWER_BIG_IMAGE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``{ 'WIDTH': 1280, 'HEIGHT': 720, 'CROP': True, }``
+
+| Limited Viewer big image size and crop options, that used in full picture.
+  Crop option can be omitted and set by default false.
+  If crop option is false, image will be resized so that would be fully fit in the width and height.

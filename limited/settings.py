@@ -43,5 +43,19 @@ LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {
     'INTERNAL_URL': '/protected',
 } )
 
+
 # Check if iViewer is loaded
 LIMITED_IVIEWER = "iviewer" in settings.INSTALLED_APPS
+
+# Limited Viewer small image size and other options
+IVIEWER_SMALL_IMAGE = getattr( settings, 'IVIEWER_SMALL_IMAGE', {
+    'WIDTH': 200,
+    'HEIGHT': 200,
+    'CROP': True,
+} )
+
+# Limited Viewer big image size and other options
+IVIEWER_BIG_IMAGE = getattr( settings, 'IVIEWER_BIG_IMAGE', {
+    'WIDTH': 1280,
+    'HEIGHT': 720,
+} )

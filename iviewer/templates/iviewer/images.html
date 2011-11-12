@@ -27,9 +27,9 @@
             <div class="image">
                 <div class="imagethumb">
                     <a rel="shadowbox[album];player=img" type="image/jpeg"
-                       href="{% url resize home_id '1280x720' %}?p={{ item.url }}"
-                       style="width: 200px;height: 200px;">
-                        <img class="hide" src="{% url resize home_id '200x200xC' %}?p={{ item.url }}"/>
+                       href="{% url resize home_id big_image.toString %}?p={{ item.url }}"
+                       style="width: {{ small_image.width }}px;height: {{ small_image.height }}px;">
+                        <img class="hide" src="{% url resize home_id small_image.toString %}?p={{ item.url }}"/>
                     </a>
                 </div>
             </div>
