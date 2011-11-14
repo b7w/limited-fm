@@ -50,7 +50,6 @@ class ResizeImage:
         """
         x_offset = ( self.width - width ) / 2
         y_offset = ( self.height - height ) / 2
-        print x_offset, y_offset
         self.crop( x_offset, y_offset, x_offset + width, y_offset + height )
 
     def isPortrait(self):
