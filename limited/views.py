@@ -423,6 +423,10 @@ def UploadView( request, id ):
 
             files = request.FILES.getlist( u'files' )
 
+            if len(files) == 0:
+                messages.warning( request, "No any files selected" )
+                return HttpResponseReload( request )
+
             for file in files:
                 pair = file.name.rsplit( '.' )
                 if pair.__len__() > 1:

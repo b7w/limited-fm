@@ -41,6 +41,7 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
         assert self.storage.exists( u"Test Folder/content[2].txt" ) == True
 
+        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
         his = self.getLastHistory()
         assert len(his.name) == 3
         assert his.name[0] == u"content[1].txt"
