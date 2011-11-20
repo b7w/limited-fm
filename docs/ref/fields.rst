@@ -11,7 +11,7 @@ Json tree field
 ====================================
 
 | Field :class:`limited.fields.JsonTreeField` is based on :class:`~django.db.models.TextField`.
-  It is a simple field to store in databases trees in json format.
+  It is a simple field to store tree in database in json format.
   In python implementation it is a :class:`limited.utils.TreeNode`.
   It is used to store file lib cache in :class:`limited.models.FileLib`.
   If field is None of empty string it return TreeNode with 'root' name and '' hash.
