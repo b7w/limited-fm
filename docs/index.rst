@@ -42,7 +42,8 @@ The development process
 ------------------------------------
 
 * | **Models:**
-	:doc:`Overview <ref/models>`
+	:doc:`Overview <ref/models>` |
+	:doc:`Extra fields <ref/fields>`
 
 * | **Testing:**
 	:doc:`Overview <topics/testing>`

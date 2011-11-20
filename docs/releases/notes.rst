@@ -28,3 +28,14 @@ Release notes
   Upload restriction in Opera;
   Wrong upload names in history if the same name exists;
   Fix *ObjectDoesNotExist* if try to download/upload from lib that not in users home.
+
+
+1.0.2
+------------------------------------
+
+| **Info notes**. Release with some fixes. Plus add image rename.png for warning messages.
+
+| **Fix errors**.
+  Fix Deprecation warning with get_db_prep_lookup;
+  Fix some server test that not run on others machines;
+  Fix empty history when upload no files;

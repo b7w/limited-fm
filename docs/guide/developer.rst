@@ -74,6 +74,8 @@ Limited structure
 
 * | controls: Function that get some data from database or utils related to web.
 
+* | fields: Some extra Model fields and widgets.
+
 * | utils: Some small functions.
 
 * | settings: Module to import default settings for limited app.
