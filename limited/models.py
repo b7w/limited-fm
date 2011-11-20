@@ -163,7 +163,7 @@ class History( models.Model ):
     user = models.ForeignKey( User )
     lib = models.ForeignKey( FileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
-    name = TextListField( max_length=1024, null=False )
+    files = TextListField( max_length=1024, null=False )
     path = models.CharField( max_length=256, null=True, blank=True )
     extra = models.CharField( max_length=256, null=True, blank=True  )
     time = models.DateTimeField( auto_now_add=True, null=False )
@@ -197,7 +197,7 @@ class History( models.Model ):
         """
         Return FileStorage :func:`~limited.files.storage.FileStorage.hash` for file name
         """
-        return ';'.join( [FileStorage.hash( item ) for item in self.name] )
+        return ';'.join( [FileStorage.hash( item ) for item in self.files] )
 
     class Meta:
         verbose_name = 'History'

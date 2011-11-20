@@ -214,7 +214,7 @@ History model
           You can call all this action like attributes in upper case. For example ``History.CREATE``.
           It will be useful to create new objects.
 
-    .. attribute:: name
+    .. attribute:: files
 
         | *TextListField*, max_length=1024, null=False
         | Store files name separated by comma.

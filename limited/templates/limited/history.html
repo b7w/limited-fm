@@ -66,12 +66,12 @@
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
-{#                    {% joinpath item.path item.name as path %}#}
-                    {% if item.name|length == 1 %}
-                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.name.0|truncatepath }}</a>
-                        <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name.0|urlencode }}">download</a>
+{#                    {% joinpath item.path item.files as path %}#}
+                    {% if item.files|length == 1 %}
+                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.files.0|truncatepath }}</a>
+                        <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.files.0|urlencode }}">download</a>
                     {% else %}
-                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.name|join:", "|truncatepath }}</a>
+                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.files|join:", "|truncatepath }}</a>
                     {% endif %}
                     {% if item.is_extra %}
                         {{ item.get_extra|safe }}

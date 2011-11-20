@@ -7,7 +7,6 @@ from django.db.models.query_utils import Q
 
 from limited import settings
 from limited.models import Home, FileLib, Permission
-from limited.files.storage import FileStorage
 
 
 logger = logging.getLogger(__name__)

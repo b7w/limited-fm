@@ -53,7 +53,7 @@ def IndexView( request ):
     # from all available libs    
     history = History.objects.\
               select_related( 'user', 'lib' ).\
-              only( 'lib', 'type', 'name', 'path', 'extra', 'user__username', 'lib__name' ).\
+              only( 'lib', 'type', 'files', 'path', 'extra', 'user__username', 'lib__name' ).\
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
@@ -81,7 +81,7 @@ def FilesView( request, id ):
 
         history = History.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
+                  only( 'lib', 'type', 'files', 'path', 'extra', 'user__username' ).\
                   filter( lib=lib_id ).\
                   order_by( '-id' )[0:8]
 
@@ -130,7 +130,7 @@ def HistoryView( request, id ):
 
         history = History.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'name', 'path', 'extra', 'time', 'user__username' ).\
+                  only( 'lib', 'type', 'files', 'path', 'extra', 'time', 'user__username' ).\
                   filter( lib=lib_id ).\
                   order_by( '-id' )[0:30]
 
@@ -166,7 +166,7 @@ def TrashView( request, id ):
 
         history = History.objects.\
                   select_related( 'user' ).\
-                  only( 'lib', 'type', 'name', 'path', 'extra', 'user__username' ).\
+                  only( 'lib', 'type', 'files', 'path', 'extra', 'user__username' ).\
                   filter( lib=lib_id ).\
                   order_by( '-id' )[0:5]
 
@@ -254,7 +254,7 @@ def ActionView( request, id, command ):
             messages.success( request, u"'%s' successfully deleted" % FilePath.name( path ) )
             history.user = user
             history.type = History.DELETE
-            history.name = FilePath.name( path )
+            history.files = FilePath.name( path )
             history.save( )
         except ( PermissionError, FileError ) as e:
             logger.error( u"Action delete. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
@@ -269,7 +269,7 @@ def ActionView( request, id, command ):
             messages.success( request, u"'%s' successfully moved to trash" % FilePath.name( path ) )
             history.user = user
             history.type = History.TRASH
-            history.name = FilePath.name( path )
+            history.files = FilePath.name( path )
             history.save( )
         except ( PermissionError, FileError ) as e:
             logger.error( u"Action trash. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
@@ -285,7 +285,7 @@ def ActionView( request, id, command ):
             messages.success( request, u"'%s' successfully rename to '%s'" % ( FilePath.name( path ), name) )
             history.user = user
             history.type = History.RENAME
-            history.name = name
+            history.files = name
             history.save( )
         except ( PermissionError, FileError ) as e:
             logger.error( u"Action rename. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
@@ -312,7 +312,7 @@ def ActionView( request, id, command ):
             messages.success( request, u"'%s' successfully moved to '%s'" % ( FilePath.name( path ), path2) )
             history.user = user
             history.type = History.MOVE
-            history.name = FilePath.name( path )
+            history.files = FilePath.name( path )
             history.path = path2
             history.save( )
         except ( PermissionError, FileError ) as e:
@@ -334,7 +334,7 @@ def ActionView( request, id, command ):
                 messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
                 history.user = user
                 history.type = History.LINK
-                history.name = FilePath.name( path )
+                history.files = FilePath.name( path )
                 history.extra = link.hash
                 history.path = FilePath.dirname( path )
                 history.save( )
@@ -438,14 +438,13 @@ def UploadView( request, id ):
                         raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
                     
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
-            history.name = []
             # file paths to delete them after any Exception
             file_paths = []
             for file in files:
                 fool_path = FilePath.join( path, file.name )
                 name = storage.save( fool_path, file )
                 file_paths.append( name )
-            history.name = [ FilePath.name( i ) for i in file_paths ]
+            history.files = [ FilePath.name( i ) for i in file_paths ]
             history.save( )
 
         except ObjectDoesNotExist:

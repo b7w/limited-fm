@@ -43,10 +43,10 @@ class ActionTest( StorageTestCase ):
 
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
         his = self.getLastHistory()
-        assert len(his.name) == 3
-        assert his.name[0] == u"content[1].txt"
-        assert his.name[1] == u"Фото 007.bin"
-        assert his.name[2] == u"content[2].txt"
+        assert len(his.files) == 3
+        assert his.files[0] == u"content[1].txt"
+        assert his.files[1] == u"Фото 007.bin"
+        assert his.files[2] == u"content[2].txt"
 
     def test_Upload_Files_Allowed(self):
         """
