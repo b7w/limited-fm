@@ -65,7 +65,10 @@ class FilePath( object ):
         """
         If src include '../' or './' normalise it
         """
-        return os.path.normpath( path )
+        path = os.path.normpath( path )
+        if path == u'.':
+            return u''
+        return path
 
     @staticmethod
     def split( path ):
@@ -104,7 +107,7 @@ class FileStorage( object ):
         Write to file ``name`` same data ``content``
         """
         name = self.available_name( name )
-        
+
         newfile = self.open( name, 'wb', signal=signal )
         newfile.write( content )
         newfile.close( )
@@ -163,13 +166,19 @@ class FileStorage( object ):
         """
         Return absolute filesystem path to file
         """
-        return FilePath.join( self.root, name )
+        path = FilePath.norm( name )
+        if u"../" in path:
+            raise FileError( u"IOError, Permission denied")
+        return FilePath.join( self.root, path )
 
     def homepath(self, name):
         """
         Return path from :ref:`LIMITED_ROOT_PATH <SETTINGS_ROOT_PATH>`
         """
-        return FilePath.join( self.home, name )
+        path = FilePath.norm( name )
+        if u"../" in path:
+            raise FileError( u"IOError, Permission denied" )
+        return FilePath.join( self.home, path )
 
     def remove(self, name, signal=True ):
         """

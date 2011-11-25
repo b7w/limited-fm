@@ -35,9 +35,18 @@ Release notes
 
 | **Info notes**. Release with some fixes. Plus add image rename.png for warning messages.
   Rename History field name to files, need db update.
-  Add docs for extra model fields
+  Add docs for extra model fields.
 
 | **Fix errors**.
   Fix Deprecation warning with get_db_prep_lookup;
   Fix some server test that not run on others machines;
   Fix empty history when upload no files;
+
+
+1.0.3
+------------------------------------
+
+| **Info notes**. Critical error.
+
+| **Fix errors**.
+  Fix critical error listing '../' directory, when with FileLib permission user can look all FS;
