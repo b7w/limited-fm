@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from limited import settings
 
+from limited import settings
 from limited.files.storage import FileStorage, FilePath, FileError, FileNotExist
 
 class FileStorageApi: #( FileStorage ):
@@ -14,6 +14,14 @@ class FileStorageApi: #( FileStorage ):
 
     def __init__(self, lib ):
         self.fs = FileStorage( lib )
+
+    def homepath(self, path):
+        path = self.check( path )
+        return self.fs.homepath( path )
+
+    def open(self, path, mode='rb', signal=True):
+        path = self.check( path )
+        return self.fs.open( path, mode, signal )
 
     def check(self, path):
         """
@@ -99,6 +107,10 @@ class FileStorageApi: #( FileStorage ):
     def remove(self, path, signal=True):
         path = self.check( path )
         self.fs.remove( path, signal )
+
+    def clear(self, path, older=None, signal=True ):
+        path = self.check( path )
+        self.fs.clear(path, older=older, signal=signal )
 
     @staticmethod
     def hash(name):

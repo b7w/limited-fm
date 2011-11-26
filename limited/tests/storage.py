@@ -23,7 +23,7 @@ class FileStorageTest( StorageTestCase ):
         assert FilePath.join( u"/path", "name" ) == u"/path/name"
         assert FilePath.join( u"/root/path", "name" ) == u"/root/path/name"
         assert FilePath.join( u"/path/", "name" ) == u"/path/name"
-        assert FilePath.join( u"/path/", "/name" ) != u"/path/name", " = /name"
+        assert FilePath.join( u"/path/", "/name" ) == u"/path/name"
 
         assert FilePath.name( u"/path/name" ) == u"name"
         assert FilePath.name( u"/path/name" ) == u"name"
@@ -238,9 +238,9 @@ class FileStorageTest( StorageTestCase ):
         """
         assert self.storage.listfiles( u"Test Folder" ).__len__( ) == 0
 
-        abs = FilePath.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
+        abs = self.lib.get_path( )
         real = {
-            FilePath.join( abs, u'content.txt' ): u'content.txt',
+            FilePath.join( abs, u"content.txt" ): u"content.txt",
             FilePath.join( abs, u"Фото 007.bin" ): u"Фото 007.bin",
             }
         assert self.storage.listfiles( "" ) == real

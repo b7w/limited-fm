@@ -385,10 +385,10 @@ class FileStorage( object ):
         if not self.exists( name ):
             raise FileNotExist( u"'%s' not found" % name )
 
-        if self.isfile( self.abspath( name ) ):
+        if self.isfile( name ):
             return os.path.getsize( self.abspath( name ) )
 
-        if dir and self.isdir( self.abspath( name ) ):
+        if dir and self.isdir( name ):
             key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
             if cached == True:
                 size = cache.get( key )
@@ -475,7 +475,7 @@ class FileStorage( object ):
         file, ext = os.path.splitext( path )
         i = 1
         while i != 0:
-            if self.exists( self.abspath( path ) ):
+            if self.exists( path ):
                 path = file + u'[' + unicode( i ) + u']' + ext
                 i += 1
             else:

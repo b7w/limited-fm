@@ -5,6 +5,7 @@ import time
 from django.test import TestCase
 
 from limited import settings
+from limited.files.storage import FileStorage
 from limited.models import FileLib
 from limited.tests.data import InitData
 
@@ -62,9 +63,12 @@ class StorageTestCase( TestCase ):
         self.data.LoadAll()
 
         self.lib = FileLib.objects.get( name="Test" )
-        self.storage = self.lib.getStorage()
+        self.storage = FileStorage( self.lib )
+        self.api = self.lib.getStorage()
+
         self.lib2 = FileLib.objects.get( name="FileManager" )
-        self.storage2 = self.lib2.getStorage()
+        self.api2 = self.lib2.getStorage()
+        self.storage2 = FileStorage( self.lib2 )
 
         settings.LIMITED_ANONYMOUS = False
         settings.LIMITED_ANONYMOUS_ID = 2
