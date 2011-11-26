@@ -74,7 +74,10 @@ def FilesView( request, id ):
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
     
     lib_id = int( id )
-    path = request.GET.get('p', '')
+    path = request.GET.get( 'p', '' )
+    if FilePath.check( path ) == False:
+        logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+        return RenderError( request, u"IOError, Permission denied"  )
 
     try:
         home = get_home( request.user, lib_id )
@@ -122,7 +125,7 @@ def HistoryView( request, id ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     lib_id = int( id )
 
     try:
@@ -172,10 +175,8 @@ def TrashView( request, id ):
 
         patharr = split_path( 'Trash' )
 
-        File = home.lib.getStorage()
-        if not File.exists( settings.LIMITED_TRASH_PATH ):
-            File.mkdir( settings.LIMITED_TRASH_PATH )
-        files = File.listdir( settings.LIMITED_TRASH_PATH )
+        File = home.lib.getStorage( )
+        files = File.listTrash( )
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -207,6 +208,9 @@ def ActionView( request, id, command ):
     
     lib_id = int( id )
     path = request.GET.get('p', '')
+    if FilePath.check( path ) == False:
+        logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+        return RenderError( request, u"IOError, Permission denied"  )
     
     home = get_home( request.user, lib_id)
     user = get_user( request.user )
@@ -408,12 +412,17 @@ def UploadView( request, id ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
+    lib_id = int(id)
+    path = request.POST['p']
+    if FilePath.check( path ) == False:
+        logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+        return RenderError( request, u"IOError, Permission denied" )
+
     if request.method == u"POST":
         try:
-            lib_id = int(id)
-            path = request.POST['p']
-
+            # file paths to delete them after any Exception
+            file_paths = []
             home = get_home( request.user, lib_id)
             if not home.permission.upload:
                 raise PermissionError( u"You have no permission to upload" )
@@ -438,8 +447,7 @@ def UploadView( request, id ):
                         raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
                     
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
-            # file paths to delete them after any Exception
-            file_paths = []
+
             for file in files:
                 fool_path = FilePath.join( path, file.name )
                 name = storage.save( fool_path, file )
@@ -473,6 +481,9 @@ def DownloadView( request, id ):
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )
+        if FilePath.check( path ) == False:
+            logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+            return RenderError( request, u"IOError, Permission denied"  )
 
         try:
             home = get_home( request.user, lib_id )

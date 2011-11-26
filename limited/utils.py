@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import urlquote
 
+from limited.files.storage import FilePath
+
 
 class HttpResponseReload( HttpResponse ):
     status_code = 302
@@ -37,7 +39,7 @@ def split_path( path ):
             return data
         return data
 
-    return _split_path( path, [] )
+    return _split_path( FilePath.norm( path ), [] )
 
 
 def url_params( **kwargs ):

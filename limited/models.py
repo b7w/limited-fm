@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 
 from limited import settings
 from limited.fields import JsonTreeField, TextListField
+from limited.files.api import FileStorageApi
 from limited.files.storage import FilePath, FileStorage
 
 class PermissionError( Exception ):
@@ -76,7 +77,7 @@ class FileLib( models.Model ):
     cache = JsonTreeField( null=True, blank=True )
 
     def getStorage(self):
-        return FileStorage( self )
+        return FileStorageApi( self )
 
     def get_path(self, root=None ):
         """
@@ -197,7 +198,7 @@ class History( models.Model ):
         """
         Return FileStorage :func:`~limited.files.storage.FileStorage.hash` for file name
         """
-        return ';'.join( [FileStorage.hash( item ) for item in self.files] )
+        return ';'.join( [FileStorageApi.hash( item ) for item in self.files] )
 
     class Meta:
         verbose_name = 'History'

@@ -43,6 +43,8 @@ class FilePath( object ):
         join to path, if ``mane`` start with '/'
         return ``name``
         """
+        if len( name ) > 1 and name[0] == u'/':
+            name = name[1:]
         return os.path.join( path, name )
 
     @staticmethod
@@ -71,19 +73,34 @@ class FilePath( object ):
         return path
 
     @staticmethod
+    def check( path, norm=False ):
+        """
+        Check is path has some strange sub strings after FilePath.norm
+        like '../', '/', '.'
+        if find - return False
+        if norm=True, than path = FilePath.norm( path ). By default is False
+        """
+        if norm == True:
+            path = FilePath.norm( path )
+        if path.startswith( u'/' ):
+            return False
+        elif u".." in path:
+            return False
+        return True
+
+    @staticmethod
     def split( path ):
         """
         Split path
         """
-        if len(path) > 1 and path[0] == '/':
+        if len( path ) > 1 and path[0] == '/':
             path = path[1:]
-        if len(path) > 1 and path[-1] == '/':
+        if len( path ) > 1 and path[-1] == '/':
             path = path[:-1]
         return path.split( '/' )
 
 
 class FileStorage( object ):
-    xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     def __init__(self, lib ):
         self.lib = lib
@@ -167,8 +184,6 @@ class FileStorage( object ):
         Return absolute filesystem path to file
         """
         path = FilePath.norm( name )
-        if u"../" in path:
-            raise FileError( u"IOError, Permission denied")
         return FilePath.join( self.root, path )
 
     def homepath(self, name):
@@ -176,8 +191,6 @@ class FileStorage( object ):
         Return path from :ref:`LIMITED_ROOT_PATH <SETTINGS_ROOT_PATH>`
         """
         path = FilePath.norm( name )
-        if u"../" in path:
-            raise FileError( u"IOError, Permission denied" )
         return FilePath.join( self.home, path )
 
     def remove(self, name, signal=True ):
@@ -327,7 +340,6 @@ class FileStorage( object ):
                     'class': ccl,
                     'name': item,
                     'url': self.url( fullpath ),
-                    'hash': self.hash( item ),
                     'size': self.size( fullpath ),
                     'time': self.modified_time( fullpath ),
                     } )
@@ -454,26 +466,6 @@ class FileStorage( object ):
         Return urlquote path name
         """
         return urlquote(name)
-
-    @staticmethod
-    def hash(name):
-        """
-        Return unic hash name for the file name.
-        Consists of 3 upper and lower cases letters and numbers.
-        """
-        xlen = len( FileStorage.xdict )
-        id = abs( hash( name ) )
-        max = xlen**3
-
-        while id > max:
-            id = id >> 2
-            
-        value = ""
-        while id != 0:
-            remainder = id % xlen
-            value += FileStorage.xdict[remainder]
-            id = id / xlen
-        return value
 
     def available_name(self, path):
         """
