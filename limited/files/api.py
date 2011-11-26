@@ -31,8 +31,10 @@ class FileStorageApi: #( FileStorage ):
         path = FilePath.norm( path )
         if FilePath.check( path ) == False:
             raise FileError( u"IOError, Permission denied" )
-        if ( path.startswith( u'.' ) or u'/.' in path ) and not settings.LIMITED_TRASH_PATH:
-            raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
+        #TODO: TRASH and CACHE are visible, is is not good.
+        if path.startswith( u'.' ) or u'/.' in path:
+            if settings.LIMITED_TRASH_PATH not in path and settings.LIMITED_CACHE_PATH not in path:
+                raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % path )
         return path
 
     def listdir(self, path, hidden=False):
@@ -50,7 +52,6 @@ class FileStorageApi: #( FileStorage ):
         """
         Safe call for list trash files
         """
-        #TODO: LIMITED_TRASH_PATH is visible, is is not good.
         if not self.fs.exists( settings.LIMITED_TRASH_PATH ):
             self.fs.mkdir( settings.LIMITED_TRASH_PATH )
         return self.fs.listdir( settings.LIMITED_TRASH_PATH, hidden=False )

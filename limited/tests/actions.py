@@ -132,3 +132,14 @@ class ActionTest( StorageTestCase ):
         assert resp.status_code == 200
         self.timer.sleep()
         assert self.storage.exists( u"logo3w.png" ) == True
+
+    def test_Chroot(self):
+        """
+        Test to inject in path something like that '../'
+        """
+        self.client.login( username='B7W', password='root' )
+        for item in [ '../', 'Test Folder/../../', '/', '/home', ]:
+            link = urlbilder( 'browser', self.lib.id, p=item )
+            resp = self.client.get( link, follow=True )
+            assert resp.status_code == 200
+            assert "IOError" in resp.content, link

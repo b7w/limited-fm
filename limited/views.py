@@ -75,7 +75,7 @@ def FilesView( request, id ):
     
     lib_id = int( id )
     path = request.GET.get( 'p', '' )
-    if FilePath.check( path ) == False:
+    if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"IOError, Permission denied"  )
 
@@ -208,7 +208,7 @@ def ActionView( request, id, command ):
     
     lib_id = int( id )
     path = request.GET.get('p', '')
-    if FilePath.check( path ) == False:
+    if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"IOError, Permission denied"  )
     
@@ -415,7 +415,7 @@ def UploadView( request, id ):
 
     lib_id = int(id)
     path = request.POST['p']
-    if FilePath.check( path ) == False:
+    if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"IOError, Permission denied" )
 
@@ -481,7 +481,7 @@ def DownloadView( request, id ):
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )
-        if FilePath.check( path ) == False:
+        if FilePath.check( path, norm=True ) == False:
             logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
             return RenderError( request, u"IOError, Permission denied"  )
 
