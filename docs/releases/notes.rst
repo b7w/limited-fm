@@ -46,7 +46,12 @@ Release notes
 1.0.3
 ------------------------------------
 
-| **Info notes**. Critical error.
+| **Info notes**. Fix a lot of critical errors that allow to look file system.
+  Make :class:`limited.files.api.FileStorageApi` proxy for :class:`~limited.files.storage.FileStorage`.
+  Move hash method to new class. Now it checks and controls chrooting in file lib.
+  Add :func:`~limited.files.storage.FilePath.check` to check if path is strange.
 
 | **Fix errors**.
   Fix critical error listing '../' directory, when with FileLib permission user can look all FS;
+  Fix :func:`~limited.files.storage.FilePath.join` when join '/smth' and '/smth2' get '/smth2';
+  Fix calling :func:`~limited.files.storage.FileStorage.abspath` in wrong places;

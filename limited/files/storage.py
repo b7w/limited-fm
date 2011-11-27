@@ -40,8 +40,7 @@ class FilePath( object ):
     @staticmethod
     def join( path, name ):
         """
-        join to path, if ``mane`` start with '/'
-        return ``name``
+        Concatenate to paths
         """
         if len( name ) > 1 and name[0] == u'/':
             name = name[1:]
@@ -129,13 +128,14 @@ class FileStorage( object ):
         newfile.write( content )
         newfile.close( )
 
-    def save(self, name, file, signal=True ):
+    def save(self, name, file, override=True, signal=True ):
         """
         Return path to the file, that can be another from ``name``.
         Copy to disk to ``name`` open :class:`~django.core.files.base.File` object ``file``.
         Also you need to close it yourself.
         """
-        name = self.available_name( name )
+        if override == False:
+            name = self.available_name( name )
 
         newfile = self.open( name, 'wb', signal=signal )
         for chunk in file.chunks( ):

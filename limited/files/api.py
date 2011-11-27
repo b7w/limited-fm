@@ -101,9 +101,9 @@ class FileStorageApi: #( FileStorage ):
         path = self.check( path )
         self.fs.rename( path, name, signal )
 
-    def save(self, path, file, signal=True):
+    def save(self, path, file, override=True, signal=True):
         path = self.check( path )
-        return self.fs.save( path, file, signal )
+        return self.fs.save( path, file, override=override, signal=signal )
 
     def remove(self, path, signal=True):
         path = self.check( path )
