@@ -37,16 +37,16 @@ class ActionTest( StorageTestCase ):
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1, file2, file1] } )
         file1.close( )
         file2.close( )
-        assert self.storage.exists( u"Test Folder/content[1].txt" ) == True
+        assert self.storage.exists( u"Test Folder/content.txt" ) == True
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
-        assert self.storage.exists( u"Test Folder/content[2].txt" ) == True
+        assert self.storage.exists( u"Test Folder/content.txt" ) == True
 
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
         his = self.getLastHistory()
         assert len(his.files) == 3
-        assert his.files[0] == u"content[1].txt"
+        assert his.files[0] == u"content.txt"
         assert his.files[1] == u"Фото 007.bin"
-        assert his.files[2] == u"content[2].txt"
+        assert his.files[2] == u"content.txt"
 
     def test_Upload_Files_Allowed(self):
         """

@@ -55,3 +55,5 @@ Release notes
   Fix critical error listing '../' directory, when with FileLib permission user can look all FS;
   Fix :func:`~limited.files.storage.FilePath.join` when join '/smth' and '/smth2' get '/smth2';
   Fix calling :func:`~limited.files.storage.FileStorage.abspath` in wrong places;
+  Fix adding serve cache record for files;
+  Fix default serve backend opening file with signal that change cache;

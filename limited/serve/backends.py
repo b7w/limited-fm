@@ -35,7 +35,7 @@ class nginx( BaseDownloadResponse ):
 
 class default( BaseDownloadResponse ):
     def generate(self, path, name):
-        wrapper = FileWrapper( self.storage.open( path ) )
+        wrapper = FileWrapper( self.storage.open( path, signal=False  ) )
         response = HttpResponse( wrapper )
         response['Content-Type'] = self.settings['Content-Type']
         response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )

@@ -39,6 +39,8 @@ class DownloadManager:
         Check for directory if cache exist or size is small.
         Else return False
         """
+        if self.storage.isfile( path ):
+            return False
         if self.storage.exists( self.cache_file( path ) ):
             return False
         if self.storage.isdir( path ):
