@@ -254,8 +254,8 @@ class Link( models.Model ):
 
     objects = LinkManager()
 
-    @classmethod
-    def get_hash(self, lib_id, path ):
+    @staticmethod
+    def get_hash(lib_id, path ):
         """
         Return hash for link, need lib id and file path
         """

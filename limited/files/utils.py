@@ -8,7 +8,8 @@ from hashlib import md5
 from django.utils.encoding import smart_str
 
 from limited import settings
-from limited.files.storage import file_pre_change, FilePath
+from limited.files.api.base import file_pre_change
+from limited.files.storage import FilePath
 
 
 logger = logging.getLogger( __name__ )

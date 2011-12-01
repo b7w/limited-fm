@@ -39,7 +39,7 @@ def clear_folders( path, older=7 * 24 * 60 * 60 ):
     for lib in FileLib.objects.all( ):
         storage = lib.getStorage()
         if storage.isdir( path ):
-            storage.clear( path, older=older )
+            storage.extra.clear( path, older=older )
 
 
 def clear_db_cache( older=7 * 24 * 60 * 60 ):

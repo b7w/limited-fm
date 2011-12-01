@@ -61,7 +61,7 @@ class DownloadManager:
         part = self.cache_file( path ) + u".part"
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
             th = Thread( )
-            th.setView( self.storage.zip, path, self.cache_file( path ) )
+            th.setView( self.storage.extra.zip, path, self.cache_file( path ) )
             th.start()
 
     def get_backend(self):
@@ -87,7 +87,7 @@ class DownloadManager:
             if not self.storage.exists( settings.LIMITED_CACHE_PATH ):
                 self.storage.mkdir( settings.LIMITED_CACHE_PATH )
             if not self.storage.exists( self.cache_file( path ) ):
-                self.storage.zip( path, self.cache_file( path ) )
+                self.storage.extra.zip( path, self.cache_file( path ) )
             url_path = self.cache_file( path )
             name = FilePath.name( path ) + '.zip'
 

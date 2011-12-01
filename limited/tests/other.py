@@ -24,11 +24,7 @@ class CodeTest( TestCase ):
         """
         Test management command loadpermissions.
         """
-        print
-        print '# Management output start'
         call_command( 'loadpermissions', interactive=False )
-        print '# Management end'
-        print
         assert Permission.objects.count( ) == 2 ** len( Permission.fields( ) )
 
     def test_clear_folder(self):

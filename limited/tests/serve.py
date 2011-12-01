@@ -28,7 +28,7 @@ class DownloadManagerTest( StorageTestCase ):
         settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024
 
         assert self.manager.is_need_processing( u"Test Folder" ) == False
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
+        self.storage.extra.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
         assert self.storage.size( u"Test Folder/test.bin" ) > 16 * 1024
         assert self.manager.is_need_processing( u"Test Folder" ) == True
         self.manager.process( u"Test Folder" )
@@ -42,7 +42,7 @@ class DownloadManagerTest( StorageTestCase ):
         """
         settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024
 
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
+        self.storage.extra.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
         self.manager.process( u"Test Folder" )
         self.timer.sleep()
 
@@ -50,7 +50,7 @@ class DownloadManagerTest( StorageTestCase ):
         hash1 = self.lib.cache.hash
         assert self.storage.exists( cache1 ) == True
 
-        self.storage.create( u"Test Folder/test2.bin", "XXX" * 2 ** 4 )
+        self.storage.extra.create( u"Test Folder/test2.bin", "XXX" * 2 ** 4 )
         self.manager.cache = {}
         self.manager.process( u"Test Folder" )
         self.timer.sleep()
@@ -89,7 +89,7 @@ class DownloadManagerTest( StorageTestCase ):
         assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"content.txt".encode( 'utf-8' )
         assert response.content.__len__( ) != 0
 
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
+        self.storage.extra.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
         response = self.manager.build( u"Test Folder" )
         assert response['Content-Disposition'] == "attachment; filename=\"%s\"" % u"Test Folder.zip".encode( 'utf-8' )
         assert response.content.__len__( ) != 0

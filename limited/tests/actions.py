@@ -59,7 +59,7 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/content.txt" ) == False
 
         self.client.login( username='B7W', password='root' )
-        self.storage.create( u"test.rar", "XXX" * 2 ** 4 )
+        self.storage.extra.create( u"test.rar", "XXX" * 2 ** 4 )
         file1 = self.storage.open( u"test.rar" )
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1] } )
         file1.close( )
@@ -88,8 +88,8 @@ class ActionTest( StorageTestCase ):
         file_cache = FilePath.join( settings.LIMITED_CACHE_PATH, u"test.bin" )
         file_trash = FilePath.join( settings.LIMITED_TRASH_PATH, u"test.bin" )
 
-        self.storage.create( file_cache, u"Test" )
-        self.storage.create( file_trash, u"Test" )
+        self.storage.extra.create( file_cache, u"Test" )
+        self.storage.extra.create( file_trash, u"Test" )
 
         self.client.login( username='B7W', password='root' )
 
