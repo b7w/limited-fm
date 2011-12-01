@@ -10,7 +10,7 @@ def load_permissions( using=None ):
     For any count of columns in Permission
     """
 
-    fields = Permission.fields()
+    fields = Permission.fields( )
     count = len( fields )
     last = count - 1
     rng = range( count )
@@ -37,7 +37,7 @@ def clear_folders( path, older=7 * 24 * 60 * 60 ):
     if no folder, nothing will happened
     """
     for lib in FileLib.objects.all( ):
-        storage = lib.getStorage()
+        storage = lib.getStorage( )
         if storage.isdir( path ):
             storage.extra.clear( path, older=older )
 
@@ -57,5 +57,5 @@ def clear_db_cache( older=7 * 24 * 60 * 60 ):
 
     for lib in FileLib.objects.all( ):
         _tree( lib.cache )
-        lib.save()
+        lib.save( )
 

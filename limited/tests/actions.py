@@ -15,7 +15,7 @@ class ActionTest( StorageTestCase ):
     """
 
     def getLastHistory(self):
-        return History.objects.order_by('-pk')[0]
+        return History.objects.order_by( '-pk' )[0]
 
     def test_Upload(self):
         """
@@ -42,8 +42,8 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
 
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
-        his = self.getLastHistory()
-        assert len(his.files) == 3
+        his = self.getLastHistory( )
+        assert len( his.files ) == 3
         assert his.files[0] == u"content.txt"
         assert his.files[1] == u"Фото 007.bin"
         assert his.files[2] == u"content.txt"
@@ -65,7 +65,7 @@ class ActionTest( StorageTestCase ):
         file1.close( )
         assert self.storage.exists( u"Test Folder/test.rar" ) == False
 
-        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt' ]
+        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt']
         file2 = self.storage.open( u"Фото 007.bin" )
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file2] } )
         file2.close( )
@@ -123,14 +123,14 @@ class ActionTest( StorageTestCase ):
         link_url = urlbilder( 'action', self.lib.id, 'add', n=url, p='' )
 
         self.client.login( username='B7W', password='root' )
-        
+
         resp = self.client.get( link_mkdir, follow=True )
         assert resp.status_code == 200
         assert self.storage.exists( u"New dir" ) == True
 
         resp = self.client.get( link_url, follow=True )
         assert resp.status_code == 200
-        self.timer.sleep()
+        self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_Chroot(self):
@@ -138,7 +138,7 @@ class ActionTest( StorageTestCase ):
         Test to inject in path something like that '../'
         """
         self.client.login( username='B7W', password='root' )
-        for item in [ '../', 'Test Folder/../../', '/', '/home', ]:
+        for item in ['../', 'Test Folder/../../', '/', '/home', ]:
             link = urlbilder( 'browser', self.lib.id, p=item )
             resp = self.client.get( link, follow=True )
             assert resp.status_code == 200

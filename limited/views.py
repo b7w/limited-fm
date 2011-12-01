@@ -177,7 +177,7 @@ def TrashView( request, id ):
         patharr = split_path( 'Trash' )
 
         File = home.lib.getStorage( )
-        files = File.trash.listdir()
+        files = File.trash.listdir( )
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )

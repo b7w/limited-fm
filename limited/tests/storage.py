@@ -118,7 +118,7 @@ class FileStorageTest( StorageTestCase ):
 
         self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=60 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
-        self.timer.sleep()
+        self.timer.sleep( )
         self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=1 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
@@ -278,7 +278,7 @@ class FileStorageTest( StorageTestCase ):
 
         obj = Thread( )
         obj.setView( self.storage.extra.zip, u"Test Folder", u"Test Folder2.zip" )
-        obj.start()
+        obj.start( )
         self.timer.sleep( )
         assert self.storage.exists( u"Test Folder2.zip" ) == True
 
@@ -294,7 +294,7 @@ class FileStorageTest( StorageTestCase ):
 
         obj = Thread( )
         obj.setView( self.storage.extra.download, url, u"logo3w.png", signal=False )
-        obj.start()
+        obj.start( )
         self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
@@ -303,8 +303,8 @@ class FileStorageTest( StorageTestCase ):
         Test url, time. Just work it or not
         """
         assert self.storage.url( u"content.txt" ) != None
-        assert self.storage.fs.accessed_time( u"content.txt" ) == self.storage.time(  u"content.txt", u"accessed" )
-        assert self.storage.fs.created_time( u"content.txt" )  == self.storage.time(  u"content.txt", u"created" )
-        assert self.storage.fs.modified_time( u"content.txt" )  == self.storage.time(  u"content.txt", u"modified" )
-        assert self.storage.fs.modified_time( u"content.txt" )  == self.storage.time(  u"content.txt" )
+        assert self.storage.fs.accessed_time( u"content.txt" ) == self.storage.time( u"content.txt", u"accessed" )
+        assert self.storage.fs.created_time( u"content.txt" ) == self.storage.time( u"content.txt", u"created" )
+        assert self.storage.fs.modified_time( u"content.txt" ) == self.storage.time( u"content.txt", u"modified" )
+        assert self.storage.fs.modified_time( u"content.txt" ) == self.storage.time( u"content.txt" )
         self.assertRaises( FileError, self.storage.time, u"content.txt", type="some" )

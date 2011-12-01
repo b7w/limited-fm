@@ -32,7 +32,7 @@ class DownloadManagerTest( StorageTestCase ):
         assert self.storage.size( u"Test Folder/test.bin" ) > 16 * 1024
         assert self.manager.is_need_processing( u"Test Folder" ) == True
         self.manager.process( u"Test Folder" )
-        self.timer.sleep()
+        self.timer.sleep( )
         assert self.storage.exists( self.manager.cache_file( u"Test Folder" ) ) == True
         assert self.manager.is_need_processing( u"Test Folder" ) == False
 
@@ -44,16 +44,16 @@ class DownloadManagerTest( StorageTestCase ):
 
         self.storage.extra.create( u"Test Folder/test.bin", "XXX" * 2 ** 4 )
         self.manager.process( u"Test Folder" )
-        self.timer.sleep()
+        self.timer.sleep( )
 
         cache1 = self.manager.cache_file( u"Test Folder" )
         hash1 = self.lib.cache.hash
         assert self.storage.exists( cache1 ) == True
 
         self.storage.extra.create( u"Test Folder/test2.bin", "XXX" * 2 ** 4 )
-        self.manager.cache = {}
+        self.manager.cache = { }
         self.manager.process( u"Test Folder" )
-        self.timer.sleep()
+        self.timer.sleep( )
         cache2 = self.manager.cache_file( u"Test Folder" )
         hash2 = self.lib.cache.hash
 

@@ -30,6 +30,7 @@ a.section:link, a.section:visited {
     color: white;
     text-decoration: none;
 }
+
 a.section-info:link, a.section-info:visited {
     color: #EEE;
     text-decoration: none;
@@ -168,6 +169,7 @@ thead th:first-child {
 #changelist tbody tr {
     height: 29px;
 }
+
 #changelist tr:hover {
     background-color: #FFC;
 }
@@ -321,18 +323,22 @@ div.breadcrumbs {
     padding-left: 20px;
     background: url(../img/create.png) 0 0.5em no-repeat;
 }
+
 .rename-act {
     padding-left: 20px;
     background: url(../img/rename.png) 0 0.5em no-repeat;
 }
+
 .move-act {
     padding-left: 20px;
     background: url(../img/move.png) 0 0.5em no-repeat;
 }
+
 .trash-act {
     padding-left: 20px;
     background: url(../img/trash.png) 0 0.5em no-repeat;
 }
+
 .delete-act {
     padding-left: 20px;
     background: url(../img/delete.png) 0 0.5em no-repeat;
