@@ -15,3 +15,9 @@ Getting started
     FAQ
 	
     feedback
+
+
+
+* :ref:`genindex`
+* :doc:`Contents </contents>`
+* :ref:`search`

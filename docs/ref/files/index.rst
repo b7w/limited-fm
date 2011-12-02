@@ -1,16 +1,14 @@
 
-Releases notes
+Storage API
 ====================================
 
 
 .. toctree::
     :maxdepth: 2
-	
-    specification
 
-    notes
-    
-    plan
+    api
+
+    storage
 
 
 

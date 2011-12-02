@@ -22,7 +22,6 @@ Limited documentation contents
 
 
 
-
 Indices and tables
 ====================================
 
