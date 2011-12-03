@@ -437,14 +437,14 @@ def UploadView( request, id ):
                 return HttpResponseReload( request )
 
             for file in files:
-                pair = file.name.rsplit( '.' )
-                if pair.__len__() > 1:
-                    name, ext = pair
-                    if settings.LIMITED_FILES_ALLOWED['ONLY'] != []:
-                        if ext.lower() not in settings.LIMITED_FILES_ALLOWED['ONLY']:
-                            raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
-                    elif ext.lower() in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
+                rindex = file.name.rindex( '.' )
+                name = file.name[:rindex]
+                ext = file.name[rindex+1:]
+                if settings.LIMITED_FILES_ALLOWED['ONLY'] != []:
+                    if ext.lower() not in settings.LIMITED_FILES_ALLOWED['ONLY']:
                         raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
+                elif ext.lower() in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
+                    raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
                     
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
 

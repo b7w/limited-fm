@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 from limited import settings
 from limited.fields import JsonTreeField, TextListField
 from limited.files.api import FileStorageApi
-from limited.files.storage import FilePath, FileStorage
+from limited.files.storage import FilePath
 
 class PermissionError( Exception ):
     pass

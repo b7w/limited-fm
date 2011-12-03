@@ -34,19 +34,21 @@ class ActionTest( StorageTestCase ):
 
         file1 = self.storage.open( u"content.txt" )
         file2 = self.storage.open( u"Фото 007.bin" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1, file2, file1] } )
+        self.storage.create( u"test.io.text", "double" )
+        file3 = self.storage.open( u"test.io.text" )
+        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1, file2, file3] } )
         file1.close( )
         file2.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
-        assert self.storage.exists( u"Test Folder/content.txt" ) == True
+        assert self.storage.exists( u"Test Folder/test.io.text" ) == True
 
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
         his = self.getLastHistory()
         assert len(his.files) == 3
         assert his.files[0] == u"content.txt"
         assert his.files[1] == u"Фото 007.bin"
-        assert his.files[2] == u"content.txt"
+        assert his.files[2] == u"test.io.text"
 
     def test_Upload_Files_Allowed(self):
         """
