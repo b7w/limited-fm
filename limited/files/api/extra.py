@@ -12,9 +12,13 @@ from limited.files.api.base import file_pre_change, FileStorageBaseApi
 from limited.files.storage import FileError, FilePath, FileNotExist
 
 class FileStorageExtra( FileStorageBaseApi ):
+    """
+    File Storage additional class
+    """
+
     def create(self, path, content, signal=True ):
         """
-        Write to file ``name`` same data ``content``
+        Write to file ``path`` same data ``content``
         """
         if signal:
             file_pre_change.send( self, basedir=FilePath.dirname( path ) )
@@ -108,7 +112,7 @@ class FileStorageExtra( FileStorageBaseApi ):
 
     def clear(self, path, older=None, signal=True ):
         """
-        Remove all files and dirs in ``name`` directory.
+        Remove all files and dirs in ``path`` directory.
         ``older`` takes seconds for max age from created_time, only top sub dirs checked.
         On not exist raise :class:`~limited.files.storage.FileNotExist`.
         On not directory raise :class:`~limited.files.storage.FileError`.

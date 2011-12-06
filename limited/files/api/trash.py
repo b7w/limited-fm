@@ -5,6 +5,10 @@ from limited.files.api.base import file_pre_change, FileStorageBaseApi
 from limited.files.storage import FilePath, FileNotExist
 
 class FileStorageTrash( FileStorageBaseApi ):
+    """
+    File Storage additional for operate with trash
+    """
+
     def listdir(self):
         """
         Safe call for list trash files
@@ -24,5 +28,5 @@ class FileStorageTrash( FileStorageBaseApi ):
         if self.fs.exists( settings.LIMITED_TRASH_PATH ) == False:
             self.fs.mkdir( settings.LIMITED_TRASH_PATH )
         if self.fs.exists( path ) == False:
-             raise FileNotExist( u"'%s' not found" % path )
+            raise FileNotExist( u"'%s' not found" % path )
         self.fs.move( path, settings.LIMITED_TRASH_PATH )

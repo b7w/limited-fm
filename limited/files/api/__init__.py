@@ -7,18 +7,25 @@ from limited.files.storage import FileError, FileNotExist, FilePath
 
 class FileStorageApi( FileStorageBaseApi ):
     """
-    Is is a more safety proxy for :class:`~limited.files.storage.FileStorage`.
+    Height level api for :class:`~limited.files.storage.FileStorage`.
     It check path to make chroot and other tings.
 
-    Plus hash method.
+    Have ``trash`` and ``extra`` fields with :class:`limited.files.api.FileStorageTrash` and
+    :class:`limited.files.api.FileStorageExtra` objects
     """
 
     def __init__(self, lib):
+        """
+        Take :class:`limited.models.FileLib` as a parameter
+        """
         FileStorageBaseApi.__init__( self, lib )
         self.trash = FileStorageTrash( lib )
         self.extra = FileStorageExtra( lib )
 
     def open(self, path, mode='rb', signal=True):
+        """
+        Return open django :class:`~django.core.files.base.File` instance
+        """
         if signal:
             file_pre_change.send( self, basedir=FilePath.dirname( path ) )
         path = self.check( path )
@@ -26,7 +33,12 @@ class FileStorageApi( FileStorageBaseApi ):
 
     def listdir(self, path, hidden=False):
         """
-        Add hashes for all file names.
+        Return list of files in directory.
+        Each item is a dict with class:'file'|'dir', name: file name, url - url encode path,
+        size: file size, time: modified_time.
+        If ``hidden`` ``True`` than hidden files will be include.
+        Data sorted first by name and than by directory.
+        On not dir exist raise :class:`~limited.files.storage.FileNotExist`.
         """
         path = self.check( path )
         files = self.fs.listdir( path, hidden )
@@ -36,28 +48,50 @@ class FileStorageApi( FileStorageBaseApi ):
         return files
 
     def exists(self, path):
+        """
+        Return ``True`` if file exists or ``False``
+        """
         path = self.check( path )
         return self.fs.exists( path )
 
     def size(self, path, dir=False, cached=True):
+        """
+        Return dir and files size. If ``dir`` ``True``, size will be sum recursive else return 0
+        if ``cached``, dirs size will be cached.
+        On not exist raise :class:`~limited.files.storage.FileNotExist`.
+        """
         path = self.check( path )
         return self.fs.size( path, dir, cached )
 
     def mkdir(self, path):
+        """
+        Create directory, on exist raise :class:`~limited.files.storage.FileError`
+        """
         path = self.check( path )
         if self.exists( path ) == True:
             raise FileError( u"Directory '%s' already exists" % path )
         self.fs.mkdir( path )
 
     def isfile(self, path):
+        """
+        Return ``True`` if it is a file or ``False``
+        """
         path = self.check( path )
         return self.fs.isfile( path )
 
     def isdir(self, path):
+        """
+        Return ``True`` if it is a directory or ``False``
+        """
         path = self.check( path )
         return self.fs.isdir( path )
 
     def move(self, src, dst, signal=True):
+        """
+        Move file or dir from ``src`` to ``dst``.
+        On the same directory raise :class:`~limited.files.storage.FileError`.
+        On not exist for both paths raise :class:`~limited.files.storage.FileNotExist`.
+        """
         src_dir = FilePath.dirname( src )
         if src == dst or src_dir == dst:
             raise FileError( u"Moving to the same directory" )
@@ -73,6 +107,11 @@ class FileStorageApi( FileStorageBaseApi ):
         self.fs.move( src, dst )
 
     def rename(self, path, name, signal=True ):
+        """
+        Rename file or dir path ``path`` to name ``name``.
+        On '/' in ``name`` raise :class:`~limited.files.storage.FileError`.
+        On not exist or already exist raise :class:`~limited.files.storage.FileNotExist`.
+        """
         path = self.check( path )
         if '/' in name:
             raise FileError( u"'%s' contains not supported symbols" % name )
@@ -87,6 +126,11 @@ class FileStorageApi( FileStorageBaseApi ):
         self.fs.rename( path, name )
 
     def save(self, path, file, override=True, signal=True):
+        """
+        Return path to the file, that can be another from ``path``.
+        Copy to disk to ``path`` open :class:`~django.core.files.base.File` object ``file``.
+        Also you need to close it yourself.
+        """
         path = self.check( path )
         path = self.available_name( path, override )
         if signal:
@@ -94,6 +138,9 @@ class FileStorageApi( FileStorageBaseApi ):
         return self.fs.save( path, file )
 
     def remove(self, path, signal=True):
+        """
+        Remove directory or file, on not exist raise :class:`~limited.files.storage.FileNotExist`
+        """
         path = self.check( path )
         if self.exists( path ) == False:
             raise FileNotExist( u"'%s' not found" % path )
@@ -102,6 +149,9 @@ class FileStorageApi( FileStorageBaseApi ):
         self.fs.remove( path )
 
     def time(self, path, type=u"modified" ):
+        """
+        Return type = accessed|created|modified time or raise error if not match
+        """
         if type == u"accessed":
             return self.fs.accessed_time( path )
         if type == u"created":

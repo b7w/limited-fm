@@ -11,10 +11,19 @@ from limited.files.storage import FileNotExist, FileStorage, FilePath, FileError
 # Signal sent in ``open```( create, save ), ``remove``( clear, totrash ), ``zip``
 file_pre_change = Signal( providing_args=["basedir"] )
 
+
+
 class FileStorageBaseApi:
+    """
+    It is a abstract class for Files storage Api.
+    It have some useful static methods like url,available_name and etc
+    """
     xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     def __init__(self, lib ):
+        """
+        Take :class:`limited.models.FileLib` as a parameter
+        """
         self.lib = lib
         self.fs = FileStorage( lib )
 
@@ -54,6 +63,9 @@ class FileStorageBaseApi:
         return value
 
     def homepath(self, path):
+        """
+        Return path from :ref:`LIMITED_ROOT_PATH <SETTINGS_ROOT_PATH>`
+        """
         path = self.check( path )
         return FilePath.join( self.lib.path, path )
 
@@ -73,5 +85,8 @@ class FileStorageBaseApi:
         return path
 
     def url(self, path):
+        """
+        Return urlquote path name
+        """
         path = self.check( path )
         return self.fs.url( path )

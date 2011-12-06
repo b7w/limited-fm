@@ -4,21 +4,106 @@ File Storage API
 
 .. index:: File Storage API
 
-.. index:: Intro
+.. index:: File Storage API Description
 
 
-Intro
+Description
 ====================================
 
-| FileStorage class is low level operation on file system.
-  It is not control access or chrooting. Use it only if you really need.
-  In all other cases, use :class:`limited.files.api.FileStorageApi`.
+| FileStorageApi class is height level operation on file system.
+  It is control access and chrooting. Use it in all cases.
 
-| At first I started looking for complete solutions.
-  And standard Django storage seemed good. A lot of backend for other file systems.
-  But it have too few methods. Only save and listdir.
 
-| Than I try to write same base class for the storage.
-  But with each rewrite, I realized that it is quite useless.
-  So I forgot about API and just create new methods when it is needed.
-  The realisation can change from version to version.
+
+.. index:: File Storage Signals
+
+Signals
+====================================
+
+| A lot of method have :obj:`limited.files.api.base.file_pre_change` signal.
+  By default it is turn on, parameter ``signal=True``. It is made to invalidate cache of a directory.
+  If you do something make clear that signal raise only once.
+
+
+
+.. index:: File Storage Api Methods list
+
+Methods list
+====================================
+
+| FileStorage have a lot of methods. Lets list and group them in more sorted order.
+  Be carefully not all methods are in :class:`~limited.files.api.FileStorageApi`.
+
+* | Creating: :func:`~limited.files.api.FileStorageApi.open` |
+    :func:`~limited.files.api.FileStorageApi.save` |
+    :func:`~limited.files.api.FileStorageExtra.create` |
+    :func:`~limited.files.api.FileStorageApi.mkdir`
+
+* | Editing: :func:`~limited.files.api.FileStorageApi.rename` |
+    :func:`~limited.files.api.FileStorageApi.move` |
+    :func:`~limited.files.api.FileStorageExtra.zip` |
+    :func:`~limited.files.api.FileStorageExtra.unzip`
+
+* | Deleting: :func:`~limited.files.api.FileStorageApi.remove` |
+    :func:`~limited.files.api.FileStorageExtra.clear` |
+    :func:`~limited.files.api.FileStorageTrash.totrash`
+
+* | Check: :func:`~limited.files.api.FileStorageApi.exists` |
+    :func:`~limited.files.api.FileStorageApi.isfile` |
+    :func:`~limited.files.api.FileStorageApi.isdir` |
+    :func:`~limited.files.api.base.FileStorageBaseApi.check`
+
+* | Getting: :func:`~limited.files.api.FileStorageApi.listdir` |
+    :func:`~limited.files.api.FileStorageExtra.download` |
+    :func:`~limited.files.api.FileStorageApi.size`
+
+* | Name: :func:`~limited.files.api.base.FileStorageBaseApi.available_name`
+    :func:`~limited.files.api.base.FileStorageBaseApi.homepath` |
+    :func:`~limited.files.api.base.FileStorageBaseApi.hash` |
+    :func:`~limited.files.api.base.FileStorageBaseApi.url`
+
+* | Time: :func:`~limited.files.api.FileStorageApi.time`
+
+
+.. index:: File Storage Api model
+
+Storage Model
+====================================
+
+.. autoclass:: limited.files.api.FileStorageApi
+    :show-inheritance:
+    :undoc-members:
+    :members:
+
+    .. method:: __init__(self, lib )
+        Take :class:`limited.models.FileLib` as a parameter
+
+
+
+.. index:: File Storage Trash model
+
+File Storage Trash model
+====================================
+
+.. autoclass:: limited.files.api.FileStorageTrash
+    :show-inheritance:
+    :undoc-members:
+    :members:
+
+    .. method:: __init__(self, lib )
+        Take :class:`limited.models.FileLib` as a parameter
+
+
+
+.. index:: File Storage Extra model
+
+File Storage Extra model
+====================================
+
+.. autoclass:: limited.files.api.FileStorageExtra
+    :show-inheritance:
+    :undoc-members:
+    :members:
+
+    .. method:: __init__(self, lib )
+        Take :class:`limited.models.FileLib` as a parameter
