@@ -106,5 +106,5 @@ What to read next
 | Some links to help find out more information.
   Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
 
-* | :doc:`/ref/models`.
-* | :doc:`/ref/files/storage`.
+* | :doc:`/ref/models`
+* | :doc:`/ref/files/storage`

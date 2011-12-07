@@ -6,7 +6,7 @@ from django.utils.html import escape
 
 from limited import settings
 from limited.models import  Link
-from limited.files.storage import  FilePath
+from limited.files.utils import FilePath
 from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder
 

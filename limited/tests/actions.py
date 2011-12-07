@@ -3,7 +3,7 @@
 from django.utils.html import escape
 
 from limited import settings
-from limited.files.storage import FilePath
+from limited.files.utils import FilePath
 from limited.models import History
 from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder

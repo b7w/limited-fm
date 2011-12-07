@@ -11,8 +11,8 @@ from django.template.defaultfilters import filesizeformat
 
 from limited import settings
 from limited.serve.manager import DownloadManager
-from limited.files.storage import FileError, FileNotExist, FilePath
-from limited.files.utils import Thread
+from limited.files.storage import FileError, FileNotExist
+from limited.files.utils import Thread, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user

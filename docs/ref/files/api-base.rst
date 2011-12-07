@@ -11,7 +11,7 @@ Description
 ====================================
 
 | FileStorageApi is abstract class for file storage.
-   It has some useful static methods like url,available_name and etc
+   It has some useful static methods like url, available_name and etc
 
 
 

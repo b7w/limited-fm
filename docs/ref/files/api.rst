@@ -13,6 +13,9 @@ Description
 | FileStorageApi class is height level operation on file system.
   It is control access and chrooting. Use it in all cases.
 
+| All storage classes are extend :class:`limited.files.api.base.FileStorageBaseApi`
+  to provide some useful static method.
+
 
 
 .. index:: File Storage Signals
@@ -107,3 +110,15 @@ File Storage Extra model
 
     .. method:: __init__(self, lib )
         Take :class:`limited.models.FileLib` as a parameter
+
+
+
+What to read next
+====================================
+
+| Some links to help find out more information.
+  Also look :doc:`Index </index>` and :doc:`Table of contents </ref/files/index>`
+
+* | :doc:`/ref/files/api-base`
+* | :doc:`/ref/files/storage`
+* | :doc:`/ref/files/utils`

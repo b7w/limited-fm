@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from limited import settings
+from limited.files.utils import FilePath
 from limited.files.api.base import file_pre_change, FileStorageBaseApi
-from limited.files.storage import FilePath, FileNotExist
+from limited.files.storage import FileNotExist
 
 class FileStorageTrash( FileStorageBaseApi ):
     """

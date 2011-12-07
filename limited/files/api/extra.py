@@ -8,8 +8,9 @@ import zipfile
 from django.core.files.base import File
 from django.utils.encoding import iri_to_uri
 
+from limited.files.utils import FilePath
 from limited.files.api.base import file_pre_change, FileStorageBaseApi
-from limited.files.storage import FileError, FilePath, FileNotExist
+from limited.files.storage import FileError, FileNotExist
 
 class FileStorageExtra( FileStorageBaseApi ):
     """

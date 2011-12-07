@@ -10,10 +10,32 @@ File Storage Utils
 File Path
 ====================================
 
-| Wrapper for ``os.path`` for working with file paths.
-  The class is static, no needed to create instance.
-
-.. autoclass:: limited.files.storage.FilePath
+.. autoclass:: limited.files.utils.FilePath
     :show-inheritance:
     :undoc-members:
     :members:
+
+
+
+.. index:: File Storage Utils Thread
+
+Thread
+====================================
+
+.. autoclass:: limited.files.utils.Thread
+    :show-inheritance:
+    :undoc-members:
+    :members:
+
+
+
+.. index:: File Storage Utils FileUnicName
+
+File Unic Name
+====================================
+
+.. autoclass:: limited.files.utils.FileUnicName
+    :show-inheritance:
+    :undoc-members:
+    :members:
+

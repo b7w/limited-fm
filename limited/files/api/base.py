@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from django.dispatch.dispatcher import Signal
 
 from limited import settings
-from limited.files.storage import FileNotExist, FileStorage, FilePath, FileError
+from limited.files.utils import FilePath, FileUnicName
+from limited.files.storage import FileNotExist, FileStorage, FileError
 
 # Signal before file change
 # basedir - dir in witch file or dir changed
@@ -11,13 +13,18 @@ from limited.files.storage import FileNotExist, FileStorage, FilePath, FileError
 # Signal sent in ``open```( create, save ), ``remove``( clear, totrash ), ``zip``
 file_pre_change = Signal( providing_args=["basedir"] )
 
+logger = logging.getLogger( __name__ )
 
 
 class FileStorageBaseApi:
     """
     It is a abstract class for Files storage Api.
     It have some useful static methods like url,available_name and etc
+
+    Field ``fs`` have :class:`limited.files.storage.FileStorage` object to provide low level operations.
     """
+
+    # All numbers and letter to provide hash creation
     xdict = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     def __init__(self, lib ):
@@ -90,3 +97,27 @@ class FileStorageBaseApi:
         """
         path = self.check( path )
         return self.fs.url( path )
+
+
+def remove_cache( sender, **kwargs ):
+    """
+    Signal receiver function.
+    It is delete cache files of all parent dirs
+    if some files changed in directory.
+    """
+    HashBilder = FileUnicName( )
+    lib = sender.lib
+    dir = kwargs["basedir"]
+    # if not system directories
+    if not dir.startswith( settings.LIMITED_CACHE_PATH ) and dir != settings.LIMITED_TRASH_PATH:
+        try:
+            node = lib.cache.getName( *FilePath.split( dir ) )
+            if node != None:
+                node.setHash( HashBilder.time( ) )
+                from limited.models import FileLib
+
+                FileLib.objects.filter( id=lib.id ).update( cache=lib.cache )
+        except Exception as e:
+            logger.error( u"{0}. dir:{1}".format( e, dir ) )
+
+file_pre_change.connect( remove_cache )

@@ -76,18 +76,15 @@ class StorageTestCase( TestCase ):
             'INTERNAL_URL': '/protected',
             }
 
-        try:
-            if self.storage.exists( u"" ):
-                self.storage.remove( u"" )
-            self.storage.mkdir( u"" )
-            self.storage.mkdir( settings.LIMITED_TRASH_PATH )
-            self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
-            self.storage.mkdir( settings.LIMITED_CACHE_PATH )
-            self.storage.mkdir( u"Test Folder" )
-            self.storage.extra.create( u"content.txt", u"Test line in file" )
-            self.storage.extra.create( u"Фото 007.bin", "007" * 2 ** 8 )
-        except Exception as e:
-            raise Exception( u"Error happened while init test files in 'setUp'." + str( e ) )
+        if self.storage.exists( u"" ):
+            self.storage.remove( u"" )
+        self.storage.mkdir( u"" )
+        self.storage.mkdir( settings.LIMITED_TRASH_PATH )
+        self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
+        self.storage.mkdir( settings.LIMITED_CACHE_PATH )
+        self.storage.mkdir( u"Test Folder" )
+        self.storage.extra.create( u"content.txt", u"Test line in file" )
+        self.storage.extra.create( u"Фото 007.bin", "007" * 2 ** 8 )
 
     def run(self, result=None):
         """

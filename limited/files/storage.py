@@ -11,6 +11,8 @@ from django.core.files.base import File
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 
+from limited.files.utils import FilePath
+
 
 class FileError( Exception ):
     """
@@ -24,69 +26,6 @@ class FileNotExist( FileError ):
     File not Found Storage Error
     """
     pass
-
-
-class FilePath( object ):
-    @staticmethod
-    def join( path, name ):
-        """
-        Concatenate to paths
-        """
-        if len( name ) > 1 and name[0] == u'/':
-            name = name[1:]
-        return os.path.join( path, name )
-
-    @staticmethod
-    def name(path):
-        """
-        return file name or ''
-        """
-        return os.path.basename( path )
-
-    @staticmethod
-    def dirname( path ):
-        """
-        return directory path of file
-        or return path if ends with '/'
-        """
-        return os.path.dirname( path )
-
-    @staticmethod
-    def norm( path ):
-        """
-        If src include '../' or './' normalise it
-        """
-        path = os.path.normpath( path )
-        if path == u'.':
-            return u''
-        return path
-
-    @staticmethod
-    def check( path, norm=False ):
-        """
-        Check is path has some strange sub strings after FilePath.norm
-        like '../', '/', '.'
-        if find - return False
-        if norm=True, than path = FilePath.norm( path ). By default is False
-        """
-        if norm == True:
-            path = FilePath.norm( path )
-        if path.startswith( u'/' ):
-            return False
-        elif u".." in path:
-            return False
-        return True
-
-    @staticmethod
-    def split( path ):
-        """
-        Split path
-        """
-        if len( path ) > 1 and path[0] == '/':
-            path = path[1:]
-        if len( path ) > 1 and path[-1] == '/':
-            path = path[:-1]
-        return path.split( '/' )
 
 
 class FileStorage( object ):
