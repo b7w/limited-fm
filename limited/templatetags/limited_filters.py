@@ -5,7 +5,7 @@ import re
 from django import template
 from limited.controls import truncate_path
 
-register = template.Library()
+register = template.Library( )
 
 
 @register.filter
@@ -46,7 +46,7 @@ def joinpath(parser, token):
         {{ path|truncatepath }}
     """
     args = token.split_contents( )[1:]
-    if len(args) > 3:
+    if len( args ) > 3:
         if args[-2] == u"as":
             return JoinPathNode( args[0:-2], args[-1] )
 
@@ -57,20 +57,21 @@ class JoinPathNode( template.Node ):
     """
     ``Template.Node`` class for ``joinpath`` tag
     """
+
     def __init__(self, args, asvar=None ):
-        self.args = [ template.Variable( x ) for x in args ]
+        self.args = [template.Variable( x ) for x in args]
         self.asvar = asvar
 
     def render(self, context):
         path = ""
         for item in self.args:
-            str = item.resolve(context)
+            str = item.resolve( context )
             if str:
-                if str.startswith('/'):
+                if str.startswith( '/' ):
                     path += str
                 else:
                     path += '/' + str
-        if path.startswith('/'):
+        if path.startswith( '/' ):
             path = path[1:]
         if self.asvar != None:
             context[self.asvar] = path

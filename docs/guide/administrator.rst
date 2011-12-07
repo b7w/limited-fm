@@ -221,5 +221,5 @@ What to read next
 | Some links to help find out more information.
   Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
 
-* | :doc:`/topics/testing`.
-* | :doc:`/guide/developer`.
+* | :doc:`/topics/testing`
+* | :doc:`/guide/developer`

@@ -57,7 +57,11 @@ API Reference:
 	:doc:`Full list of settings <ref/settings>`
 
 * | **Files:**
-    :doc:`File Storage <ref/storage>` |
+    :doc:`File Storage Api<ref/files/api>` |
+    :doc:`Low level operations<ref/files/storage>` |
+	:doc:`Utils<ref/files/utils>`
+
+* | **Serve:**
 	:doc:`Serving backens <ref/serving>`
 
 
@@ -78,6 +82,6 @@ Indices and tables
 ====================================
 
 * :ref:`genindex`
-* :doc:`Contents <contents>`
+* :doc:`Contents </contents>`
 * :ref:`search`
 

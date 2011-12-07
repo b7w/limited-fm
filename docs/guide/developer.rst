@@ -29,7 +29,7 @@ Limited structure
 
 * files:
     * | storage: FileStorage class, some exceptions and FilePath.
-        For more look :doc:`here </ref/storage>`.
+        For more look :doc:`here </ref/files/storage>`.
     * | utils: Some thread wrapper for FileStorage methods.
 
 * management:
@@ -106,5 +106,5 @@ What to read next
 | Some links to help find out more information.
   Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
 
-* | :doc:`/ref/models`.
-* | :doc:`/ref/storage`.
+* | :doc:`/ref/models`
+* | :doc:`/ref/files/storage`

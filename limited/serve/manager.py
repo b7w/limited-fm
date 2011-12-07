@@ -10,7 +10,7 @@ from limited.files.utils import FileUnicName, Thread
 class DownloadManager:
     def __init__(self, lib):
         self.lib = lib
-        self.storage = lib.getStorage()
+        self.storage = lib.getStorage( )
         self.Hash = FileUnicName( )
         self.cache = { }
 
@@ -24,9 +24,9 @@ class DownloadManager:
         CacheDB = self.lib.cache.getName( *FilePath.split( path ) )
         time = None
         if CacheDB == None:
-            time = self.Hash.time()
+            time = self.Hash.time( )
             self.lib.cache.createName( time, *FilePath.split( path ) )
-            self.lib.save()
+            self.lib.save( )
         else:
             time = CacheDB.hash
         hash = self.Hash.build( path, time=time )
@@ -61,8 +61,8 @@ class DownloadManager:
         part = self.cache_file( path ) + u".part"
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
             th = Thread( )
-            th.setView( self.storage.zip, path, self.cache_file( path ) )
-            th.start()
+            th.setView( self.storage.extra.zip, path, self.cache_file( path ) )
+            th.start( )
 
     def get_backend(self):
         """
@@ -87,7 +87,7 @@ class DownloadManager:
             if not self.storage.exists( settings.LIMITED_CACHE_PATH ):
                 self.storage.mkdir( settings.LIMITED_CACHE_PATH )
             if not self.storage.exists( self.cache_file( path ) ):
-                self.storage.zip( path, self.cache_file( path ) )
+                self.storage.extra.zip( path, self.cache_file( path ) )
             url_path = self.cache_file( path )
             name = FilePath.name( path ) + '.zip'
 

@@ -3,7 +3,7 @@
 from django.utils.html import escape
 
 from limited import settings
-from limited.files.storage import FilePath
+from limited.files.utils import FilePath
 from limited.models import History
 from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder
@@ -15,7 +15,7 @@ class ActionTest( StorageTestCase ):
     """
 
     def getLastHistory(self):
-        return History.objects.order_by('-pk')[0]
+        return History.objects.order_by( '-pk' )[0]
 
     def test_Upload(self):
         """
@@ -34,7 +34,7 @@ class ActionTest( StorageTestCase ):
 
         file1 = self.storage.open( u"content.txt" )
         file2 = self.storage.open( u"Фото 007.bin" )
-        self.storage.create( u"test.io.text", "double" )
+        self.storage.extra.create( u"test.io.text", "double" )
         file3 = self.storage.open( u"test.io.text" )
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1, file2, file3] } )
         file1.close( )
@@ -44,8 +44,8 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/test.io.text" ) == True
 
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
-        his = self.getLastHistory()
-        assert len(his.files) == 3
+        his = self.getLastHistory( )
+        assert len( his.files ) == 3
         assert his.files[0] == u"content.txt"
         assert his.files[1] == u"Фото 007.bin"
         assert his.files[2] == u"test.io.text"
@@ -61,13 +61,13 @@ class ActionTest( StorageTestCase ):
         assert self.storage.exists( u"Test Folder/content.txt" ) == False
 
         self.client.login( username='B7W', password='root' )
-        self.storage.create( u"test.rar", "XXX" * 2 ** 4 )
+        self.storage.extra.create( u"test.rar", "XXX" * 2 ** 4 )
         file1 = self.storage.open( u"test.rar" )
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1] } )
         file1.close( )
         assert self.storage.exists( u"Test Folder/test.rar" ) == False
 
-        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt' ]
+        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt']
         file2 = self.storage.open( u"Фото 007.bin" )
         self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file2] } )
         file2.close( )
@@ -90,8 +90,8 @@ class ActionTest( StorageTestCase ):
         file_cache = FilePath.join( settings.LIMITED_CACHE_PATH, u"test.bin" )
         file_trash = FilePath.join( settings.LIMITED_TRASH_PATH, u"test.bin" )
 
-        self.storage.create( file_cache, u"Test" )
-        self.storage.create( file_trash, u"Test" )
+        self.storage.extra.create( file_cache, u"Test" )
+        self.storage.extra.create( file_trash, u"Test" )
 
         self.client.login( username='B7W', password='root' )
 
@@ -125,14 +125,14 @@ class ActionTest( StorageTestCase ):
         link_url = urlbilder( 'action', self.lib.id, 'add', n=url, p='' )
 
         self.client.login( username='B7W', password='root' )
-        
+
         resp = self.client.get( link_mkdir, follow=True )
         assert resp.status_code == 200
         assert self.storage.exists( u"New dir" ) == True
 
         resp = self.client.get( link_url, follow=True )
         assert resp.status_code == 200
-        self.timer.sleep()
+        self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_Chroot(self):
@@ -140,7 +140,7 @@ class ActionTest( StorageTestCase ):
         Test to inject in path something like that '../'
         """
         self.client.login( username='B7W', password='root' )
-        for item in [ '../', 'Test Folder/../../', '/', '/home', ]:
+        for item in ['../', 'Test Folder/../../', '/', '/home', ]:
             link = urlbilder( 'browser', self.lib.id, p=item )
             resp = self.client.get( link, follow=True )
             assert resp.status_code == 200

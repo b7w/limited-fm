@@ -13,3 +13,9 @@ Guides
     administrator
 
     developer
+
+
+
+* :ref:`genindex`
+* :doc:`Contents </contents>`
+* :ref:`search`

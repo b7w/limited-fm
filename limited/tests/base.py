@@ -5,7 +5,6 @@ import time
 from django.test import TestCase
 
 from limited import settings
-from limited.files.storage import FileStorage
 from limited.models import FileLib
 from limited.tests.data import InitData
 
@@ -59,16 +58,14 @@ class StorageTestCase( TestCase ):
     def setUp(self):
         self.timer = Timer( DEFAULT_SLEEP_TINE )
 
-        self.data = InitData()
-        self.data.LoadAll()
+        self.data = InitData( )
+        self.data.LoadAll( )
 
         self.lib = FileLib.objects.get( name="Test" )
-        self.storage = FileStorage( self.lib )
-        self.api = self.lib.getStorage()
+        self.storage = self.lib.getStorage( )
 
         self.lib2 = FileLib.objects.get( name="FileManager" )
-        self.api2 = self.lib2.getStorage()
-        self.storage2 = FileStorage( self.lib2 )
+        self.storage2 = self.lib2.getStorage( )
 
         settings.LIMITED_ANONYMOUS = False
         settings.LIMITED_ANONYMOUS_ID = 2
@@ -77,20 +74,17 @@ class StorageTestCase( TestCase ):
         settings.LIMITED_SERVE = {
             'BACKEND': 'limited.serve.backends.default',
             'INTERNAL_URL': '/protected',
-        }
+            }
 
-        try:
-            if self.storage.exists( u"" ):
-                self.storage.remove( u"" )
-            self.storage.mkdir( u"" )
-            self.storage.mkdir( settings.LIMITED_TRASH_PATH )
-            self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
-            self.storage.mkdir( settings.LIMITED_CACHE_PATH )
-            self.storage.mkdir( u"Test Folder" )
-            self.storage.create( u"content.txt", u"Test line in file" )
-            self.storage.create( u"Фото 007.bin", "007" * 2 ** 8 )
-        except Exception as e:
-            raise Exception( u"Error happened while init test files in 'setUp'." + str(e) )
+        if self.storage.exists( u"" ):
+            self.storage.remove( u"" )
+        self.storage.mkdir( u"" )
+        self.storage.mkdir( settings.LIMITED_TRASH_PATH )
+        self.storage.mkdir( settings.LIMITED_TRASH_PATH + u"/Crash Test" )
+        self.storage.mkdir( settings.LIMITED_CACHE_PATH )
+        self.storage.mkdir( u"Test Folder" )
+        self.storage.extra.create( u"content.txt", u"Test line in file" )
+        self.storage.extra.create( u"Фото 007.bin", "007" * 2 ** 8 )
 
     def run(self, result=None):
         """

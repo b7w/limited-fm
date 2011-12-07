@@ -11,14 +11,14 @@ from django.template.defaultfilters import filesizeformat
 
 from limited import settings
 from limited.serve.manager import DownloadManager
-from limited.files.storage import FileError, FileNotExist, FilePath
-from limited.files.utils import Thread
+from limited.files.storage import FileError, FileNotExist
+from limited.files.utils import Thread, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
 from limited.utils import split_path, HttpResponseReload, url_get_filename
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger( __name__ )
 
 def IndexView( request ):
     """
@@ -40,9 +40,9 @@ def IndexView( request ):
     AnonHomes = []
     if not user.is_anonymous( ) and not user.is_superuser:
         AnonHomes = Home.objects.select_related( 'lib' )\
-            .filter( user=settings.LIMITED_ANONYMOUS_ID )\
-            .exclude( lib__in=libs )\
-            .order_by( 'lib__name' )
+        .filter( user=settings.LIMITED_ANONYMOUS_ID )\
+        .exclude( lib__in=libs )\
+        .order_by( 'lib__name' )
 
     # append Anon user libs for history
     for i in AnonHomes:
@@ -72,12 +72,12 @@ def FilesView( request, id ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     lib_id = int( id )
     path = request.GET.get( 'p', '' )
     if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
-        return RenderError( request, u"IOError, Permission denied"  )
+        return RenderError( request, u"IOError, Permission denied" )
 
     try:
         home = get_home( request.user, lib_id )
@@ -90,10 +90,10 @@ def FilesView( request, id ):
 
         patharr = split_path( path )
 
-        File = home.lib.getStorage()
+        File = home.lib.getStorage( )
         files = File.listdir( path )
 
-        allowed = {}
+        allowed = { }
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
 
@@ -129,7 +129,7 @@ def HistoryView( request, id ):
     lib_id = int( id )
 
     try:
-        home = get_home( request.user, lib_id)
+        home = get_home( request.user, lib_id )
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -146,7 +146,7 @@ def HistoryView( request, id ):
     return render( request, u"limited/history.html", {
         'pathname': request.path,
         'patharr': patharr,
-        'history': list(history),
+        'history': list( history ),
         'home_id': lib_id,
         'home': home.lib.name,
         'permission': home.permission,
@@ -161,11 +161,11 @@ def TrashView( request, id ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     lib_id = int( id )
 
     try:
-        home = get_home( request.user, lib_id)
+        home = get_home( request.user, lib_id )
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -176,7 +176,7 @@ def TrashView( request, id ):
         patharr = split_path( 'Trash' )
 
         File = home.lib.getStorage( )
-        files = File.listTrash( )
+        files = File.trash.listdir( )
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -205,16 +205,16 @@ def ActionView( request, id, command ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     lib_id = int( id )
-    path = request.GET.get('p', '')
+    path = request.GET.get( 'p', '' )
     if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
-        return RenderError( request, u"IOError, Permission denied"  )
-    
-    home = get_home( request.user, lib_id)
+        return RenderError( request, u"IOError, Permission denied" )
+
+    home = get_home( request.user, lib_id )
     user = get_user( request.user )
-    Storage = home.lib.getStorage()
+    Storage = home.lib.getStorage( )
 
     history = History( lib=home.lib )
     history.path = FilePath.dirname( path )
@@ -231,9 +231,9 @@ def ActionView( request, id, command ):
                 path = FilePath.join( path, filename )
                 #TODO: Fucking TransactionManagementError don't now how to fix
                 # In a Thread we set signal=False to not update DB
-                T = Thread()
-                T.setView( Storage.download, name, path, signal=False )
-                T.start()
+                T = Thread( )
+                T.setView( Storage.extra.download, name, path, signal=False )
+                T.start( )
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
@@ -311,8 +311,6 @@ def ActionView( request, id, command ):
             else:
                 path2 = FilePath.join( FilePath.dirname( path ), path2 )
                 Storage.move( path, path2 )
-            #path2 = FilePath.norm( FilePath.dirname( path ), path2 )
-            #Storage.move( path, path2 )
             messages.success( request, u"'%s' successfully moved to '%s'" % ( FilePath.name( path ), path2) )
             history.user = user
             history.type = History.MOVE
@@ -332,7 +330,6 @@ def ActionView( request, id, command ):
                 messages.success( request, u"link already exists <a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>".format(domain, link.hash) )
             # else create new one
             elif home.permission.create:
-                #Link( hash=hash, lib=home.lib, path=path ).save( )
                 link = Link.objects.add( home.lib, path )
 
                 messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
@@ -378,17 +375,17 @@ def ActionClear( request, id, command ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     lib_id = int( id )
 
-    home = get_home( request.user, lib_id)
-    Storage = home.lib.getStorage()
+    home = get_home( request.user, lib_id )
+    Storage = home.lib.getStorage( )
 
     if command == u"trash":
         try:
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear trash" )
-            Storage.clear( settings.LIMITED_TRASH_PATH )
+            Storage.extra.clear( settings.LIMITED_TRASH_PATH )
         except ( PermissionError, FileError ) as e:
             logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )
@@ -397,7 +394,7 @@ def ActionClear( request, id, command ):
         try:
             if not request.user.is_staff:
                 raise PermissionError( u"You have no permission to clear cache" )
-            Storage.clear( settings.LIMITED_CACHE_PATH )
+            Storage.extra.clear( settings.LIMITED_CACHE_PATH )
         except ( PermissionError, FileError ) as e:
             logger.info( u"Action clear trash. {0}. home_id:{1}".format( e, lib_id ) )
             messages.error( request, e )
@@ -413,7 +410,7 @@ def UploadView( request, id ):
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
-    lib_id = int(id)
+    lib_id = int( id )
     path = request.POST['p']
     if FilePath.check( path, norm=True ) == False:
         logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
@@ -423,16 +420,16 @@ def UploadView( request, id ):
         try:
             # file paths to delete them after any Exception
             file_paths = []
-            home = get_home( request.user, lib_id)
+            home = get_home( request.user, lib_id )
             if not home.permission.upload:
                 raise PermissionError( u"You have no permission to upload" )
 
             user = get_user( request.user )
-            storage = home.lib.getStorage()
+            storage = home.lib.getStorage( )
 
             files = request.FILES.getlist( u'files' )
 
-            if len(files) == 0:
+            if len( files ) == 0:
                 messages.warning( request, "No any files selected" )
                 return HttpResponseReload( request )
 
@@ -465,7 +462,7 @@ def UploadView( request, id ):
             for file in file_paths:
                 if storage.exists( file ):
                     storage.remove( file )
-            raise 
+            raise
 
     return HttpResponseReload( request )
 
@@ -477,13 +474,13 @@ def DownloadView( request, id ):
     """
     if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
-    
+
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )
         if FilePath.check( path, norm=True ) == False:
             logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
-            return RenderError( request, u"IOError, Permission denied"  )
+            return RenderError( request, u"IOError, Permission denied" )
 
         try:
             home = get_home( request.user, lib_id )

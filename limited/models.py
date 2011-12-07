@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 from limited import settings
 from limited.fields import JsonTreeField, TextListField
 from limited.files.api import FileStorageApi
-from limited.files.storage import FilePath
+from limited.files.utils import FilePath
 
 class PermissionError( Exception ):
     pass
@@ -44,9 +44,9 @@ class Permission( models.Model ):
         """
         Return object with all fields equal True
         """
-        fieldcount = len(self._meta.fields)-1
-        fields = self.fields()
-        perm = Permission()
+        fieldcount = len( self._meta.fields ) - 1
+        fields = self.fields( )
+        perm = Permission( )
         for l in range( fieldcount ):
             setattr( perm, fields[l], True )
         return perm
@@ -92,18 +92,18 @@ class FileLib( models.Model ):
         """
         Return size of a cache directory
         """
-        File = self.getStorage()
+        File = self.getStorage( )
         if File.isdir( settings.LIMITED_CACHE_PATH ):
-            return File.size( settings.LIMITED_CACHE_PATH, dir=True  )
+            return File.size( settings.LIMITED_CACHE_PATH, dir=True )
         return 0
 
     def get_trash_size(self):
         """
         Return size of a trash directory
         """
-        File = self.getStorage()
+        File = self.getStorage( )
         if File.isdir( settings.LIMITED_TRASH_PATH ):
-            return File.size( settings.LIMITED_TRASH_PATH, dir=True  )
+            return File.size( settings.LIMITED_TRASH_PATH, dir=True )
         return 0
 
     class Meta:
@@ -144,36 +144,36 @@ class History( models.Model ):
     DELETE = 6
     LINK = 7
     ACTION = (
-            (CREATE, 'create'),
-            (UPLOAD, 'upload'),
-            (RENAME, 'rename'),
-            (MOVE, 'move'),
-            (TRASH, 'trash'),
-            (DELETE, 'delete'),
-            (LINK, 'link'),
+        (CREATE, 'create'),
+        (UPLOAD, 'upload'),
+        (RENAME, 'rename'),
+        (MOVE, 'move'),
+        (TRASH, 'trash'),
+        (DELETE, 'delete'),
+        (LINK, 'link'),
         )
     image = (
-            (CREATE, 'create'),
-            (UPLOAD, 'create'),
-            (RENAME, 'rename'),
-            (MOVE, 'move'),
-            (TRASH, 'trash'),
-            (DELETE, 'delete'),
-            (LINK, 'create'),
+        (CREATE, 'create'),
+        (UPLOAD, 'create'),
+        (RENAME, 'rename'),
+        (MOVE, 'move'),
+        (TRASH, 'trash'),
+        (DELETE, 'delete'),
+        (LINK, 'create'),
         )
     user = models.ForeignKey( User )
     lib = models.ForeignKey( FileLib )
     type = models.IntegerField( max_length=1, choices=ACTION )
     files = TextListField( max_length=1024, null=False )
     path = models.CharField( max_length=256, null=True, blank=True )
-    extra = models.CharField( max_length=256, null=True, blank=True  )
+    extra = models.CharField( max_length=256, null=True, blank=True )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
     def get_image_type(self):
         """
         Return image type depend of ACTION
         """
-        for key,val in self.image:
+        for key, val in self.image:
             if key == self.type:
                 return val
 
@@ -213,6 +213,7 @@ class LinkManager( models.Manager ):
     Object manager for simpler creating links
     and find them by hash
     """
+
     def add(self, lib, path, age=None, *args, **kwargs ):
         """
         Create new link with default LIMITED_LINK_MAX_AGE or age in seconds
@@ -233,13 +234,14 @@ class LinkManager( models.Manager ):
         Find firs link by hash if it no expired
         else return None
         """
-        links = self.get_query_set()\
-            .filter( hash=hash, expires__gt=datetime.now() )\
+        links = self.get_query_set( )\
+            .filter( hash=hash, expires__gt=datetime.now( ) )\
             .order_by( '-time' )
         if len(links) > 0:
             return links[0]
-        
+
         return None
+
 
 class Link( models.Model ):
     """
@@ -252,14 +254,14 @@ class Link( models.Model ):
     expires = models.DateTimeField( null=False )
     time = models.DateTimeField( auto_now_add=True, null=False )
 
-    objects = LinkManager()
+    objects = LinkManager( )
 
-    @classmethod
-    def get_hash(self, lib_id, path ):
+    @staticmethod
+    def get_hash(lib_id, path ):
         """
         Return hash for link, need lib id and file path
         """
-        return hashlib.md5( str(lib_id) + smart_str( path ) ).hexdigest( )[0:12]
+        return hashlib.md5( str( lib_id ) + smart_str( path ) ).hexdigest( )[0:12]
 
     class Meta:
         verbose_name = 'Link'
@@ -273,6 +275,7 @@ class LUser( User ):
     """
     Simple proxy for django user with Home Inline.
     """
+
     class Meta:
         ordering = ["username"]
         proxy = True

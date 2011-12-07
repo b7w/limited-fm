@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core.management.color import no_style
 from limited.management.utils import clear_db_cache
 
@@ -15,8 +15,3 @@ class Command( BaseCommand ):
         else:
             time = eval( args[0] )
             clear_db_cache( time )
-#            try:
-#                time = eval( args[0] )
-#                clear_db_cache( time )
-#            except Exception as e:
-#                raise CommandError( e )

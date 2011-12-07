@@ -5,29 +5,28 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.html import escape
 
 from limited import settings
-from limited.models import FileLib, Link
-from limited.files.storage import FileStorage, FilePath
+from limited.models import  Link
+from limited.files.utils import FilePath
 from limited.tests.base import StorageTestCase
 from limited.utils import urlbilder
 
 class ViewsTest( StorageTestCase ):
-
     def test_Anon_Redirects(self):
         """
         Test redirect to login page when user is Anonymous
         and settings.LIMITED_ANONYMOUS = False
         """
-        
+
         assert self.client.get( '/' ).status_code == 302
-        assert self.client.get( urlbilder( 'browser', 1 )  ).status_code == 302
-        assert self.client.get( urlbilder( 'trash', 1 )  ).status_code == 302
-        assert self.client.get( urlbilder( 'history', 1 )  ).status_code == 302
-        assert self.client.get( urlbilder( 'action', 1, 'delete', p='' )  ).status_code == 302
-        assert self.client.get( urlbilder( 'clear', 1, 'cache' )  ).status_code == 302
-        assert self.client.get( urlbilder( 'download', 1 )  ).status_code == 302
-        assert self.client.get( urlbilder( 'upload', 1 )  ).status_code == 302
-        
-        
+        assert self.client.get( urlbilder( 'browser', 1 ) ).status_code == 302
+        assert self.client.get( urlbilder( 'trash', 1 ) ).status_code == 302
+        assert self.client.get( urlbilder( 'history', 1 ) ).status_code == 302
+        assert self.client.get( urlbilder( 'action', 1, 'delete', p='' ) ).status_code == 302
+        assert self.client.get( urlbilder( 'clear', 1, 'cache' ) ).status_code == 302
+        assert self.client.get( urlbilder( 'download', 1 ) ).status_code == 302
+        assert self.client.get( urlbilder( 'upload', 1 ) ).status_code == 302
+
+
     def test_Admin_Homes(self):
         """
         Look home page of admin
@@ -240,7 +239,7 @@ class ViewsTest( StorageTestCase ):
         """
         self.setAnonymous( True )
 
-        storage = self.lib2.getStorage()
+        storage = self.lib2.getStorage( )
         # add True
         link = urlbilder( 'action', self.lib2.id, "add", p='', n='new dir' )
         resp = self.client.get( link, follow=True )

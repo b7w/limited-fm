@@ -46,18 +46,22 @@ Are you sure you want to do this?
                 cursor = connection.cursor( )
                 for sql in sql_list:
                     cursor.execute( sql )
-                print "Permissions flushed."
+                if interactive:
+                    print "Permissions flushed."
                 transaction.commit_on_success( using=db )( load_permissions )( using=db )
-                print "%s permissions loaded." % Permission.objects.count( )
+                if interactive:
+                    print "%s permissions loaded." % Permission.objects.count( )
             except Exception, e:
                 transaction.rollback_unless_managed( using=db )
-                print "Rollback."
+                if interactive:
+                    print "Rollback."
                 raise CommandError( """Permissions couldn't be load. \nThe full error: %s""" % e )
 
             transaction.commit_unless_managed( using=db )
 
         else:
-            print "Cancelled."
+            if interactive:
+                print "Cancelled."
         
         
         

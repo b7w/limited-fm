@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import urlquote
 
-from limited.files.storage import FilePath
+from limited.files.utils import FilePath
 
 
 class HttpResponseReload( HttpResponse ):
@@ -30,6 +30,7 @@ def split_path( path ):
         /root/path1/path2 ->
         root:/root, path1:/root/path2, path2:/root/path1/path2
     """
+
     def _split_path( path, data ):
         name = os.path.basename( path )
         if name != '':
@@ -182,10 +183,10 @@ class TreeNode:
         Delete recursive all children
         """
         node = self.children.get( name )
-        if len(node.children) > 0:
+        if len( node.children ) > 0:
             for item in node.children.values( ):
                 node.deleteName( item.name )
-        del self.children[ name ]
+        del self.children[name]
 
     def toDict(self):
         """
@@ -196,4 +197,4 @@ class TreeNode:
         return data
 
     def __str__(self):
-        return "TreeNode({0}, {1})".format(self.name, self.hash)
+        return "TreeNode({0}, {1})".format( self.name, self.hash )
