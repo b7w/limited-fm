@@ -18,5 +18,5 @@ urlpatterns = patterns('',
     url(r'^link/(?P<hash>\w+)/$', 'limited.views.LinkView', name='link' ),
 )
 
-if settings.LIMITED_IVIEWER:
-    urlpatterns += patterns('', url(r'^', include('iviewer.urls') ), )
+if settings.LIMITED_LVIEWER:
+    urlpatterns += patterns('', url(r'^', include( 'lviewer.urls' ) ), )

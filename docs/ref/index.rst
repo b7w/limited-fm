@@ -6,10 +6,22 @@ API Reference
 .. toctree::
     :maxdepth: 2
 
-    models
+    files/index
 
-    storage
+
+.. toctree::
+    :maxdepth: 2
+    
+    fields
+
+    models
 
     serving
 
     settings
+
+
+
+* :ref:`genindex`
+* :doc:`Contents </contents>`
+* :ref:`search`

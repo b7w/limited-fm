@@ -4,8 +4,8 @@ from django.core.files.base import File
 
 from limited import settings
 from limited.management.utils import clear_folders
-from limited.files.storage import FileError, FileNotExist, FilePath
-from limited.files.utils import Thread
+from limited.files.storage import FileError, FileNotExist
+from limited.files.utils import Thread, FilePath
 from limited.tests.base import StorageTestCase
 
 
@@ -23,7 +23,7 @@ class FileStorageTest( StorageTestCase ):
         assert FilePath.join( u"/path", "name" ) == u"/path/name"
         assert FilePath.join( u"/root/path", "name" ) == u"/root/path/name"
         assert FilePath.join( u"/path/", "name" ) == u"/path/name"
-        assert FilePath.join( u"/path/", "/name" ) != u"/path/name", " = /name"
+        assert FilePath.join( u"/path/", "/name" ) == u"/path/name"
 
         assert FilePath.name( u"/path/name" ) == u"name"
         assert FilePath.name( u"/path/name" ) == u"name"
@@ -53,7 +53,7 @@ class FileStorageTest( StorageTestCase ):
         """
         Simple check for ``get Absolute``
         """
-        assert self.storage.abspath( u"file.ext" ) == self.lib.get_path( ) + u'/' + u"file.ext"
+        assert self.storage.fs.abspath( u"file.ext" ) == self.lib.get_path( ) + u'/' + u"file.ext"
 
     def test_homepath(self):
         """
@@ -73,7 +73,7 @@ class FileStorageTest( StorageTestCase ):
         """
         Try to create file with content and read it back
         """
-        self.storage.create( u"Test Folder/test.bin", u"Test" )
+        self.storage.extra.create( u"Test Folder/test.bin", u"Test" )
         assert self.storage.exists( u"Test Folder/test.bin" ) == True
         assert self.storage.isfile( u"Test Folder/test.bin" ) == True
         f = self.storage.open( u"Test Folder/test.bin" )
@@ -105,7 +105,7 @@ class FileStorageTest( StorageTestCase ):
         self.storage.remove( u"New dir" )
         assert self.storage.exists( u"New dir" ) == False
 
-        self.storage.create( u"test.bin", u"Test" )
+        self.storage.extra.create( u"test.bin", u"Test" )
         self.storage.remove( u"test.bin" )
         assert self.storage.exists( u"test.bin" ) == False
 
@@ -113,20 +113,20 @@ class FileStorageTest( StorageTestCase ):
         """
         Test clear and test and very similar 'controls.clear_folders'
         """
-        self.assertRaises( FileNotExist, self.storage.clear, u"No Folder" )
-        self.assertRaises( FileError, self.storage.clear, u"content.txt" )
+        self.assertRaises( FileNotExist, self.storage.extra.clear, u"No Folder" )
+        self.assertRaises( FileError, self.storage.extra.clear, u"content.txt" )
 
-        self.storage.clear( settings.LIMITED_TRASH_PATH, older=60 )
+        self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=60 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
-        self.timer.sleep()
-        self.storage.clear( settings.LIMITED_TRASH_PATH, older=1 )
+        self.timer.sleep( )
+        self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=1 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
-        self.storage.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
-        self.storage.clear( settings.LIMITED_TRASH_PATH )
+        self.storage.extra.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
+        self.storage.extra.clear( settings.LIMITED_TRASH_PATH )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
-        self.storage.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
+        self.storage.extra.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
         clear_folders( u"NoFolder" )
         clear_folders( settings.LIMITED_TRASH_PATH, 0 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/test.bin" ) == False
@@ -149,8 +149,8 @@ class FileStorageTest( StorageTestCase ):
         self.assertRaises( FileNotExist, self.storage.move, u"No Folder", u"Some Folder" )
         self.assertRaises( FileNotExist, self.storage.move, u"Test Folder", u"No Folder" )
         self.storage.mkdir( u"New dir" )
-        self.storage.create( u"New dir/test.bin", u"Test" )
-        self.storage.create( u"New dir/test2.bin", u"Test" )
+        self.storage.extra.create( u"New dir/test.bin", u"Test" )
+        self.storage.extra.create( u"New dir/test2.bin", u"Test" )
 
         self.storage.move( u"New dir/test.bin", u"Test Folder" )
         assert self.storage.exists( u"New dir/test.bin" ) == False
@@ -169,7 +169,7 @@ class FileStorageTest( StorageTestCase ):
         self.assertRaises( FileNotExist, self.storage.rename, u"no file.txt", u"Фото 007.bin" )
         self.assertRaises( FileError, self.storage.rename, u"content.txt", u"Фото 007.bin" )
         self.storage.mkdir( u"New dir" )
-        self.storage.create( u"New dir/test.bin", u"Test" )
+        self.storage.extra.create( u"New dir/test.bin", u"Test" )
 
         self.storage.rename( u"New dir/test.bin", u"test2.bin" )
         assert self.storage.exists( u"New dir/test2.bin" ) == True
@@ -182,16 +182,16 @@ class FileStorageTest( StorageTestCase ):
         """
         Test moving to trash files and directories
         """
-        self.assertRaises( FileNotExist, self.storage.totrash, u"no file" )
+        self.assertRaises( FileNotExist, self.storage.trash.totrash, u"no file" )
         self.storage.mkdir( u"Crash Test" )
-        self.storage.create( u"Crash Test/test.bin", u"Test" )
+        self.storage.extra.create( u"Crash Test/test.bin", u"Test" )
 
         self.storage.remove( settings.LIMITED_TRASH_PATH )
-        self.storage.totrash( u"Crash Test/test.bin" )
+        self.storage.trash.totrash( u"Crash Test/test.bin" )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH ) == True
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/test.bin" ) == True
 
-        self.storage.totrash( u"Crash Test" )
+        self.storage.trash.totrash( u"Crash Test" )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
 
     def test_size(self):
@@ -201,8 +201,8 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.size( u"content.txt", cached=False ) == 17
         assert self.storage.size( u"Test Folder", cached=False ) == 0
         assert self.storage.size( u"Test Folder", dir=True, cached=False ) == 0
-        self.storage.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
-        self.storage.create( u"Test Folder/test2.bin", "XXX" * 2 ** 16 )
+        self.storage.extra.create( u"Test Folder/test.bin", "XXX" * 2 ** 16 )
+        self.storage.extra.create( u"Test Folder/test2.bin", "XXX" * 2 ** 16 )
         assert self.storage.size( u"Test Folder", dir=True, cached=False ) == 196608 + 196608
 
     def test_list_dir(self):
@@ -236,48 +236,49 @@ class FileStorageTest( StorageTestCase ):
         """
         Test listfiles
         """
-        assert self.storage.listfiles( u"Test Folder" ).__len__( ) == 0
+        assert self.storage.fs.listfiles( u"Test Folder" ).__len__( ) == 0
 
-        abs = FilePath.join( settings.LIMITED_ROOT_PATH, self.lib.get_path( ) )
+        abs = self.lib.get_path( )
         real = {
-            FilePath.join( abs, u'content.txt' ): u'content.txt',
+            FilePath.join( abs, u"content.txt" ): u"content.txt",
             FilePath.join( abs, u"Фото 007.bin" ): u"Фото 007.bin",
             }
-        assert self.storage.listfiles( "" ) == real
+        assert self.storage.fs.listfiles( "" ) == real
 
-        self.storage.create( u"Test Folder/test.bin", u"Test" )
+        self.storage.extra.create( u"Test Folder/test.bin", u"Test" )
         real.update( { FilePath.join( abs, u'Test Folder/test.bin' ): u'Test Folder/test.bin' } )
-        assert self.storage.listfiles( "" ) == real
+        assert self.storage.fs.listfiles( "" ) == real
 
     def test_available_name(self):
         """
         Test reservation of file name
         """
         assert self.storage.available_name( u"file name.ext" ) == u"file name.ext"
-        self.storage.create( u"file name.ext", u"Test" )
+        self.storage.extra.create( u"file name.ext", u"Test" )
         assert self.storage.available_name( u"file name.ext" ) == u"file name[1].ext"
-        self.storage.create( u"file name[1].ext", u"Test" )
+        self.storage.extra.create( u"file name[1].ext", u"Test" )
         assert self.storage.available_name( u"file name.ext" ) == u"file name[2].ext"
 
     def test_zip(self):
         """
         Test zip, unzip for files and folders
         """
-        self.storage.zip( u"content.txt" )
+        self.storage.extra.zip( u"content.txt" )
         assert self.storage.exists( u"content.txt.zip" ) == True
         self.storage.move( u"content.txt.zip", u"Test Folder" )
 
-        self.storage.unzip( u"Test Folder/content.txt.zip" )
+        self.storage.extra.unzip( u"Test Folder/content.txt.zip" )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
 
-        self.storage.zip( u"Test Folder", u"Test Folder.zip" )
+        self.storage.extra.zip( u"Test Folder", u"Test Folder.zip" )
         assert self.storage.exists( u"Test Folder.zip" ) == True
         self.storage.move( u"Test Folder.zip", u"Test Folder" )
-        self.storage.unzip( u"Test Folder/Test Folder.zip" )
+        self.storage.extra.unzip( u"Test Folder/Test Folder.zip" )
         assert self.storage.exists( u"Test Folder/Test Folder/content.txt" ) == True
 
         obj = Thread( )
-        obj.start( self.storage.zip, u"Test Folder", u"Test Folder2.zip" )
+        obj.setView( self.storage.extra.zip, u"Test Folder", u"Test Folder2.zip" )
+        obj.start( )
         self.timer.sleep( )
         assert self.storage.exists( u"Test Folder2.zip" ) == True
 
@@ -286,13 +287,14 @@ class FileStorageTest( StorageTestCase ):
         Test download in Thread
         """
         url = u"http://www.google.ru/images/srpr/logo3w.png"
-        self.storage.download( url, u"logo3w.png" )
+        self.storage.extra.download( url, u"logo3w.png" )
         assert self.storage.exists( u"logo3w.png" ) == True
 
         self.storage.remove( u"logo3w.png" )
 
         obj = Thread( )
-        obj.start( self.storage.download, url, u"logo3w.png" )
+        obj.setView( self.storage.extra.download, url, u"logo3w.png", signal=False )
+        obj.start( )
         self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
@@ -301,6 +303,8 @@ class FileStorageTest( StorageTestCase ):
         Test url, time. Just work it or not
         """
         assert self.storage.url( u"content.txt" ) != None
-        assert self.storage.accessed_time( u"content.txt" ) != None
-        assert self.storage.created_time( u"content.txt" ) != None
-        assert self.storage.modified_time( u"content.txt" ) != None
+        assert self.storage.fs.accessed_time( u"content.txt" ) == self.storage.time( u"content.txt", u"accessed" )
+        assert self.storage.fs.created_time( u"content.txt" ) == self.storage.time( u"content.txt", u"created" )
+        assert self.storage.fs.modified_time( u"content.txt" ) == self.storage.time( u"content.txt", u"modified" )
+        assert self.storage.fs.modified_time( u"content.txt" ) == self.storage.time( u"content.txt" )
+        self.assertRaises( FileError, self.storage.time, u"content.txt", type="some" )

@@ -146,7 +146,7 @@ class ResizeOptions:
 
     def setFromSetting(self, value):
         """
-        Set values from settings.IVIEWER_BIG_IMAGE for example
+        Set values from settings.LVIEWER_BIG_IMAGE for example
         """
         self.width = value['WIDTH']
         self.height = value['HEIGHT']

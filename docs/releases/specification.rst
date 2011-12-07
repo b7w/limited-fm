@@ -80,4 +80,4 @@ Other
 * | Create tests
 * | Create FAQ page
 * | Create documentation
-* | Licensed under the Apache license
+* | Licensed under the BSD license

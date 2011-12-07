@@ -11,5 +11,13 @@ Getting started
     overview
 	
     installation
+
+    FAQ
 	
     feedback
+
+
+
+* :ref:`genindex`
+* :doc:`Contents </contents>`
+* :ref:`search`

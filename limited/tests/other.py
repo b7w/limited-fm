@@ -15,20 +15,15 @@ from limited.utils import split_path, urlbilder, url_get_filename, TreeNode
 
 
 class CodeTest( TestCase ):
-
     def setUp(self):
-        self.data = InitData()
-        self.data.LoadAll()
+        self.data = InitData( )
+        self.data.LoadAll( )
 
     def test_load_permissions(self):
         """
         Test management command loadpermissions.
         """
-        print
-        print '# Management output start'
         call_command( 'loadpermissions', interactive=False )
-        print '# Management end'
-        print
         assert Permission.objects.count( ) == 2 ** len( Permission.fields( ) )
 
     def test_clear_folder(self):
@@ -209,7 +204,7 @@ class CodeTest( TestCase ):
         tree.createName( 5, "node1" )
         assert tree.hash == 5
         assert tree.getName( "node1" ).hash == 5
-        assert tree.getName( "node1" ).children.__len__() == 0
+        assert tree.getName( "node1" ).children.__len__( ) == 0
 
         DictNode1 = { 'name': 'node1', 'hash': 3, 'children': [], }
         DictNode2 = { 'name': 'node2', 'hash': 3, 'children': [], }
@@ -220,7 +215,7 @@ class CodeTest( TestCase ):
         assert tree.children.has_key( "node1" ) == True
         assert tree.children.has_key( "node2" ) == True
 
-        assert tree.toDict() == DictTree
+        assert tree.toDict( ) == DictTree
 
         tree.deleteName( "node1" )
         assert tree.children.has_key( "node1" ) == False

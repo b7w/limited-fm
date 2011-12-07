@@ -93,7 +93,9 @@ function handleFileSelect(event, allowed, except) {
         }
     }
     if (flag == true) {
-        document.getElementById( 'files' ).value = "";
+        var fr = document.getElementById( 'files' );
+        fr.form.reset();
+        fr.focus();
     }
 }
 

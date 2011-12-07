@@ -214,10 +214,11 @@ History model
           You can call all this action like attributes in upper case. For example ``History.CREATE``.
           It will be useful to create new objects.
 
-    .. attribute:: name
+    .. attribute:: files
 
-        | *CharField*, max_length=256, null=False
-        | Store file name or message when there is more then one files.
+        | *TextListField*, max_length=1024, null=False
+        | Store files name separated by comma.
+        | If the list is greater than max_length it will be truncated and logged.
 
     .. attribute:: path
 

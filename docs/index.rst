@@ -19,7 +19,7 @@ First steps:
 	:doc:`Installation <intro/installation>`
 
 * | **Getting help:**
-    :doc:`feedback <intro/feedback>`
+    :doc:`Feedback <intro/feedback>`
 
 
 
@@ -42,7 +42,8 @@ The development process
 ------------------------------------
 
 * | **Models:**
-	:doc:`Overview <ref/models>`
+	:doc:`Overview <ref/models>` |
+	:doc:`Extra fields <ref/fields>`
 
 * | **Testing:**
 	:doc:`Overview <topics/testing>`
@@ -56,13 +57,20 @@ API Reference:
 	:doc:`Full list of settings <ref/settings>`
 
 * | **Files:**
-    :doc:`Storage <ref/storage>` |
+    :doc:`File Storage Api<ref/files/api>` |
+    :doc:`Low level operations<ref/files/storage>` |
+	:doc:`Utils<ref/files/utils>`
+
+* | **Serve:**
 	:doc:`Serving backens <ref/serving>`
 
 
 
 Releases notes:
 ------------------------------------
+
+* | **Versions:**
+    :doc:`Release notes <releases/notes>`
 
 * | **Advanced:**
     :doc:`Specification <releases/specification>` |
@@ -74,6 +82,6 @@ Indices and tables
 ====================================
 
 * :ref:`genindex`
-* :doc:`Contents <contents>`
+* :doc:`Contents </contents>`
 * :ref:`search`
 

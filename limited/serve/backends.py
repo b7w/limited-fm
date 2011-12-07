@@ -8,6 +8,7 @@ class BaseDownloadResponse:
     self.settings - dict settings.LIMITED_SERVE
     plus default values such as content_type
     """
+
     def __init__(self, storage, settings):
         self.storage = storage
         self.settings = settings
@@ -35,7 +36,7 @@ class nginx( BaseDownloadResponse ):
 
 class default( BaseDownloadResponse ):
     def generate(self, path, name):
-        wrapper = FileWrapper( self.storage.open( path ) )
+        wrapper = FileWrapper( self.storage.open( path, signal=False ) )
         response = HttpResponse( wrapper )
         response['Content-Type'] = self.settings['Content-Type']
         response['Content-Disposition'] = "attachment; filename=\"%s\"" % name.encode( 'utf-8' )

@@ -2,9 +2,9 @@
 
 from limited import settings
 from limited.tests.base import StorageTestCase
-
-from iviewer.utils import ResizeOptions, ResizeImage
 from limited.utils import urlbilder
+
+from lviewer.utils import ResizeOptions, ResizeImage
 
 
 class ViewerTest( StorageTestCase ):
@@ -15,9 +15,9 @@ class ViewerTest( StorageTestCase ):
         """
         super( ViewerTest, self ).setUp( )
 
-        self.image_fantasy_world = u"iviewer/tests/resources/fantasy-world.jpeg"
-        self.set_width = settings.IVIEWER_BIG_IMAGE['WIDTH']
-        self.set_height = settings.IVIEWER_BIG_IMAGE['HEIGHT']
+        self.image_fantasy_world = u"lviewer/tests/resources/fantasy-world.jpeg"
+        self.set_width = settings.LVIEWER_BIG_IMAGE['WIDTH']
+        self.set_height = settings.LVIEWER_BIG_IMAGE['HEIGHT']
         filein = self.storage2.open( self.image_fantasy_world, mode='rb', signal=False )
         self.storage.save( u"Test Folder/fantasy-world.jpeg", filein, signal=False )
         filein.close( )

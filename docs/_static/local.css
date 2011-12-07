@@ -30,3 +30,7 @@ li p.first {
 a.reference em {
     font-style: normal;
 }
+
+dd {
+    margin-left: 0px;
+}

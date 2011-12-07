@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 
-from iviewer.utils import ResizeImage, ResizeOptions, ResizeOptionsError
+from lviewer.utils import ResizeImage, ResizeOptions, ResizeOptionsError
 
 from limited import settings
 from limited.files.storage import FileError, FileNotExist, FilePath
@@ -37,11 +37,14 @@ def ImagesView( request, id ):
         patharr = split_path( path )
 
         File = home.lib.getStorage( )
-        files = File.listdir( path )
-        files = [i for i in files if i["name"].lower( ).endswith( ".jpg" )]
+        files = []
+        for item in File.listdir( path ):
+            tmp = item["name"].lower( )
+            if tmp.endswith( ".jpg" ) or tmp.endswith( ".jpeg" ):
+                files.append( item )
 
-        small_image = ResizeOptions( settings.IVIEWER_SMALL_IMAGE )
-        big_image = ResizeOptions( settings.IVIEWER_BIG_IMAGE )
+        small_image = ResizeOptions( settings.LVIEWER_SMALL_IMAGE )
+        big_image = ResizeOptions( settings.LVIEWER_BIG_IMAGE )
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
@@ -49,7 +52,7 @@ def ImagesView( request, id ):
         logger.error( u"Files. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
         return RenderError( request, e )
 
-    return render( request, u"iviewer/images.html", {
+    return render( request, u"lviewer/images.html", {
         'pathname': request.path,
         'path': path,
         'patharr': patharr,
@@ -57,7 +60,7 @@ def ImagesView( request, id ):
         'home': home.lib.name,
         'permission': home.permission,
         'files': files,
-        'small_image' : small_image,
+        'small_image': small_image,
         'big_image': big_image,
         } )
 
@@ -77,7 +80,11 @@ def ResizeView( request, id, size ):
         try:
             home = get_home( request.user, lib_id )
             storage = home.lib.getStorage( )
-
+            if not storage.isfile( path ):
+                raise FileNotExist()
+            if not( path.endswith( ".jpg" ) or path.endswith( ".jpeg" ) ):
+                raise FileNotExist()
+            
             HashBuilder = FileUnicName( )
             hash_path = HashBuilder.build( path, extra=options.size )
             hash_path = FilePath.join( settings.LIMITED_CACHE_PATH, hash_path + ".jpg" )

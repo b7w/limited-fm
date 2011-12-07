@@ -16,7 +16,6 @@ Limited structure
   Documentation is in `Sphinx <http://sphinx.pocoo.org/>`__ format.
   You can build it with ``make html`` in *docs* dir.
   For more look `here <http://sphinx.pocoo.org/contents.html>`__.
-  *dump.json* file is test data. *LICENSE* is a BSD license text.
   *settings.py.smpl* sample configuration file.
   *urls.py* provide basic Django auth with limited templates, admin site, and limited url module.
 
@@ -30,7 +29,7 @@ Limited structure
 
 * files:
     * | storage: FileStorage class, some exceptions and FilePath.
-        For more look :doc:`here </ref/storage>`.
+        For more look :doc:`here </ref/files/storage>`.
     * | utils: Some thread wrapper for FileStorage methods.
 
 * management:
@@ -75,6 +74,8 @@ Limited structure
 
 * | controls: Function that get some data from database or utils related to web.
 
+* | fields: Some extra Model fields and widgets.
+
 * | utils: Some small functions.
 
 * | settings: Module to import default settings for limited app.
@@ -105,5 +106,5 @@ What to read next
 | Some links to help find out more information.
   Also look :doc:`Index </index>` and :doc:`Table of contents </contents>`
 
-* | :doc:`/ref/models`.
-* | :doc:`/ref/storage`.
+* | :doc:`/ref/models`
+* | :doc:`/ref/files/storage`

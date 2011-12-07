@@ -7,10 +7,9 @@ from django.db.models.query_utils import Q
 
 from limited import settings
 from limited.models import Home, FileLib, Permission
-from limited.files.storage import FileStorage
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger( __name__ )
 
 def get_home( user, lib_id ):
     """
@@ -20,14 +19,14 @@ def get_home( user, lib_id ):
     """
     if user.is_authenticated( ):
         if user.is_superuser:
-            home = Home()
+            home = Home( )
             home.lib = FileLib.objects.get( id=lib_id )
-            home.permission = Permission.full()
+            home.permission = Permission.full( )
             return home
         elif settings.LIMITED_ANONYMOUS:
             home = Home.objects.select_related( 'lib', 'permission' ).\
-                filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=lib_id)
-            length = len(home)
+            filter( Q( user=user ) | Q( user=settings.LIMITED_ANONYMOUS_ID ), lib__id=lib_id )
+            length = len( home )
             if length == 0:
                 raise Home.DoesNotExist
             # if len==2 than we have Anon and User permission
@@ -35,7 +34,7 @@ def get_home( user, lib_id ):
             elif length == 2:
                 if home[0].user_id == settings.LIMITED_ANONYMOUS_ID:
                     return home[1]
-                # else: return home[0]
+                    # else: return home[0]
             return home[0]
         else:
             return Home.objects.select_related( 'lib', 'permission' ).get( user=user, lib__id=lib_id )
@@ -84,10 +83,10 @@ def truncate_path( str, length=64, ext=False):
         name_ext = re.match( restr, str )
         if name_ext != None:
             #return "%s..%s" % name_ext.groups( )
-            filename = name_ext.group(1).strip()
-            fileext = name_ext.group(2).strip()
+            filename = name_ext.group( 1 ).strip( )
+            fileext = name_ext.group( 2 ).strip( )
             return u"{0}..{1}".format( filename, fileext )
-    if len(str) < length:
+    if len( str ) < length:
         return str
     else:
-        return str[:length].strip() + u".."
+        return str[:length].strip( ) + u".."

@@ -7,6 +7,7 @@ syntax: regexp
 \.log
 
 \.idea/
+fabfile\.py
 
 ^debug_toolbar/
 ^django_coverage/

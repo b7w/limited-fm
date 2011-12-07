@@ -30,6 +30,7 @@ a.section:link, a.section:visited {
     color: white;
     text-decoration: none;
 }
+
 a.section-info:link, a.section-info:visited {
     color: #EEE;
     text-decoration: none;
@@ -105,6 +106,11 @@ form {
     font-weight: normal !important;
 }
 
+.quiet2, a.quiet:link, a.quiet:visited {
+    color: #888 !important;
+    font-weight: normal !important;
+}
+
 .float-right {
     float: right;
 }
@@ -163,6 +169,7 @@ thead th:first-child {
 #changelist tbody tr {
     height: 29px;
 }
+
 #changelist tr:hover {
     background-color: #FFC;
 }
@@ -292,7 +299,10 @@ ul.messagelist li {
 
 ul.messagelist li.error {
     background-image: url(../img/delete.png);
-    line-height: 24px;
+}
+
+ul.messagelist li.warning {
+    background-image: url(../img/rename.png);
 }
 
 /* BREADCRUMBS */
@@ -313,18 +323,22 @@ div.breadcrumbs {
     padding-left: 20px;
     background: url(../img/create.png) 0 0.5em no-repeat;
 }
+
 .rename-act {
     padding-left: 20px;
     background: url(../img/rename.png) 0 0.5em no-repeat;
 }
+
 .move-act {
     padding-left: 20px;
     background: url(../img/move.png) 0 0.5em no-repeat;
 }
+
 .trash-act {
     padding-left: 20px;
     background: url(../img/trash.png) 0 0.5em no-repeat;
 }
+
 .delete-act {
     padding-left: 20px;
     background: url(../img/delete.png) 0 0.5em no-repeat;
@@ -459,6 +473,7 @@ div.breadcrumbs {
 
 ul.actionlist li {
     list-style-type: none;
+    margin-bottom: 2px;
 }
 
 .dir {
@@ -472,6 +487,10 @@ ul.actionlist li {
 
 .history a {
     margin: 0 4px;
+}
+
+.history div {
+    margin: 4px 8px 0px 8px;
 }
 
 .upload {

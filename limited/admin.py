@@ -23,20 +23,23 @@ class AdminFileLib( admin.ModelAdmin ):
             'fields': ('dir_cache', 'dir_trash', 'cache', )
         }),
     )
-    readonly_fields = ( 'dir_cache', 'dir_trash', 'get_cache', 'get_trash', 'cache', )
+    readonly_fields = ( 'dir_cache', 'dir_trash', 'get_cache', 'get_trash', )
 
     def get_cache(self, obj):
         return filesizeformat( obj.get_cache_size( ) )
+
     get_cache.short_description = u'Cache size'
 
     def get_trash(self, obj):
         return filesizeformat( obj.get_trash_size( ) )
+
     get_trash.short_description = u'Trash size'
 
     def dir_cache(self, obj):
         size = filesizeformat( obj.get_cache_size( ) )
         url = urlbilder( u'clear', obj.id, u'cache' )
         return u'{0} / <a href="{1}">clear</a>'.format( size, url )
+
     dir_cache.short_description = 'Cache size'
     dir_cache.allow_tags = True
 
@@ -44,6 +47,7 @@ class AdminFileLib( admin.ModelAdmin ):
         size = filesizeformat( obj.get_trash_size( ) )
         url = urlbilder( u'clear', obj.id, u'trash' )
         return u'{0} / <a href="{1}">clear</a>'.format( size, url )
+
     dir_trash.short_description = u'Trash size'
     dir_trash.allow_tags = True
 
@@ -54,7 +58,6 @@ class AdminPermission( admin.ModelAdmin ):
     list_display = ( 'id', 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
     list_filter = ( 'edit', 'move', 'create', 'delete', 'upload', 'http_get', )
     ordering = ('id',)
-    
 
 admin.site.register( Permission, AdminPermission )
 
@@ -111,6 +114,7 @@ class HomeForm( forms.ModelForm ):
         model = Home
         exclude = ('permission',)
 
+
 class AdminHome( admin.ModelAdmin ):
     list_display = ( 'user', 'lib', 'permission', )
     list_filter = ( 'user', 'lib', )
@@ -123,7 +127,14 @@ admin.site.register( Home, AdminHome )
 class AdminHistory( admin.ModelAdmin ):
     list_display = ( 'user', 'lib', 'type', 'time', )
     list_filter = ( 'time', 'user', 'lib', )
-    readonly_fields = ( 'time', )
+    fieldsets = (
+        ('Reference', { 'fields': ('user', 'lib', 'type',  ) }),
+        ('Info', { 'fields': ('get_files', 'path', 'extra', ) }),
+        )
+    readonly_fields = ( 'time', 'get_files' )
+
+    def get_files(self, obj):
+        return u", ".join( obj.name )
 
 admin.site.register( History, AdminHistory )
 
@@ -140,6 +151,7 @@ class HomeInline( admin.TabularInline ):
     model = Home
     raw_id_fields = ( "permission", )
 
+
 class AdminUser( UserAdmin ):
     """
     Simple LUser with Home Inline
@@ -147,8 +159,8 @@ class AdminUser( UserAdmin ):
     list_select_related = True
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
     fieldsets = (
-    ('Main', { 'fields': ('username', 'password') }),
-    ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
+        ('Main', { 'fields': ('username', 'password') }),
+        ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
     )
     readonly_fields = ( 'password', )
     inlines = [HomeInline, ]
@@ -157,6 +169,6 @@ class AdminUser( UserAdmin ):
     def get_formsets(self, request, obj=None):
         if obj == None:
             return []
-        return super(UserAdmin, self).get_formsets(request, obj=None)
+        return super( UserAdmin, self ).get_formsets( request, obj=None )
 
 admin.site.register( LUser, AdminUser )

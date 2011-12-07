@@ -51,7 +51,7 @@
                 <a href="#">Type</a>
             </th>
             <th scope="col" style="width: 70%;" >
-                <a href="#">Path</a>
+                <a href="#">Files</a>
             </th>
             <th scope="col" >
                 <a href="#">User</a>
@@ -66,12 +66,18 @@
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
-                    {% joinpath item.path item.name as path %}
-                    <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ path|truncatepath }}</a>
-                    <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.name|urlencode }}">download</a>
+{#                    {% joinpath item.path item.files as path %}#}
+                    {% if item.files|length == 1 %}
+                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.files.0|truncatepath }}</a>
+                        <a href="{% url download home_id %}?p={{ item.path|urlencode }}/{{ item.files.0|urlencode }}">download</a>
+                    {% else %}
+                        <a href="{% url browser home_id %}?p={{ item.path|urlencode }}&hl={{ item.hash }}" class="dir">{{ item.files|join:", "|truncatepath }}</a>
+                    {% endif %}
                     {% if item.is_extra %}
                         {{ item.get_extra|safe }}
                     {% endif %}
+                    <br/>
+                    <div class="mini quiet2">{{ item.path }}</div>
                 </td>
                 <td class="nowrap">{{ item.user|capfirst }}</td>
                 <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
