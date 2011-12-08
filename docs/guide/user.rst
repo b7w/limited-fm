@@ -142,7 +142,7 @@ File lib page
 Photo gallery
 ====================================
 
-| Limited have simple photo gallery. If in a directory more than 1 jpg file,
+| Limited have simple photo gallery. If in a directory more than 1 jpg|jpeg file,
   In a right top of file table you will see 'View in a gallery'.
   It is a previews of images on a black background. On image click you see a fool screen image.
   In this mode you can move next/previous, or play slide show.

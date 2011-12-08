@@ -174,6 +174,21 @@ Templates
 
 
 
+.. index:: Limited gallery
+
+Photo gallery
+------------------------------------
+
+| Limited have simple photo gallery. If in a directory more than 1 jpg|jpeg file,
+  In a right top of file table you will see 'View in a gallery'.
+  Gallery presents as django app 'lviewer'. It is a part of LimitedFM.
+  To tern it on just add 'lviewer' to settings INSTALLED_APPS.
+  Gallery have some settings :ref:`LVIEWER_SMALL_IMAGE <SETTINGS_SMALL_IMAGE>`
+  and :ref:`LVIEWER_BIG_IMAGE <SETTINGS_BIG_IMAGE>`, for thumbnails and full images correspondingly.
+  All resize images are caching.
+
+
+
 .. index:: Error reporting
 .. index:: Mail error reporting
 

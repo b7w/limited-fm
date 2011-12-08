@@ -30,6 +30,9 @@ def ImagesView( request, id ):
 
     lib_id = int( id )
     path = request.GET.get( 'p', '' )
+    if FilePath.check( path, norm=True ) == False:
+        logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+        return RenderError( request, u"IOError, Permission denied" )
 
     try:
         home = get_home( request.user, lib_id )
@@ -75,7 +78,10 @@ def ResizeView( request, id, size ):
     if request.method == u"GET":
         lib_id = int( id )
         path = request.GET.get( 'p', '' )
-
+        if FilePath.check( path, norm=True ) == False:
+            logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
+            return RenderError( request, u"IOError, Permission denied" )
+        
         options = ResizeOptions( size )
         try:
             home = get_home( request.user, lib_id )

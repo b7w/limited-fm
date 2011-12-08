@@ -14,7 +14,7 @@ Settings
 
 .. _SETTINGS_IVIEWER:
 
-LIMITED_IVIEWER
+LIMITED_LVIEWER
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Default: ``False``
@@ -155,10 +155,10 @@ Default: ``{ 'BACKEND': 'limited.serve.backends.default', 'INTERNAL_URL': '/prot
 
 .. _SETTINGS_SMALL_IMAGE:
 
-IVIEWER_SMALL_IMAGE
+LVIEWER_SMALL_IMAGE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Default: ``{ 'WIDTH': 200, 'HEIGHT': 200, 'CROP': True, }``
+Default: ``{ 'WIDTH': 200, 'HEIGHT': 200, 'CROP': False, }``
 
 | Limited Viewer small image size and crop options, that used in picture preview.
   By default crop is turn on. This makes the picture more lined.
@@ -169,10 +169,10 @@ Default: ``{ 'WIDTH': 200, 'HEIGHT': 200, 'CROP': True, }``
 
 .. _SETTINGS_BIG_IMAGE:
 
-IVIEWER_BIG_IMAGE
+LVIEWER_BIG_IMAGE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Default: ``{ 'WIDTH': 1280, 'HEIGHT': 720, 'CROP': True, }``
+Default: ``{ 'WIDTH': 1280, 'HEIGHT': 720, 'CROP': False, }``
 
 | Limited Viewer big image size and crop options, that used in full picture.
   Crop option can be omitted and set by default false.
