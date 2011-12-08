@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from lviewer.tests.tests import *
+from lviewer.tests.utils import *
+from lviewer.tests.views import *

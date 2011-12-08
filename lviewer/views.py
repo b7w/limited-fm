@@ -81,9 +81,9 @@ def ResizeView( request, id, size ):
         if FilePath.check( path, norm=True ) == False:
             logger.error( u"Files. Path check fail. home_id:{0}, path:{1}".format( lib_id, path ) )
             return RenderError( request, u"IOError, Permission denied" )
-        
-        options = ResizeOptions( size )
+
         try:
+            options = ResizeOptions( size )
             home = get_home( request.user, lib_id )
             storage = home.lib.getStorage( )
             if not storage.isfile( path ):

@@ -142,7 +142,7 @@ class ResizeOptions:
             self.crop = 'C' in options
         except Exception as e:
             logger.error( u"ResizeOptions. {0}. string:{1}".format( e, string ) )
-            raise ResizeOptionsError( )
+            raise ResizeOptionsError( u"Parsing error in '{0}'".format( string ) )
 
     def setFromSetting(self, value):
         """
