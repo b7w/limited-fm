@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 
 from limited.files.utils import FilePath
 from limited.files.api.base import file_pre_change, FileStorageBaseApi
@@ -69,6 +70,16 @@ class FileStorageApi( FileStorageBaseApi ):
         Create directory, on exist raise :class:`~limited.files.storage.FileError`
         """
         path = self.check( path )
+        #>>> print re.match( r"([\.\(\)\[\]\w-]+)",'d1s-a0.(00)[12]1').groups()
+        pre_compile = re.compile( r"([/\.\(\)\[\]\w -]*)" )
+        flag = pre_compile.match( path )
+        if flag == None:
+            raise FileError( u"Not supported symbols" )
+        elif flag.group(0) != path:
+            raise FileError( u"Not supported symbols" )
+#        for i in u"""*/'%$#&@!`~:;,|"?\\""":
+#            if i in path :
+#                raise FileError( u"Not supported symbols" )
         if self.exists( path ) == True:
             raise FileError( u"Directory '%s' already exists" % path )
         self.fs.mkdir( path )

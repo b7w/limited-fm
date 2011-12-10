@@ -248,6 +248,8 @@ def ActionView( request, id, command ):
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:
+                if u'/' in name or u'\\' in name:
+                    raise FileError( u"Not supported symbols" )
                 dir = FilePath.join( path, name )
                 Storage.mkdir( dir )
                 messages.success( request, u"directory '%s' successfully created" % name )

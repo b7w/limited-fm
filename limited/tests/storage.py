@@ -140,6 +140,16 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.exists( u"New dir" ) == True
         assert self.storage.isdir( u"New dir" ) == True
         assert self.storage.isfile( u"New dir" ) == False
+        self.assertRaises( FileError, self.storage.mkdir, u"Test*" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test%" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test\\" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test^" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test:" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test'" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Tes\"t" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test!" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test@" )
+        self.assertRaises( FileError, self.storage.mkdir, u"Test#" )
 
     def test_move(self):
         """
