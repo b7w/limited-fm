@@ -66,6 +66,11 @@ Permission
   So if you add some fields, just run command again.
   But be carefully, all old data in table will be removed.
 
+| Also do not forget setup `robots.txt`. You can find sample of it in docs/extra/robots.txt
+  It disallow all searches robots to parse data.
+
+.. literalinclude:: /extra/robots.txt
+
 
 
 .. index:: Run server
