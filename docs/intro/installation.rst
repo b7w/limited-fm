@@ -12,7 +12,8 @@ Requirements
 .. index:: Requirements
 
 | Limited works with any Python version from 2.4 to 2.7
-  And with `Django framework <https://www.djangoproject.com/>`__ version 1.3
+  And with `Django framework <https://www.djangoproject.com/>`__ version 1.3.
+  Python PIL, you can install it ``sudo apt-get install python-imaging``.
 
 | You can use any django supported database server.
   It is officially works with PostgreSQL, MySQL, Oracle and SQLite.

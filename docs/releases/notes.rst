@@ -56,3 +56,23 @@ Release notes
 * Fix calling :func:`~limited.files.storage.FileStorage.abspath` in wrong places
 * Fix adding serve cache record for files
 * Fix default serve backend opening file with signal that change cache
+
+
+
+.. index:: Release notes 1.1
+
+1.1 release
+====================================
+
+
+1.1.0
+------------------------------------
+
+| Redesign file storage api, move all logic to :class:`limited.files.api.FileStorageApi`
+  and low level functions to :class:`limited.files.storage.FileStorage`.
+  Move :class:`~limited.files.utils.FilePath` to utils module.
+  Add lviewer plugin to show images in pretty gallery.
+  Add check for special symbols in mkdir
+
+* Fix error when upload file with more than one dot
+* Fix escape in file name for back slash

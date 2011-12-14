@@ -1,13 +1,14 @@
 #!/bin/bash
 
-USER=www-data
-GROUP=www-data
+USER=limited
+GROUP=limited
+WWWUSER=www-data
 
 # Path to dir with manage.py
-ROOT=/some/../path/FileManager
+ROOT=/some/../path/limitedfm
 
 # dir for pidfile
-RUN=/var/run/limited
+RUN=/var/run/limitedfm
 
 ARGS="workdir=$ROOT socket=$RUN/fcgi.sock pidfile=$RUN/fcgi.pid maxspare=4 maxchildren=8 --settings=settings"
 
@@ -15,7 +16,9 @@ start() {
         echo -n "Starting Django FastCGI: "
         if [ ! -d $RUN ]; then
                 mkdir $RUN
-                chown $USER:$GROUP -R $RUN
+                touch $RUN/fcgi.sock
+                touch $RUN/fcgi.pid
+                chown $USER:$WWWUSER -R $RUN
         fi
         su $USER -c "python $ROOT/manage.py runfcgi $ARGS"
 

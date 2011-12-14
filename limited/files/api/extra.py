@@ -82,7 +82,7 @@ class FileStorageExtra( FileStorageBaseApi ):
             self.fs.rename( newfile, FilePath.name( file ) )
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
-                raise FileError( u"IOError, zip. Permission denied '%s'" % name )
+                raise FileError( u"IOError, zip. Permission denied '%s'" % path )
         finally:
             if self.fs.exists( newfile ):
                 self.fs.remove( newfile )

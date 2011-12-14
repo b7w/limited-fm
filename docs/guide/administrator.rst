@@ -20,7 +20,7 @@ Installation guide
   If you find some bugs or errors please write issue, :doc:`feedback </intro/feedback>`.
   I will try to fix them as fast as possible.
 
-| For more detail steps you can look :ref:`here <installation>`.
+| For more detail steps you can look :doc:`here </intro/installation>`.
   There you will find base instructions to copy source code
   and start to use application with nginx and fast-cgi.
 

@@ -15,6 +15,7 @@ class FileStorageApi( FileStorageBaseApi ):
     Have ``trash`` and ``extra`` fields with :class:`limited.files.api.FileStorageTrash` and
     :class:`limited.files.api.FileStorageExtra` objects
     """
+    re_mkdir = re.compile( r"([/\.\(\)\[\]\w -]*)" )
 
     def __init__(self, lib):
         """
@@ -70,16 +71,12 @@ class FileStorageApi( FileStorageBaseApi ):
         Create directory, on exist raise :class:`~limited.files.storage.FileError`
         """
         path = self.check( path )
-        #>>> print re.match( r"([\.\(\)\[\]\w-]+)",'d1s-a0.(00)[12]1').groups()
-        pre_compile = re.compile( r"([/\.\(\)\[\]\w -]*)" )
-        flag = pre_compile.match( path )
+        flag = FileStorageApi.re_mkdir.match( path )
         if flag == None:
             raise FileError( u"Not supported symbols" )
         elif flag.group(0) != path:
             raise FileError( u"Not supported symbols" )
-#        for i in u"""*/'%$#&@!`~:;,|"?\\""":
-#            if i in path :
-#                raise FileError( u"Not supported symbols" )
+
         if self.exists( path ) == True:
             raise FileError( u"Directory '%s' already exists" % path )
         self.fs.mkdir( path )
