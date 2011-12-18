@@ -72,7 +72,9 @@ Release notes
   and low level functions to :class:`limited.files.storage.FileStorage`.
   Move :class:`~limited.files.utils.FilePath` to utils module.
   Add lviewer plugin to show images in pretty gallery.
-  Add check for special symbols in mkdir
+  Add check for special symbols in mkdir.
+  Add fab file to help build, clear an etc.
 
 * Fix error when upload file with more than one dot
 * Fix escape in file name for back slash
+* Fix error on file upload without extension

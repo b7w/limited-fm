@@ -45,14 +45,15 @@ def test( settings=None ):
     Run limited tests.
     Arg ``settings`` is a django setting module to test with.
     """
+    SETTINGS = TEST_SETTINGS
     if settings:
-        TEST_SETTINGS = settings
+        SETTINGS = settings
     MANAGE_PATH = os.path.join( PROJECT_PATH, "manage.py" )
     RUN = "python {manage} test {app} --settings={settings}; return 0"
     clear( )
     os.system( u"clear" )
-    os.system( RUN.format( manage=MANAGE_PATH, app="lviewer", settings=TEST_SETTINGS ) )
-    os.system( RUN.format( manage=MANAGE_PATH, app="limited", settings=TEST_SETTINGS ) )
+    os.system( RUN.format( manage=MANAGE_PATH, app="lviewer", settings=SETTINGS ) )
+    os.system( RUN.format( manage=MANAGE_PATH, app="limited", settings=SETTINGS ) )
 
 
 def static( settings=None ):
@@ -157,7 +158,7 @@ def check( tag="default" ):
         print( "[ INFO ] No mercurial vcs exists, can't check for updates" )
 
 
-def update( tag="default" ):
+def update( tag="default", settings=None ):
     """
     Pull/up ``tag`` version, collect static, build docs
     """
@@ -168,7 +169,7 @@ def update( tag="default" ):
         os.system( "hg pull" )
         os.system( "hg up {commit}".format( commit=tag ) )
 
-    static( )
+    static( settings=settings )
     docs( )
 
 

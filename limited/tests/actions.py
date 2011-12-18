@@ -22,13 +22,13 @@ class ActionTest( StorageTestCase ):
         Test Upload files
         """
         file1 = self.storage.open( u"content.txt" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file1]} )
         file1.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == False
 
         self.client.login( username='B7W', password='root' )
         file1 = self.storage.open( u"content.txt" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file1]} )
         file1.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
 
@@ -36,19 +36,26 @@ class ActionTest( StorageTestCase ):
         file2 = self.storage.open( u"Фото 007.bin" )
         self.storage.extra.create( u"test.io.text", "double" )
         file3 = self.storage.open( u"test.io.text" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1, file2, file3] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file1, file2, file3]} )
         file1.close( )
         file2.close( )
+        file3.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == True
         assert self.storage.exists( u"Test Folder/test.io.text" ) == True
 
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': []} )
         his = self.getLastHistory( )
         assert len( his.files ) == 3
         assert his.files[0] == u"content.txt"
         assert his.files[1] == u"Фото 007.bin"
         assert his.files[2] == u"test.io.text"
+
+        self.storage.extra.create( u"test", "double" )
+        file4 = self.storage.open( u"test" )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file4]} )
+        file4.close( )
+        assert self.storage.exists( u"Test Folder/test" ) == False
 
     def test_Upload_Files_Allowed(self):
         """
@@ -56,25 +63,25 @@ class ActionTest( StorageTestCase ):
         """
         settings.LIMITED_ANONYMOUS = True
         file0 = self.storage.open( u"content.txt" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file0] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file0]} )
         file0.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == False
 
         self.client.login( username='B7W', password='root' )
         self.storage.extra.create( u"test.rar", "XXX" * 2 ** 4 )
         file1 = self.storage.open( u"test.rar" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file1] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file1]} )
         file1.close( )
         assert self.storage.exists( u"Test Folder/test.rar" ) == False
 
         settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt']
         file2 = self.storage.open( u"Фото 007.bin" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file2] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file2]} )
         file2.close( )
         assert self.storage.exists( u"Test Folder/Фото 007.bin" ) == False
 
         file3 = self.storage.open( u"content.txt" )
-        self.client.post( urlbilder( u'upload', self.lib.id ), { 'p': 'Test Folder', 'files': [file3] } )
+        self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file3]} )
         file3.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
 

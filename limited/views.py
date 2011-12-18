@@ -98,12 +98,12 @@ def FilesView( request, id ):
         if settings.LIMITED_LVIEWER:
             images = 0
             for file in files:
-                tmp = file["name"].lower()
-                if tmp.endswith(".jpg") or tmp.endswith(".jpeg"):
+                tmp = file["name"].lower( )
+                if tmp.endswith( ".jpg" ) or tmp.endswith( ".jpeg" ):
                     images += 1
             lViewer = images > 1
 
-        allowed = { }
+        allowed = {}
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
 
@@ -340,12 +340,12 @@ def ActionView( request, id, command ):
             link = Link.objects.find( Link.get_hash( home.lib_id, path ) )
             # if exist and not expired
             if link:
-                messages.success( request, u"link already exists <a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>".format(domain, link.hash) )
+                messages.success( request, u"link already exists <a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>".format( domain, link.hash ) )
             # else create new one
             elif home.permission.create:
                 link = Link.objects.add( home.lib, path )
 
-                messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format(domain, link.hash) )
+                messages.success( request, u"link successfully created to '<a href=\"http://{0}/link/{1}\">http://{0}/link/{1}<a>'".format( domain, link.hash ) )
                 history.user = user
                 history.type = History.LINK
                 history.files = FilePath.name( path )
@@ -447,22 +447,23 @@ def UploadView( request, id ):
                 return HttpResponseReload( request )
 
             for file in files:
-                rindex = file.name.rindex( '.' )
-                name = file.name[:rindex]
-                ext = file.name[rindex+1:]
+                value = file.name.rsplit( '.', 1 )
+                if len(value) != 2:
+                    raise PermissionError( u"This name '{0}' is not allowed for upload!".format( file.name ) )
+                ext = value[1]
                 if settings.LIMITED_FILES_ALLOWED['ONLY'] != []:
-                    if ext.lower() not in settings.LIMITED_FILES_ALLOWED['ONLY']:
+                    if ext.lower( ) not in settings.LIMITED_FILES_ALLOWED['ONLY']:
                         raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
-                elif ext.lower() in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
+                elif ext.lower( ) in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
                     raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
-                    
+
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
 
             for file in files:
                 fool_path = FilePath.join( path, file.name )
                 name = storage.save( fool_path, file )
                 file_paths.append( name )
-            history.files = [ FilePath.name( i ) for i in file_paths ]
+            history.files = [FilePath.name( i ) for i in file_paths]
             history.save( )
 
         except ObjectDoesNotExist:
