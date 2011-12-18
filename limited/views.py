@@ -366,9 +366,9 @@ def ActionView( request, id, command ):
                 raise PermissionError( u"You have no permission to zip" )
 
             if path.endswith( u".zip" ):
-                Storage.unzip( path )
+                Storage.extra.unzip( path )
             else:
-                Storage.zip( path )
+                Storage.extra.zip( path )
         except ( PermissionError, FileError ) as e:
             logger.info( u"Action zip. {0}. home_id:{1}, path:{2}".format( e, lib_id, path ) )
             messages.error( request, e )

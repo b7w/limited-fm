@@ -4,17 +4,13 @@ syntax: regexp
 
 \.pyc
 \.pyo
-\.log
 
 \.idea/
 
-^debug_toolbar/
-^django_coverage/
-^coverage/
-^test/
 ^.cache/
+.TrashBin/
 
 ^special/
 ^static/
 ^html/
-
+^tmp/

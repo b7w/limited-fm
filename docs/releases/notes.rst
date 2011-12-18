@@ -78,3 +78,12 @@ Release notes
 * Fix error when upload file with more than one dot
 * Fix escape in file name for back slash
 * Fix error on file upload without extension
+
+
+1.1.1
+------------------------------------
+
+| Hot bug fixes. Move temporary and tests files to 'tmp' directory.
+
+* Fix zip/unzip action
+* Write back test for lviewer

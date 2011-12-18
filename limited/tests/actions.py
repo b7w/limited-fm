@@ -152,3 +152,22 @@ class ActionTest( StorageTestCase ):
             resp = self.client.get( link, follow=True )
             assert resp.status_code == 200
             assert "IOError" in resp.content, link
+
+    def test_Zip(self):
+        """
+        Test folder to zip/unzip
+        """
+        self.client.login( username='B7W', password='root' )
+        self.storage.extra.create( u"Test Folder/test.txt", "double" )
+
+        link = urlbilder( 'action', self.lib.id, 'zip', p=u"Test Folder" )
+        resp = self.client.get( link, follow=True )
+        assert resp.status_code == 200
+        assert self.storage.exists( u"Test Folder.zip" ) == True
+        self.storage.remove( u"Test Folder" )
+
+        link = urlbilder( 'action', self.lib.id, 'zip', p=u"Test Folder.zip" )
+        resp = self.client.get( link, follow=True )
+        assert resp.status_code == 200
+        assert self.storage.exists( u"Test Folder" ) == True
+        assert self.storage.exists( u"Test Folder/test.txt" ) == True

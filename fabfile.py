@@ -7,7 +7,7 @@ import sys
 # START SETTINGS
 DOCS_OUT_DIR = "html"
 STATIC_DIR = "static"
-TMP_DIRECTORY = "/tmp/limited"
+TMP_DIRECTORY = "tmp/limited"
 TEST_SETTINGS = "settings"
 # END SETTINGS
 
@@ -51,7 +51,7 @@ def test( settings=None ):
     MANAGE_PATH = os.path.join( PROJECT_PATH, "manage.py" )
     RUN = "python {manage} test {app} --settings={settings}; return 0"
     clear( )
-    os.system( u"clear" )
+    os.system( "clear" )
     os.system( RUN.format( manage=MANAGE_PATH, app="lviewer", settings=SETTINGS ) )
     os.system( RUN.format( manage=MANAGE_PATH, app="limited", settings=SETTINGS ) )
 

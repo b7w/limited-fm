@@ -147,8 +147,8 @@ class CodeTest( TestCase ):
             self.assertRaises( ValidationError, valid, './home' )
 
         lib = FileLib.objects.get( id=2 )
-        assert lib.get_path( '/root/' ) == '/root/test'
-        assert lib.get_path( '/root' ) == '/root/test'
+        assert lib.get_path( '/root/' ) == '/root/tmp/test'
+        assert lib.get_path( '/root' ) == '/root/tmp/test'
 
     def test_Model_History(self):
         history = History.objects.get( id=1 )

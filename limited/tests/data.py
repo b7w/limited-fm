@@ -48,7 +48,7 @@ class InitData:
         self.LibFM = FileLib( name="FileManager", description="FileManager running files", path="" )
         self.LibFM.save( )
 
-        self.LibTest = FileLib( name="Test", description="FM Test dir", path="test" )
+        self.LibTest = FileLib( name="Test", description="FM Test dir", path="tmp/test" )
         self.LibTest.save( )
 
     def Homes(self):
