@@ -9,6 +9,7 @@ DOCS_OUT_DIR = "html"
 STATIC_DIR = "static"
 TMP_DIRECTORY = "tmp/limited"
 TEST_SETTINGS = "settings"
+CHMOD = 644
 # END SETTINGS
 
 
@@ -76,6 +77,7 @@ def static( settings=None ):
     files = list_files( STATIC, ("css", "js",) )
     for item in files:
         os.system( "gzip -6 -c {0} > {0}.gz".format( item ) )
+    os.system( "find {0} -type f -exec chmod {1} {{}} \;".format( STATIC_PATH, CHMOD  ) )
 
 
 def docs():
@@ -89,6 +91,7 @@ def docs():
     if os.path.exists( DOCS_OUT_PATH ):
         shutil.rmtree( DOCS_OUT_PATH )
     os.system( DOCS_BUILD.format( tmp=TMP_DIRECTORY, source=DOCS_SOURCE_PATH, out=DOCS_OUT_PATH ) )
+    os.system( "find {0} -type f -exec chmod {1} {{}} \;".format( DOCS_OUT_PATH, CHMOD ) )
 
 
 def clear():
