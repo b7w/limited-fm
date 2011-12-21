@@ -15,7 +15,7 @@ class FileStorageApi( FileStorageBaseApi ):
     Have ``trash`` and ``extra`` fields with :class:`limited.files.api.FileStorageTrash` and
     :class:`limited.files.api.FileStorageExtra` objects
     """
-    re_mkdir = re.compile( r"([/\.\(\)\[\]\w -]*)" )
+    re_mkdir = re.compile( ur"([/\.\(\)\[\]\w -]*)", re.UNICODE )
 
     def __init__(self, lib):
         """

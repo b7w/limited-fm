@@ -87,3 +87,5 @@ Release notes
 
 * Fix zip/unzip action
 * Write back test for lviewer
+* Fix unicode error in regex check of mkdir
+* Fix lviewer image detected for upper case jpg extension

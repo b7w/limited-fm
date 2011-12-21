@@ -87,10 +87,11 @@ def ResizeView( request, id, size ):
             home = get_home( request.user, lib_id )
             storage = home.lib.getStorage( )
             if not storage.isfile( path ):
-                raise FileNotExist()
-            if not( path.endswith( ".jpg" ) or path.endswith( ".jpeg" ) ):
-                raise FileNotExist()
-            
+                raise FileNotExist( )
+            tmp = path.lower( )
+            if not( tmp.endswith( ".jpg" ) or tmp.endswith( ".jpeg" ) ):
+                raise FileNotExist( )
+
             HashBuilder = FileUnicName( )
             hash_path = HashBuilder.build( path, extra=options.size )
             hash_path = FilePath.join( settings.LIMITED_CACHE_PATH, hash_path + ".jpg" )

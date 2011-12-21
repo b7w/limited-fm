@@ -140,6 +140,10 @@ class FileStorageTest( StorageTestCase ):
         assert self.storage.exists( u"New dir" ) == True
         assert self.storage.isdir( u"New dir" ) == True
         assert self.storage.isfile( u"New dir" ) == False
+        # test non-latin chars
+        self.storage.mkdir( u"привет мир" )
+        assert self.storage.isdir( u"привет мир" ) == True
+
         self.assertRaises( FileError, self.storage.mkdir, u"Test*" )
         self.assertRaises( FileError, self.storage.mkdir, u"Test%" )
         self.assertRaises( FileError, self.storage.mkdir, u"Test\\" )
