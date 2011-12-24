@@ -97,19 +97,44 @@ class FileStorageExtra( FileStorageBaseApi ):
             raise FileNotExist( u"'%s' not found" % path )
 
         file = self.fs.abspath( path )
-        zip = zipfile.ZipFile( file )
+        directory = FilePath.dirname( path )
         # To lazy to do converting
         # maybe chardet help later
         if signal:
             file_pre_change.send( self, basedir=FilePath.dirname( path ) )
+        zip = None
         try:
-            zip.extractall( FilePath.dirname( file ) )
+            zip = zipfile.ZipFile( file, 'r' )
+
+            for name in zip.namelist( ):
+                try:
+                    unicode_name = unicode( name )
+                except UnicodeDecodeError:
+                    unicode_name = unicode( name.decode( 'cp866' ) )
+
+                full_path = FilePath.join( directory, unicode_name )
+                dir_path = FilePath.dirname( unicode_name )
+                if dir_path != '':
+                    tmp = directory
+                    for item in FilePath.split( dir_path ):
+                        tmp = FilePath.join( tmp, item )
+                        if not self.fs.exists( tmp ):
+                            self.fs.mkdir( tmp )
+
+                if not unicode_name.endswith( '/' ):
+                    with self.fs.open( full_path, 'w' ) as f:
+                        f.write( zip.open( name ).read( ) )
+
         except UnicodeDecodeError as e:
-            raise FileError( u"Unicode decode error, try unzip yourself" )
+            raise FileError( u"Unicode decode error '%s', try unzip yourself" % path )
+        except zipfile.BadZipfile as e:
+            raise FileError( u"Bad zip file '%s'" % path )
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
                 raise FileError( u"IOError, unzip. Permission denied '%s'" % path )
-
+        finally:
+            if zip:
+                zip.close( )
 
     def clear(self, path, older=None, signal=True ):
         """
