@@ -84,8 +84,11 @@ Release notes
 ------------------------------------
 
 | Hot bug fixes. Move temporary and tests files to 'tmp' directory.
+  Improve work with zip files
 
 * Fix zip/unzip action
 * Write back test for lviewer
 * Fix unicode error in regex check of mkdir
 * Fix lviewer image detected for upper case jpg extension
+* Fix server error on bad zip files
+* Fix unicode error on windows like zip files
