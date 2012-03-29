@@ -128,11 +128,11 @@ Default: ``32 * 1024 ** 2``
 LIMITED_FILES_ALLOWED
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Default: ``{ 'ONLY': [], 'EXCEPT': ['rar', '7z', ], }``
+Default: ``{ 'ONLY': [ u'^[А-Яа-я\w\.\(\)\+\- ]+$', ], 'EXCEPT': [ u'.+\.rar', ], }``
 
-| Limitation for file extensions in upload zone. It is a dict with two lists.
-  Use ``ONLY`` list if you need to allowed upload only some range of extensions.
-  Add extensions to ``EXCEPT`` list to block them.
+| Regex limitation for file names in upload, create, rename zones. It is a dict with two lists.
+  Use ``ONLY`` list if you need to allowed upload only some range of patterns.
+  Add extensions to ``EXCEPT`` list to block them. It is highly needed to set pattern in unicode!
 
 
 

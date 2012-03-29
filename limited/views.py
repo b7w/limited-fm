@@ -16,7 +16,7 @@ from limited.files.utils import Thread, FilePath
 from limited.models import Home, History, Link
 from limited.models import PermissionError
 from limited.controls import get_home, get_homes, get_user
-from limited.utils import split_path, HttpResponseReload, url_get_filename
+from limited.utils import split_path, HttpResponseReload, url_get_filename, check_file_name
 
 logger = logging.getLogger( __name__ )
 
@@ -104,8 +104,8 @@ def FilesView( request, id ):
             lViewer = images > 1
 
         allowed = {}
-        allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] )
-        allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] )
+        allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] ).replace( '\\', '\\\\' )
+        allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] ).replace( '\\', '\\\\' )
 
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
@@ -250,6 +250,8 @@ def ActionView( request, id, command ):
             else:
                 if u'/' in name or u'\\' in name:
                     raise FileError( u"Not supported symbols" )
+                if not check_file_name( name ):
+                    raise PermissionError( u"This name of directory '{0}' is not allowed for creating!".format( name ) )
                 dir = FilePath.join( path, name )
                 Storage.mkdir( dir )
                 messages.success( request, u"directory '%s' successfully created" % name )
@@ -298,6 +300,8 @@ def ActionView( request, id, command ):
             if not home.permission.edit:
                 raise PermissionError( u"You have no permission to rename" )
             name = request.GET['n']
+            if not check_file_name( name ):
+                raise PermissionError( u"This name of directory '{0}' is not allowed for creating!".format( name ) )
             Storage.rename( path, name )
             messages.success( request, u"'%s' successfully rename to '%s'" % ( FilePath.name( path ), name) )
             history.user = user
@@ -447,15 +451,8 @@ def UploadView( request, id ):
                 return HttpResponseReload( request )
 
             for file in files:
-                value = file.name.rsplit( '.', 1 )
-                if len(value) != 2:
-                    raise PermissionError( u"This name '{0}' is not allowed for upload!".format( file.name ) )
-                ext = value[1]
-                if settings.LIMITED_FILES_ALLOWED['ONLY'] != []:
-                    if ext.lower( ) not in settings.LIMITED_FILES_ALLOWED['ONLY']:
-                        raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
-                elif ext.lower( ) in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
-                    raise PermissionError( u"This type of file '{0}' is not allowed for upload!".format( file.name ) )
+                if not check_file_name( file.name ):
+                    raise PermissionError( u"This name of file '{0}' is not allowed for upload!".format( file.name ) )
 
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
 

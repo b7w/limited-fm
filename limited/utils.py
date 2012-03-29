@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import urllib
 
 from django.core.urlresolvers import reverse
@@ -8,6 +9,7 @@ from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
 from django.utils.http import urlquote
 
+from limited import settings
 from limited.files.utils import FilePath
 
 
@@ -100,6 +102,21 @@ def url_get_filename( url ):
     return result
 
 
+def check_file_name( value ):
+    """
+    Check patterns in settings.LIMITED_FILES_ALLOWED
+    :param value: file name
+    :return: True or False
+    """
+    for check in settings.LIMITED_FILES_ALLOWED['ONLY']:
+        if not re.match( check, value ):
+            return False
+    for check in settings.LIMITED_FILES_ALLOWED['EXCEPT']:
+        if re.match( check, value ):
+            return False
+    return True
+
+
 class TreeNode:
     """
     Simple key value tree for store directories hashes in database.
@@ -110,7 +127,7 @@ class TreeNode:
         self.name = name
         self.hash = hash
         self.parent = None
-        self.children = { }
+        self.children = {}
 
     @staticmethod
     def build( data ):
@@ -193,7 +210,7 @@ class TreeNode:
         Serialise TreeNode to DictType
         """
         children = [i.toDict( ) for i in self.children.values( )]
-        data = { "name": self.name, "hash": self.hash, "children": children, }
+        data = {"name": self.name, "hash": self.hash, "children": children, }
         return data
 
     def __str__(self):

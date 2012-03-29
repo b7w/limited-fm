@@ -42,7 +42,7 @@ Limited structure
     * | backends: Backends for servers.
         For more look :doc:`here </ref/serving>`.
 
-* serve:
+* static:
     * | css: One css file that based on Django admin.
     * | img: Small icons for actions.
     * | js: jQuery 1.5 min and some js for actions.

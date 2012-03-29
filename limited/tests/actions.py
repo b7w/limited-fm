@@ -51,11 +51,12 @@ class ActionTest( StorageTestCase ):
         assert his.files[1] == u"Фото 007.bin"
         assert his.files[2] == u"test.io.text"
 
-        self.storage.extra.create( u"test", "double" )
-        file4 = self.storage.open( u"test" )
+        name = u"1a+-(_).t2t"
+        self.storage.extra.create( name, "double" )
+        file4 = self.storage.open( name )
         self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file4]} )
         file4.close( )
-        assert self.storage.exists( u"Test Folder/test" ) == False
+        assert self.storage.exists( u"Test Folder/{0}".format( name ) ) == True
 
     def test_Upload_Files_Allowed(self):
         """
@@ -74,7 +75,7 @@ class ActionTest( StorageTestCase ):
         file1.close( )
         assert self.storage.exists( u"Test Folder/test.rar" ) == False
 
-        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['txt']
+        settings.LIMITED_FILES_ALLOWED['ONLY'] = ['.+\.txt']
         file2 = self.storage.open( u"Фото 007.bin" )
         self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file2]} )
         file2.close( )

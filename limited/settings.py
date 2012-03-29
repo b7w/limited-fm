@@ -30,18 +30,19 @@ LIMITED_LINK_MAX_AGE = getattr( settings, 'LIMITED_LINK_MAX_AGE', 7 * 24 * 60 * 
 # zipping will be async
 LIMITED_ZIP_HUGE_SIZE = getattr( settings, 'LIMITED_ZIP_HUGE_SIZE', 32 * 1024 ** 2 )
 
-# Allow and block some file extensions
+# Allow and block some regex patterns.
+# It is highly needed to set pattern in unicode!
 LIMITED_FILES_ALLOWED = getattr( settings, 'LIMITED_FILES_ALLOWED', {
-    'ONLY': [],
-    'EXCEPT': ['rar', ],
-} )
+    'ONLY': [u'^[А-Яа-я\w\.\(\)\+\- ]+$', ],
+    'EXCEPT': [u'.+\.rar', ],
+    } )
 
 # Set backend for serving files
 # Now only default and nginx
 LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {
     'BACKEND': 'limited.serve.backends.default',
     'INTERNAL_URL': '/protected',
-} )
+    } )
 
 
 # Check if iViewer is loaded
@@ -52,10 +53,10 @@ LVIEWER_SMALL_IMAGE = getattr( settings, 'LVIEWER_SMALL_IMAGE', {
     'WIDTH': 200,
     'HEIGHT': 200,
     'CROP': True,
-} )
+    } )
 
 # Limited Viewer big image size and other options
 LVIEWER_BIG_IMAGE = getattr( settings, 'LVIEWER_BIG_IMAGE', {
     'WIDTH': 1280,
     'HEIGHT': 720,
-} )
+    } )
