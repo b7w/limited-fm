@@ -78,13 +78,13 @@ def test( settings=None ):
     if settings:
         SETTINGS = settings
     MANAGE_PATH = os.path.join( PROJECT_PATH, "manage.py" )
-    RUN = "python {manage} test {app} --settings={settings}; return 0"
+    RUN = "python {manage} test {app} --settings=limited.{settings}; return 0"
     clear( )
     if not os.path.exists( TMP_PATH ):
         os.mkdir( TMP_PATH )
     os.system( "clear" )
     os.system( RUN.format( manage=MANAGE_PATH, app="lviewer", settings=SETTINGS ) )
-    os.system( RUN.format( manage=MANAGE_PATH, app="limited", settings=SETTINGS ) )
+    os.system( RUN.format( manage=MANAGE_PATH, app="core", settings=SETTINGS ) )
 
 
 def static( settings=None ):
@@ -100,8 +100,6 @@ def static( settings=None ):
     else:
         STATIC = STATIC_PATH
     print( "[ INFO ] Collect and gzip static " )
-    if os.path.exists( STATIC_PATH ):
-        shutil.rmtree( STATIC_PATH )
     os.system( "python {manage} collectstatic --noinput".format( manage=MANAGE_PATH ) )
 
     files = list_files( STATIC, ("css", "js",) )

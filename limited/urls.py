@@ -1,22 +1,21 @@
-# -*- coding: utf-8 -*-
+from django.conf import settings
+from django.conf.urls.defaults import patterns, include, url
 
-from django.conf.urls.defaults import patterns, url, include
+# Uncomment the next two lines to enable the admin:
+from django.contrib import admin
 
-from limited import settings
+admin.autodiscover( )
 
-urlpatterns = patterns('',
-    url(r'^$', 'limited.views.IndexView', name='index' ),
-    url(r'^lib(?P<id>\d+)/$', 'limited.views.FilesView', name='browser' ),
-    url(r'^lib(?P<id>\d+)/trash/$', 'limited.views.TrashView', name='trash' ),
-    url(r'^lib(?P<id>\d+)/history/$', 'limited.views.HistoryView', name='history' ),
-    url(r'^lib(?P<id>\d+)/action/(?P<command>\w+)/$', 'limited.views.ActionView', name='action' ),
-    url(r'^lib(?P<id>\d+)/clear/(?P<command>\w+)/$', 'limited.views.ActionClear', name='clear' ),
+urlpatterns = patterns( '',
+    # Serve static
+    url( r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes': True} ),
 
-    url(r'^lib(?P<id>\d+)/download/$', 'limited.views.DownloadView', name='download' ),
-    url(r'^lib(?P<id>\d+)/upload/$', 'limited.views.UploadView', name='upload' ),
-    
-    url(r'^link/(?P<hash>\w+)/$', 'limited.views.LinkView', name='link' ),
+    url( r'^', include( 'limited.core.urls' ) ),
+
+    url( r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'limited/login.html'}, name='login' ),
+    url( r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout' ),
+
+    # Uncomment the next line to enable the admin:
+    url( r'^admin/doc/', include( 'django.contrib.admindocs.urls' ) ),
+    url( r'^admin/', include( admin.site.urls ) ),
 )
-
-if settings.LIMITED_LVIEWER:
-    urlpatterns += patterns('', url(r'^', include( 'lviewer.urls' ) ), )
