@@ -52,7 +52,7 @@ class Permission( models.Model ):
         return perm
 
     class Meta:
-        db_table = 'limited.core._permission'
+        db_table = 'limited_permission'
         verbose_name = 'Permission'
         verbose_name_plural = 'Permissions'
 
@@ -108,7 +108,7 @@ class FileLib( models.Model ):
         return 0
 
     class Meta:
-        db_table = 'limited.core._filelib'
+        db_table = 'limited_filelib'
         verbose_name = 'File Lib'
         verbose_name_plural = 'File Libs'
 
@@ -125,7 +125,7 @@ class Home( models.Model ):
     permission = models.ForeignKey( Permission, default=1 )
 
     class Meta:
-        db_table = 'limited.core._home'
+        db_table = 'limited_home'
         verbose_name = 'Home'
         verbose_name_plural = 'Home'
 
@@ -204,7 +204,7 @@ class History( models.Model ):
         return ';'.join( [FileStorageApi.hash( item ) for item in self.files] )
 
     class Meta:
-        db_table = 'limited.core._history'
+        db_table = 'limited_history'
         verbose_name = 'History'
         verbose_name_plural = 'History'
 
@@ -268,7 +268,7 @@ class Link( models.Model ):
         return hashlib.md5( str( lib_id ) + smart_str( path ) ).hexdigest( )[0:12]
 
     class Meta:
-        db_table = 'limited.core._link'
+        db_table = 'limited_link'
         verbose_name = 'Link'
         verbose_name_plural = 'Links'
 

@@ -7,7 +7,7 @@ Settings
 | Default settings is hard to use. Because you can not set default value.
   So limited setting module help to fix it.
   All you need to change is import statement.
-  To use settings do import like that ``from limited import settings``.
+  To use settings do import like that ``from limited.core import settings``.
   In limited.settings not all django settings are included.
 
  
@@ -141,10 +141,10 @@ Default: ``{ 'ONLY': [ u'^[А-Яа-я\w\.\(\)\+\- ]+$', ], 'EXCEPT': [ u'.+\.rar
 LIMITED_SERVE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Default: ``{ 'BACKEND': 'limited.serve.backends.default', 'INTERNAL_URL': '/protected', }``
+Default: ``{ 'BACKEND': 'limited.core.serve.backends.default', 'INTERNAL_URL': '/protected', }``
 
 | Backend for serving files. For this time only 2 backend supported,
-  ``limited.serve.backends.default`` and ``limited.serve.backends.nginx``.
+  ``limited.core.serve.backends.default`` and ``limited.core.serve.backends.nginx``.
   Default is standard django serving files.
   Nginx use 'X-Sendfile', sample setting you can see :ref:`here <nginx_settings>`
 
