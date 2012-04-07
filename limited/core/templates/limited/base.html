@@ -1,11 +1,13 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <title>File Manager</title>
-    <link href="{{ STATIC_URL }}limited/favicon.ico" rel="shortcut icon" type="limited/image/x-icon" />
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}limited/css/main.css"/>
-    <script type='text/javascript' src='{{ STATIC_URL }}limited/js/jquery-1.5.min.js'></script>
+    <link href="{% static "limited/favicon.ico" %}" rel="shortcut icon" type="limited/image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="{% static "limited/css/main.css" %}"/>
+    <script type="text/javascript" src="{% static "limited/js/jquery-1.5.min.js" %}"></script>
     {% block media %}
     {% endblock %}
     <meta name="robots" content="NONE,NOARCHIVE"/>

@@ -1,8 +1,9 @@
 {% extends "limited/base.html" %}
+{% load staticfiles %}
 {% load limited_filters %}
 
 {% block media %}
-<script type='text/javascript' src='{{ STATIC_URL }}limited/js/actions.js'></script>
+<script type="text/javascript" src="{% static "limited/js/actions.js" %}"></script>
 <script type="text/javascript">
     jQuery(document).ready( function() {
 
@@ -64,7 +65,7 @@
         <tbody>
         {% for item in history %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
+                <td class="nowrap"><img class="rename" src="{% static "limited/img/{{ item.get_image_type }}.png" %}"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
 {#                    {% joinpath item.path item.files as path %}#}
                     {% if item.files|length == 1 %}
