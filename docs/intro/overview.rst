@@ -38,7 +38,7 @@ About
 
 | For feedback look here :doc:`click </intro/feedback>`
 
-| Working application you can look `here <http://limited.isudo.ru/>`__
+| Working application you can look `here <http://limitedfm.isudo.ru/>`__
 
 | Limited file manager is open source project, released by BSD license.
 

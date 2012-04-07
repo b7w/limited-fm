@@ -78,7 +78,7 @@ def test( settings=None ):
     if settings:
         SETTINGS = settings
     MANAGE_PATH = os.path.join( PROJECT_PATH, "manage.py" )
-    RUN = "python {manage} test {app} --settings=limited.{settings}; return 0"
+    RUN = "python -B {manage} test {app} --settings=limited.{settings}; return 0"
     clear( )
     if not os.path.exists( TMP_PATH ):
         os.mkdir( TMP_PATH )
@@ -100,7 +100,7 @@ def static( settings=None ):
     else:
         STATIC = STATIC_PATH
     print( "[ INFO ] Collect and gzip static " )
-    os.system( "python {manage} collectstatic --noinput".format( manage=MANAGE_PATH ) )
+    os.system( "python -B {manage} collectstatic --noinput".format( manage=MANAGE_PATH ) )
 
     files = list_files( STATIC, ("css", "js",) )
     for item in files:
