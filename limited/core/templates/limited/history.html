@@ -65,7 +65,7 @@
         <tbody>
         {% for item in history %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td class="nowrap"><img class="rename" src="{% static "limited/img/{{ item.get_image_type }}.png" %}"/> {{ item.get_type_display|capfirst }}</td>
+                <td class="nowrap"><img class="rename" src="{{ STATIC_URL }}limited/img/{{ item.get_image_type }}.png"/> {{ item.get_type_display|capfirst }}</td>
                 <td class="nowrap history">
 {#                    {% joinpath item.path item.files as path %}#}
                     {% if item.files|length == 1 %}
