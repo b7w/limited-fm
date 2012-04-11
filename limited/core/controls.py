@@ -41,6 +41,7 @@ def get_home( user, lib_id ):
 
     elif user.is_anonymous( ) and settings.LIMITED_ANONYMOUS:
         return Home.objects.select_related( 'lib' ).get( user=settings.LIMITED_ANONYMOUS_ID, lib__id=lib_id )
+    raise Home.DoesNotExist
 
 
 def get_homes( user ):

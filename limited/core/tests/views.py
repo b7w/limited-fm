@@ -5,7 +5,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.html import escape
 
 from limited.core import settings
-from limited.core.models import  Link
+from limited.core.models import  Link, Home, History
 from limited.core.files.utils import FilePath
 from limited.core.tests.base import StorageTestCase
 from limited.core.utils import urlbilder
@@ -342,3 +342,49 @@ class ViewsTest( StorageTestCase ):
         resp = self.client.get( link )
         assert resp.status_code == 200
         assert escape( u"No file or directory find" ) in unicode( resp.content, errors='ignore' )
+
+    def test_Feeds(self):
+        """
+        Test that check feed exists for anon
+        """
+        self.setAnonymous( True )
+
+        def assertFeed( link, count ):
+            """
+            Simple helper to assert status code and count '<item>' in html code
+            :param link: full link to page
+            :param count: right count of '<item>'
+            :return: None
+            """
+            resp = self.client.get( link )
+            assert resp.status_code == 200
+            assert unicode( resp ).count( u"<item>" ) == count
+
+        link_all = urlbilder( 'rss.user.all' )
+        link_fm = urlbilder( 'rss.user.lib', self.data.LibFM.id )
+        link_test = urlbilder( 'rss.user.lib', self.data.LibTest.id )
+
+        Home.objects.get( user=self.data.UserAnon, lib=self.data.LibTest ).delete( )
+
+        assertFeed( link_fm, 0 )
+        resp = self.client.get( link_test )
+        assert resp.status_code == 404
+        assertFeed( link_all, 0 )
+
+        History( user=self.data.UserAnon, lib=self.data.LibFM, type=3, path=u"Фото 070.jpg" ).save( )
+        assertFeed( link_fm, 1 )
+
+        self.client.login( username='B7W', password='root' )
+
+        assertFeed( link_fm, 1 )
+        assertFeed( link_test, 3 )
+        assertFeed( link_all, 4 )
+
+        resp = self.client.get( urlbilder( 'rss.user.lib', 100 ) )
+        assert resp.status_code == 404
+
+        self.client.logout( )
+        Home.objects.get( user=self.data.UserAnon ).delete( )
+        resp = self.client.get( link_all )
+        assert resp.status_code == 404
+

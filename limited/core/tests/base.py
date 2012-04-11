@@ -68,7 +68,7 @@ class StorageTestCase( TestCase ):
         self.storage2 = self.lib2.getStorage( )
 
         settings.LIMITED_ANONYMOUS = False
-        settings.LIMITED_ANONYMOUS_ID = 2
+        settings.LIMITED_ANONYMOUS_ID = self.data.UserAnon.id
         settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 ** 2
         settings.LIMITED_FILES_ALLOWED = {'ONLY': [u'^[А-Яа-я\w\.\(\)\+\- ]+$'], 'EXCEPT': [u'.+\.rar', ], }
         settings.LIMITED_SERVE = {

@@ -6,6 +6,8 @@
     <meta charset="utf-8" />
     <title>File Manager</title>
     <link href="{% static "limited/favicon.ico" %}" rel="shortcut icon" type="limited/image/x-icon" />
+    <link rel="alternate" type="application/rss+xml" href="{% url rss.user.all %}" title="All user history">
+    {% block rss %}{% endblock %}
     <link rel="stylesheet" type="text/css" href="{% static "limited/css/main.css" %}"/>
     <script type="text/javascript" src="{% static "limited/js/jquery-1.5.min.js" %}"></script>
     {% block media %}
