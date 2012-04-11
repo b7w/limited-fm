@@ -1,0 +1,48 @@
+{% extends "limited/base.html" %}
+{% load staticfiles %}
+
+{% block panels %}
+
+    {% include "limited/includes/info.html" %}
+    
+    {% include "limited/includes/history.html" %}
+    
+{% endblock %}
+
+{% block main %}
+<div class="module dashboard">
+    <table>
+        <caption><a href="#" class="section">{{ user.username|capfirst }} file libraries</a></caption>
+        {% for item in Homes %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <th scope="row" onclick="location.href='{% url browser item.lib.id %}'">
+                <a href="{% url browser item.lib.id %}">{{ item.lib.name }}</a>
+                <br/>
+                <span class="mini quiet">{{ item.lib.description }}</span>
+            </th>
+            <td><a href="{% url trash item.lib_id %}"><img src="{% static "limited/img/trash.png" %}"/> Trash</a></td>
+            <td><a href="{% url history item.lib_id %}"><img src="{% static "limited/img/history.png" %}"/> History</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% if AnonHomes|length > 0  %}
+<div class="module dashboard">
+    <table>
+        <caption><a href="#" class="section">Anonymous file libraries</a></caption>
+        {% for item in AnonHomes %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <th scope="row" onclick="location.href='{% url browser item.lib.id %}'">
+                <a href="{% url browser item.lib_id %}">{{ item.lib.name }}</a>
+                <br/>
+                <span class="mini quiet">{{ item.lib.description }}</span>
+            </th>
+            <td><a href="{% url trash item.lib_id %}"><img src="{% static "limited/img/trash.png" %}"/> Trash</a></td>
+            <td><a href="{% url history item.lib_id %}"><img src="{% static "limited/img/history.png" %}"/> History</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+{% endblock %}

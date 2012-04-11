@@ -13,12 +13,12 @@ Permission model
 | The major feature of application is Permission.
   It is a set of *BooleanField* fields to allow or disallow action for user in certain file lib.
   Permission is easy to customize and add new. Most they are mentioned in
-  :func:`limited.views.ActionView` and templates.
+  :func:`limited.core.views.ActionView` and templates.
 
 .. note:: When new objects are created it is needed to store the lowest value of Permission.
           So it is highly recommended to set permit with ID1 minimal permissions.
 
-.. autoclass:: limited.models.Permission
+.. autoclass:: limited.core.models.Permission
     :show-inheritance:
     :members:
 
@@ -56,7 +56,7 @@ Permission model
 
 .. code-block:: python
 
-    >>> from limited.models import Permission
+    >>> from limited.core.models import Permission
     >>> p = Permission()
     >>> p
     <Permission: IDNone: Edit False, Move False, Delete False, Create False, Upload False, Http_get False, >
@@ -76,7 +76,7 @@ File lib model
   Plus some other fields, such as name and description.
   The path must be specified from the :ref:`SETTINGS_ROOT_PATH <SETTINGS_ROOT_PATH>`.
 
-.. autoclass:: limited.models.FileLib
+.. autoclass:: limited.core.models.FileLib
     :show-inheritance:
     :members:
 
@@ -101,15 +101,15 @@ File lib model
         | *JsonTreeField*, *TextField*, max_length=256, null=False.
         | Store a hashes for cached directories in a database.
         | Data represent a tree that serialised to json.
-        | In python it is a :class:`limited.utils.TreeNode`.
+        | In python it is a :class:`limited.core.utils.TreeNode`.
 
 | Some code examples:
 
 .. code-block:: python
 
-    >>> from limited.models import FileLib
+    >>> from limited.core.models import FileLib
     >>> FileLib
-    <class 'limited.models.FileLib'>
+    <class 'limited.core.models.FileLib'>
     >>> FileLib.objects.all()
     [<FileLib: ID1: FileManager>, <FileLib: ID2: Test>]
     >>> FileLib.objects.get( name="Test" )
@@ -122,11 +122,11 @@ File lib model
     >>> lib.get_path( "/root" )
     u'/root/test'
     >>> lib.cache
-    <limited.utils.TreeNode instance at 0x9be91cc>
+    <limited.core.utils.TreeNode instance at 0x9be91cc>
     >>> lib.cache.hash
     1317897723.37944
     >>> lib.cache.children
-    [<limited.utils.TreeNode instance at 0x9be920c>]
+    [<limited.core.utils.TreeNode instance at 0x9be920c>]
     >>> lib.get_cache_size()
     0
     >>> lib.get_trash_size()
@@ -145,7 +145,7 @@ Home model
   Also it is better to use ``select_related( 'lib', 'permission' )``
   not to generate a lot of small queries.
 
-.. autoclass:: limited.models.Home
+.. autoclass:: limited.core.models.Home
     :show-inheritance:
     :members:
 
@@ -168,7 +168,7 @@ Home model
 
 .. code-block:: python
 
-    >>> from limited.models import Home
+    >>> from limited.core.models import Home
     >>> h = Home.objects.get( id=1 )
     >>> h
     <Home: ID1: lib 1, permission 5>
@@ -193,7 +193,7 @@ History model
 | History is a simple log. It is needed to provide :ref:`recent actions <user_guide_widgets_history>`
   :ref:`history page <user_guide_history_page>`.
 
-.. autoclass:: limited.models.History
+.. autoclass:: limited.core.models.History
     :show-inheritance:
     :members:
 
@@ -239,7 +239,7 @@ History model
 
 .. code-block:: python
 
-    >>> from limited.models import History
+    >>> from limited.core.models import History
     >>> h = History.objects.get( id=1 )
     >>> h
     <History: ID1: B7W, ID2: Test>
@@ -284,11 +284,11 @@ Link model
   This model have a little bit supplemented Manager.
   LinkManager support easier add method and find by hash.
 
-.. autoclass:: limited.models.LinkManager
+.. autoclass:: limited.core.models.LinkManager
     :show-inheritance:
     :members:
 
-.. autoclass:: limited.models.Link
+.. autoclass:: limited.core.models.Link
     :show-inheritance:
     :members:
 
@@ -322,7 +322,7 @@ Link model
 
 .. code-block:: python
 
-    >>> from limited.models import Link
+    >>> from limited.core.models import Link
     >>> l = Link()
     >>> l = Link.objects.get( id=1 )
     >>> l
@@ -356,4 +356,4 @@ LUser model
 | LUser is a proxy for Django User model.
   It is made for admin panel.
   With some inlines to display user file libs and permissions.
-  For more look :class:`limited.admin.AdminUser`.
+  For more look :class:`limited.core.admin.AdminUser`.

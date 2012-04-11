@@ -1,0 +1,83 @@
+{% extends "limited/base.html" %}
+{% load staticfiles %}
+{% load limited_filters %}
+
+{% block media %}
+<script type="text/javascript" src="{% static "limited/js/actions.js" %}"></script>
+<script type="text/javascript">
+    jQuery(document).ready( function() {
+        jQuery('.delete').click(function() {
+            Delete( this )
+        } )
+        jQuery( '.move' ).click( function() {
+            Move( this )
+        } )
+        jQuery('.size').click(function() {
+            Size( this )
+        })
+    } );
+</script>
+{% endblock %}
+
+{% block panels %}
+
+    {% include "limited/includes/info.html" %}
+
+    {% include "limited/includes/history.html" %}
+
+{% endblock %}
+
+{% block main %}
+<div class="module" id="changelist">
+
+    <table id="result_list" cellspacing="0">
+        <caption>
+            <a href="{% url browser home_id %}" class="section space">Home</a>
+            <a href="{% url history home_id %}" class="section space">History</a>
+            <a href="{% url trash home_id %}" class="section">Trash</a>
+        </caption>
+        <thead>
+        <tr>
+            <th class="hide" ></th>
+            <th scope="col" class="sorted ascending" style="width: 70%;" >
+                <a href="#">Name</a>
+            </th>
+            <th> Actions</th>
+            <th scope="col" style="width: 7%;">
+                <a href="#">Size</a>
+            </th>
+            <th scope="col" >
+                <a href="#">Time</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in files %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name }}" }</td>
+                <td>
+                    <a href="#" class="{{ item.class }}">{{ item.name|truncatepath:"ext" }}</a>
+                </td>
+                <td class="nowrap">
+                    <div class="align-right">
+                        {% if permission.move %}
+                        <img class="move" src="{% static "limited/img/move.png" %}" title="Move to other dir"/>
+                        {% endif %}
+                        {% if permission.delete %}
+                        <img class="delete" src="{% static "limited/img/delete.png" %}" title="Move to trash"/>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="nowrap size">{% if item.class == 'dir' %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
+                <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
+            </tr>
+        {% endfor %}
+
+        {% if files|length == 0 %}
+            {% include "limited/includes/noitems.html" with message="There is no any trash" %}
+        {% endif %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

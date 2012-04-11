@@ -1,0 +1,108 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>File Manager</title>
+    <link href="{% static "limited/favicon.ico" %}" rel="shortcut icon" type="limited/image/x-icon" />
+    <link rel="alternate" type="application/rss+xml" href="{% url rss.user.all %}" title="All user history">
+    {% block rss %}{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{% static "limited/css/main.css" %}"/>
+    <script type="text/javascript" src="{% static "limited/js/jquery-1.5.min.js" %}"></script>
+    {% block media %}
+    {% endblock %}
+    <meta name="robots" content="NONE,NOARCHIVE"/>
+</head>
+<body>
+
+<!-- Container -->
+<div id="container">
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name">Limited File Manager</h1>
+        </div>
+
+        <div id="user-tools">
+            Welcome,
+            <strong>{{ user.username|default:"Anonymous" }}</strong> |
+            {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                <a href="{% url admin:index %}">Administration</a> |
+                {% endif %}
+            <a href="/logout/">Log out</a>
+            {% else %}
+            <a href="/login/?next={{ pathname }}">Log in</a>
+            {% endif %}
+        </div>
+    </div>
+    <!-- END Header -->
+
+	<div class="breadcrumbs">
+
+        <a href="/">#Home</a>
+        {% if home_id %}
+            › <a href="{% url browser home_id %}">{{ home }}</a>
+        {% endif %}
+
+        {% for key,value in patharr %}
+            {% if not forloop.last %}
+            › <a href="{% url browser home_id %}?p={{ value }}">{{ key }}</a>
+            {% else %}
+            › {{ key }}
+            {% endif %}
+        {% endfor %}
+        <div class="float-right"><a href="http://filesisudo.reformal.ru">Feed back</a></div>
+        <div class="clear"></div>
+    </div>
+
+
+
+
+    <div id="messages">
+        <ul class="messagelist">
+        {% if messages %}
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+	        {% endfor %}
+        {% endif %}
+        </ul>
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+
+        <!-- Content related-->
+		<div id="content-related">
+
+            {% block panels %}
+            {% endblock %}
+            <div id="copyright">
+                Copyright © 2011 B7W<br/>
+                «<a href="mailto:isudoblog@gmail.ru" title="Support address">isudoblog@gmail.ru</a>»
+            </div>
+        </div>
+        <!-- END Content related-->
+
+        <!-- Content main-->
+        <div id="content-main">
+
+            {% block main %}
+                
+            {% endblock %}
+
+        </div>
+        <br class="clear"/>
+        <!-- END Content main-->
+
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+
+</body>
+</html>

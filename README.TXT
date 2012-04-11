@@ -1,7 +1,7 @@
 About
 ===================================
 
-| Limited is a simple file manager written in python with django.
+| Limited is a simple file manager written in python with django 1.4.
   There isn't a lot of javascript, heavy interfaces and etc.
   It's work pretty well with mobile devices.
   You can upload multiple files, download folders and make base file operations.

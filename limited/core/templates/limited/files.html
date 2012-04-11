@@ -1,0 +1,156 @@
+{% extends "limited/base.html" %}
+{% load staticfiles %}
+{% load limited_filters %}
+
+{% block rss %}
+    <link rel="alternate" type="application/rss+xml" href="{% url rss.user.lib home_id %}" title="Lib user history">
+{% endblock %}
+
+{% block media %}
+<script type="text/javascript" src="{% static "limited/js/actions.js" %}"></script>
+<script type="text/javascript">
+    jQuery(document).ready( function() {
+
+        jQuery('.delete').click(function() {
+            Trash( this )
+        })
+        jQuery('.rename').click(function() {
+            Rename( this )
+        })
+        jQuery('.move').click(function() {
+            Move( this )
+        })
+        jQuery('.link').click(function() {
+            Link( this )
+        })
+        jQuery('.zip').click(function() {
+            Zip( this )
+        })
+        jQuery('.size').click(function() {
+            Size( this )
+        })
+        var hl = getUrlVars()['hl'];
+        if (hl) {
+            var hlar = hl.split( ';' )
+            for (var key in hlar) {
+                var val = hlar[key]
+                jQuery( '#' + val ).addClass( 'hl' )
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block panels %}
+{% if permission.upload %}
+<div class="module">
+    <h2>Upload</h2>
+
+    <h3></h3>
+
+    <div class="upload">
+        <form action="{% url upload home_id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <input type="file" draggable="true" name="files" id="files" multiple="multiple" style="width: 210px;"/>
+            <input type="hidden" name="p" value="{{ path }}">
+            <input type="submit" name="submit" value="Upload" style="margin: 5px 5px;">
+        </form>
+    </div>
+</div>
+{% endif %}
+{% if permission.create %}
+<div class="module">
+    <h2>Create</h2>
+
+    <div class="upload">
+        <form action="{% url action home_id 'add' %}" method="GET" >
+            <input type="text" name="n">
+            <input type="hidden" name="p" value="{{ path }}">
+            <input type="submit" name="submit" value="Ok" style="margin: 5px 5px;">
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% include "limited/includes/history.html" %}
+
+{% endblock %}
+
+{% block main %}
+<div class="module" id="changelist">
+
+    <table id="result_list" cellspacing="0">
+        <caption>
+            <a href="{% url browser home_id %}" class="section space">Home</a>
+            <a href="{% url history home_id %}" class="section space">History</a>
+            <a href="{% url trash home_id %}" class="section">Trash</a>
+            {% if lviewer %}
+            <a href="{% url images home_id %}?p={{ path }}" class="section float-right"> View in a gallery</a>
+            {% endif %}
+        </caption>
+        <thead>
+        <tr>
+            <th class="hide" ></th>
+            <th scope="col" class="sorted ascending" style="width: 70%;" >
+                <a href="#">Name</a>
+            </th>
+            <th> Actions</th>
+            <th scope="col" style="width: 7%;">
+                <a href="#">Size</a>
+            </th>
+            <th scope="col" >
+                <a href="#">Time</a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in files %}
+            <tr class="{% cycle 'row1' 'row2' %}" id="{{ item.hash }}">
+                <td class="info hide" >{ "home": "{{ home_id }}", "path": "{{ item.url }}", "name": "{{ item.name|escapejs }}" }</td>
+                <td class="nowrap" ondblclick="location.href='{% url download home_id %}?p={{ item.url }}'">
+                    {% if item.class == 'dir' %}
+                    <a href="{% url browser home_id %}?p={{ item.url }}" class="{{ item.class }}">{{ item.name|truncatepath}}</a>
+                    {% else %}
+                    <a href="{% url download home_id %}?p={{ item.url }}" class="{{ item.class }}">{{ item.name|truncatepath:"ext" }}</a>
+                    {% endif %}
+                </td>
+                <td class="nowrap">
+                    <div class="align-right">
+                        <a href="{% url download home_id %}?p={{ item.url }}">
+                            <img src="{% static "limited/img/down.png" %}" title="download"/>
+                        </a>
+                        {% if permission.edit %}
+                        <img class="zip" src="{% static "limited/img/zip.png" %}" title="Zip/unZip files and folders"/>
+                        <img class="rename" src="{% static "limited/img/rename.png" %}" title="Rename"/>
+                        {% endif %}
+                        {% if permission.move %}
+                        <img class="move" src="{% static "limited/img/move.png" %}" title="Move to other dir"/>
+                        {% endif %}
+                        {% if permission.create %}
+                        <img class="link" src="{% static "limited/img/create.png" %}" title="Create direct link"/>
+                        {% endif %}
+                        {% if permission.delete %}
+                        <img class="delete" src="{% static "limited/img/delete.png" %}" title="Move to trash"/>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="nowrap size">{% if item.class == 'dir' %}Click{% else %}{{ item.size|filesizeformat }}{% endif %}</td>
+                <td class="nowrap">{{ item.time|date:"Y F d, P" }}</td>
+            </tr>
+        {% endfor %}
+
+        {% if files|length == 0 %}
+            {% include "limited/includes/noitems.html" with message="There is no any files or folders" %}
+        {% endif %}
+
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    var fl = document.getElementById( 'files' )
+    if (fl != null) {
+        fl.addEventListener( 'change', function(ev) {
+            handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}" )
+        }, false );
+    }
+</script>
+{% endblock %}

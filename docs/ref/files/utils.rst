@@ -10,7 +10,7 @@ File Storage Utils
 File Path
 ====================================
 
-.. autoclass:: limited.files.utils.FilePath
+.. autoclass:: limited.core.files.utils.FilePath
     :show-inheritance:
     :undoc-members:
     :members:
@@ -22,7 +22,7 @@ File Path
 Thread
 ====================================
 
-.. autoclass:: limited.files.utils.Thread
+.. autoclass:: limited.core.files.utils.Thread
     :show-inheritance:
     :undoc-members:
     :members:
@@ -34,7 +34,7 @@ Thread
 File Unic Name
 ====================================
 
-.. autoclass:: limited.files.utils.FileUnicName
+.. autoclass:: limited.core.files.utils.FileUnicName
     :show-inheritance:
     :undoc-members:
     :members:

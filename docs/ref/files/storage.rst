@@ -12,7 +12,7 @@ Description
 
 | FileStorage class is low level operation on file system.
   It is not control access or chrooting. Use it only if you really need.
-  In all other cases, use :class:`limited.files.api.FileStorageApi`.
+  In all other cases, use :class:`limited.core.files.api.FileStorageApi`.
 
 | At first I started looking for complete solutions.
   And standard Django storage seemed good. A lot of backend for other file systems.
@@ -29,7 +29,7 @@ Description
 Storage model
 ====================================
 
-.. autoclass:: limited.files.storage.FileStorage
+.. autoclass:: limited.core.files.storage.FileStorage
     :show-inheritance:
     :undoc-members:
     :members:
@@ -43,8 +43,8 @@ Exceptions
 
 | Some storage exceptions. All other errors are caught.
 
-.. autoexception:: limited.files.storage.FileError
+.. autoexception:: limited.core.files.storage.FileError
     :show-inheritance:
 
-.. autoexception:: limited.files.storage.FileNotExist
+.. autoexception:: limited.core.files.storage.FileNotExist
     :show-inheritance:

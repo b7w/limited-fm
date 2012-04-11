@@ -12,12 +12,12 @@ Requirements
 .. index:: Requirements
 
 | Limited works with any Python version from 2.4 to 2.7
-  And with `Django framework <https://www.djangoproject.com/>`__ version 1.3.
+  And with `Django framework <https://www.djangoproject.com/>`__ version 1.4.
   Python PIL, you can install it ``sudo apt-get install python-imaging``.
 
 | You can use any django supported database server.
   It is officially works with PostgreSQL, MySQL, Oracle and SQLite.
-  For more look `here <https://docs.djangoproject.com/en/1.3/topics/install/#database-installation>`__
+  For more look `here <https://docs.djangoproject.com/en/1.4/topics/install/#database-installation>`__
 
 
 Setting up Django
@@ -41,7 +41,8 @@ We would set up project from scratch. So we need to copy default setting file. A
 .. code-block:: bash
 
     python manage.py syncdb --settings=settings
-    python manage.py collectstatic --settings=settings
+    fab static  # better than next, it gzip files
+    python manage.py collectstatic --settings=settings  # if no fab
 
 
 .. index:: loadpermissions

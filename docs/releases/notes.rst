@@ -92,3 +92,25 @@ Release notes
 * Fix lviewer image detected for upper case jpg extension
 * Fix server error on bad zip files
 * Fix unicode error on windows like zip files
+
+
+
+.. index:: Release notes 1.2
+
+1.2 release
+====================================
+
+
+1.2.0
+------------------------------------
+
+| Move application to django 1.4 framework version.
+  Now it is cool static files with hashes, no any old cache on clients.
+  Instead of checking file extensions add regex file name check.
+  Add chmod for static files in fabfile and support for checking available libraries.
+  Now message appear on bad zip file.
+
+* Fix zip/unzip wrong method call
+* Fix lviewer image detecting for upper case jpg extension
+* Fix unicode error on windows like zip files
+* Fix error on bad zip file.

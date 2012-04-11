@@ -49,10 +49,10 @@ Limited testing
   It help to make easier to navigate in the tests.
   But it break possibility to test separate test cases and even functions.
   And another is that all of test inherit not TestCase
-  but :class:`limited.tests.base.StorageTestCase`.
+  but :class:`limited.core.tests.base.StorageTestCase`.
 
 
-.. autoclass:: limited.tests.base.StorageTestCase
+.. autoclass:: limited.core.tests.base.StorageTestCase
     :show-inheritance:
     :members:
 

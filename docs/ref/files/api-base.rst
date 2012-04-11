@@ -20,7 +20,7 @@ Description
 Abstract class model
 ====================================
 
-.. autoclass:: limited.files.api.base.FileStorageBaseApi
+.. autoclass:: limited.core.files.api.base.FileStorageBaseApi
     :show-inheritance:
     :undoc-members:
     :members:

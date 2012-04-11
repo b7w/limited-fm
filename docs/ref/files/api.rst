@@ -13,7 +13,7 @@ Description
 | FileStorageApi class is height level operation on file system.
   It is control access and chrooting. Use it in all cases.
 
-| All storage classes are extend :class:`limited.files.api.base.FileStorageBaseApi`
+| All storage classes are extend :class:`limited.core.files.api.base.FileStorageBaseApi`
   to provide some useful static method.
 
 
@@ -23,7 +23,7 @@ Description
 Signals
 ====================================
 
-| A lot of method have :obj:`limited.files.api.base.file_pre_change` signal.
+| A lot of method have :obj:`limited.core.files.api.base.file_pre_change` signal.
   By default it is turn on, parameter ``signal=True``. It is made to invalidate cache of a directory.
   If you do something make clear that signal raise only once.
 
@@ -35,37 +35,37 @@ Methods list
 ====================================
 
 | FileStorage have a lot of methods. Lets list and group them in more sorted order.
-  Be carefully not all methods are in :class:`~limited.files.api.FileStorageApi`.
+  Be carefully not all methods are in :class:`~limited.core.files.api.FileStorageApi`.
 
-* | Creating: :func:`~limited.files.api.FileStorageApi.open` |
-    :func:`~limited.files.api.FileStorageApi.save` |
-    :func:`~limited.files.api.FileStorageExtra.create` |
-    :func:`~limited.files.api.FileStorageApi.mkdir`
+* | Creating: :func:`~limited.core.files.api.FileStorageApi.open` |
+    :func:`~limited.core.files.api.FileStorageApi.save` |
+    :func:`~limited.core.files.api.FileStorageExtra.create` |
+    :func:`~limited.core.files.api.FileStorageApi.mkdir`
 
-* | Editing: :func:`~limited.files.api.FileStorageApi.rename` |
-    :func:`~limited.files.api.FileStorageApi.move` |
-    :func:`~limited.files.api.FileStorageExtra.zip` |
-    :func:`~limited.files.api.FileStorageExtra.unzip`
+* | Editing: :func:`~limited.core.files.api.FileStorageApi.rename` |
+    :func:`~limited.core.files.api.FileStorageApi.move` |
+    :func:`~limited.core.files.api.FileStorageExtra.zip` |
+    :func:`~limited.core.files.api.FileStorageExtra.unzip`
 
-* | Deleting: :func:`~limited.files.api.FileStorageApi.remove` |
-    :func:`~limited.files.api.FileStorageExtra.clear` |
-    :func:`~limited.files.api.FileStorageTrash.totrash`
+* | Deleting: :func:`~limited.core.files.api.FileStorageApi.remove` |
+    :func:`~limited.core.files.api.FileStorageExtra.clear` |
+    :func:`~limited.core.files.api.FileStorageTrash.totrash`
 
-* | Check: :func:`~limited.files.api.FileStorageApi.exists` |
-    :func:`~limited.files.api.FileStorageApi.isfile` |
-    :func:`~limited.files.api.FileStorageApi.isdir` |
-    :func:`~limited.files.api.base.FileStorageBaseApi.check`
+* | Check: :func:`~limited.core.files.api.FileStorageApi.exists` |
+    :func:`~limited.core.files.api.FileStorageApi.isfile` |
+    :func:`~limited.core.files.api.FileStorageApi.isdir` |
+    :func:`~limited.core.files.api.base.FileStorageBaseApi.check`
 
-* | Getting: :func:`~limited.files.api.FileStorageApi.listdir` |
-    :func:`~limited.files.api.FileStorageExtra.download` |
-    :func:`~limited.files.api.FileStorageApi.size`
+* | Getting: :func:`~limited.core.files.api.FileStorageApi.listdir` |
+    :func:`~limited.core.files.api.FileStorageExtra.download` |
+    :func:`~limited.core.files.api.FileStorageApi.size`
 
-* | Name: :func:`~limited.files.api.base.FileStorageBaseApi.available_name`
-    :func:`~limited.files.api.base.FileStorageBaseApi.homepath` |
-    :func:`~limited.files.api.base.FileStorageBaseApi.hash` |
-    :func:`~limited.files.api.base.FileStorageBaseApi.url`
+* | Name: :func:`~limited.core.files.api.base.FileStorageBaseApi.available_name`
+    :func:`~limited.core.files.api.base.FileStorageBaseApi.homepath` |
+    :func:`~limited.core.files.api.base.FileStorageBaseApi.hash` |
+    :func:`~limited.core.files.api.base.FileStorageBaseApi.url`
 
-* | Time: :func:`~limited.files.api.FileStorageApi.time`
+* | Time: :func:`~limited.core.files.api.FileStorageApi.time`
 
 
 .. index:: File Storage Api model
@@ -73,13 +73,13 @@ Methods list
 Storage Model
 ====================================
 
-.. autoclass:: limited.files.api.FileStorageApi
+.. autoclass:: limited.core.files.api.FileStorageApi
     :show-inheritance:
     :undoc-members:
     :members:
 
     .. method:: __init__(self, lib )
-        Take :class:`limited.models.FileLib` as a parameter
+        Take :class:`limited.core.models.FileLib` as a parameter
 
 
 
@@ -88,13 +88,13 @@ Storage Model
 File Storage Trash model
 ====================================
 
-.. autoclass:: limited.files.api.FileStorageTrash
+.. autoclass:: limited.core.files.api.FileStorageTrash
     :show-inheritance:
     :undoc-members:
     :members:
 
     .. method:: __init__(self, lib )
-        Take :class:`limited.models.FileLib` as a parameter
+        Take :class:`limited.core.models.FileLib` as a parameter
 
 
 
@@ -103,13 +103,13 @@ File Storage Trash model
 File Storage Extra model
 ====================================
 
-.. autoclass:: limited.files.api.FileStorageExtra
+.. autoclass:: limited.core.files.api.FileStorageExtra
     :show-inheritance:
     :undoc-members:
     :members:
 
     .. method:: __init__(self, lib )
-        Take :class:`limited.models.FileLib` as a parameter
+        Take :class:`limited.core.models.FileLib` as a parameter
 
 
 
