@@ -16,7 +16,7 @@ from limited.core.files.utils import Thread, FilePath
 from limited.core.models import Home, History, Link
 from limited.core.models import PermissionError
 from limited.core.controls import get_home, get_homes, get_user
-from limited.core.utils import split_path, HttpResponseReload, url_get_filename, check_file_name
+from limited.core.utils import split_path, HttpResponseReload, url_get_filename, check_file_name, MailNotification, urlbilder
 
 logger = logging.getLogger( __name__ )
 
@@ -446,7 +446,7 @@ def UploadView( request, id ):
 
             files = request.FILES.getlist( u'files' )
 
-            if len( files ) == 0:
+            if not len( files ):
                 messages.warning( request, "No any files selected" )
                 return HttpResponseReload( request )
 
@@ -462,6 +462,21 @@ def UploadView( request, id ):
                 file_paths.append( name )
             history.files = [FilePath.name( i ) for i in file_paths]
             history.save( )
+
+            if settings.LIMITED_EMAIL_NOTIFY['ENABLE']:
+                domain = Site.objects.get_current( ).domain
+                link = urlbilder( "browser", lib_id, p=history.path )
+                libs = Home.objects.filter( lib_id=lib_id ).select_related( "user" )
+                emails = []
+                for item in libs:
+                    user_email = item.user.email
+                    if user_email and user_email != user.email:
+                        emails.append( user_email )
+
+                notify = MailNotification( )
+                notify.body = "New files upload http://{0}{1}&hl={2} by user {3}".format( domain, link, history.hash( ), history.user )
+                notify.users = emails
+                notify.start( )
 
         except ObjectDoesNotExist:
             logger.error( u"Upload. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )

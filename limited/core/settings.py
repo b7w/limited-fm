@@ -44,6 +44,13 @@ LIMITED_SERVE = getattr( settings, 'LIMITED_SERVE', {
     'INTERNAL_URL': '/protected',
     } )
 
+# Email notifications,
+# subject for email and user from email will be send
+LIMITED_EMAIL_NOTIFY = getattr( settings, 'LIMITED_EMAIL_NOTIFY', {
+    'ENABLE': False,
+    'TITLE': 'LimitedFM Notify message',
+    'USER_FROM': 'root@localhost',
+    } )
 
 # Check if iViewer is loaded
 LIMITED_LVIEWER = "limited.lviewer" in settings.INSTALLED_APPS

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 import re
+import threading
 import urllib
 
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
@@ -12,6 +15,7 @@ from django.utils.http import urlquote
 from limited.core import settings
 from limited.core.files.utils import FilePath
 
+logger = logging.getLogger( __name__ )
 
 class HttpResponseReload( HttpResponse ):
     status_code = 302
@@ -215,3 +219,24 @@ class TreeNode:
 
     def __str__(self):
         return "TreeNode({0}, {1})".format( self.name, self.hash )
+
+
+class MailNotification( threading.Thread ):
+    """
+    Simple Thread class that send emails.
+    Default subject and user_from are take from settings.LIMITED_EMAIL_NOTIFY
+    """
+
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
+        super( MailNotification, self ).__init__( group, target, name, args, kwargs, verbose )
+        self.title = settings.LIMITED_EMAIL_NOTIFY['TITLE']
+        self.user_from = settings.LIMITED_EMAIL_NOTIFY['USER_FROM']
+        self.body = ''
+        self.users = []
+
+    def run(self):
+        assert self.title and self.body and self.user_from
+        try:
+            send_mail( self.title, self.body, self.user_from, self.users, fail_silently=False )
+        except Exception as e:
+            logging.error( e )

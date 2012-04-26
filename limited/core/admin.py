@@ -162,7 +162,6 @@ class AdminUser( UserAdmin ):
         ('Main', { 'fields': ('username', 'password') }),
         ('Personal info', { 'fields': ('first_name', 'last_name', 'email') }),
     )
-    readonly_fields = ( 'password', )
     inlines = [HomeInline, ]
 
     # Need to remove inlines when adding object

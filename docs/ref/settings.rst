@@ -123,7 +123,7 @@ Default: ``32 * 1024 ** 2``
 
 
 
-.. _SETTINGS_ILES_ALLOWED:
+.. _SETTINGS_FILES_ALLOWED:
 
 LIMITED_FILES_ALLOWED
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,6 +150,19 @@ Default: ``{ 'BACKEND': 'limited.core.serve.backends.default', 'INTERNAL_URL': '
 
 | Also there is 'Content-Type' argument, his default value 'application/octet-stream'.
   But if set '', nginx will detect content-type automatic.
+
+
+
+.. _SETTINGS_EMAIL_NOTIFY:
+
+LIMITED_EMAIL_NOTIFY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``{ 'ENABLE': False, 'TITLE': 'LimitedFM Notify message', 'USER_FROM': 'root@localhost', }``
+
+| LimitedFM can notify about upload files via email.
+  To turn it on you need to set `ENABLE`: True and change subject and user.
+  Also you need to setup `django email options <https://docs.djangoproject.com/en/dev/ref/settings/#email-backend>`__.
 
 
 

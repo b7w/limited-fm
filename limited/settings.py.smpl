@@ -2,7 +2,8 @@
 
 import os
 
-PROJECT_PATH = os.path.realpath( os.path.dirname( __file__ ) )
+SOURCE_PATH = os.path.realpath( os.path.dirname( __file__ ) )
+PROJECT_PATH = os.path.dirname( SOURCE_PATH )
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -117,7 +118,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join( PROJECT_PATH, 'templates' ),
+    os.path.join( SOURCE_PATH, 'templates' ),
     )
 
 INSTALLED_APPS = (
@@ -180,6 +181,8 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStora
 
 LOGIN_URL = "/login/"
 
+# if on any url app show site root try this
+# FORCE_SCRIPT_NAME = ''
 
 # Absolute root path to witch
 # FileLib.path will be added
