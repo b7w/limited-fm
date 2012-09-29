@@ -221,22 +221,31 @@ class TreeNode:
         return "TreeNode({0}, {1})".format( self.name, self.hash )
 
 
-class MailNotification( threading.Thread ):
+class MailFileNotify( threading.Thread ):
     """
     Simple Thread class that send emails.
     Default subject and user_from are take from settings.LIMITED_EMAIL_NOTIFY
+
+    Need to set ``title``, ``body``, ``user_from`` fields.
+    Emails to send to are stored in ``emails`` field.
+    Also if ``files`` is set, they will be add to body.
     """
 
     def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
-        super( MailNotification, self ).__init__( group, target, name, args, kwargs, verbose )
+        super( MailFileNotify, self ).__init__( group, target, name, args, kwargs, verbose )
         self.title = settings.LIMITED_EMAIL_NOTIFY['TITLE']
         self.user_from = settings.LIMITED_EMAIL_NOTIFY['USER_FROM']
         self.body = ''
-        self.users = []
+        self.emails = []
+        self.files = []
 
     def run(self):
         assert self.title and self.body and self.user_from
+        if self.files:
+            self.body += '\n'
+            self.body += 'Files:\n'
+            self.body += '\n'.join(map(lambda x: ' * ' + x, self.files))
         try:
-            send_mail( self.title, self.body, self.user_from, self.users, fail_silently=False )
+            send_mail( self.title, self.body, self.user_from, self.emails, fail_silently=False )
         except Exception as e:
             logging.error( e )

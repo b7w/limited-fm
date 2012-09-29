@@ -16,7 +16,7 @@ from limited.core.files.utils import Thread, FilePath
 from limited.core.models import Home, History, Link
 from limited.core.models import PermissionError
 from limited.core.controls import get_home, get_homes, get_user
-from limited.core.utils import split_path, HttpResponseReload, url_get_filename, check_file_name, MailNotification, urlbilder
+from limited.core.utils import split_path, HttpResponseReload, url_get_filename, check_file_name, MailFileNotify, urlbilder
 
 logger = logging.getLogger( __name__ )
 
@@ -473,9 +473,11 @@ def UploadView( request, id ):
                     if user_email and user_email != user.email:
                         emails.append( user_email )
 
-                notify = MailNotification( )
-                notify.body = "New files upload http://{0}{1}&hl={2} by user {3}".format( domain, link, history.hash( ), history.user )
-                notify.users = emails
+                notify = MailFileNotify( )
+                notify.body = "New files upload to '{0}' by user {1}\n".format(path, history.user)
+                notify.body += "Link http://{0}{1}&hl={2}\n".format(domain, link, history.hash())
+                notify.files = [i.name for i in files]
+                notify.emails = emails
                 notify.start( )
 
         except ObjectDoesNotExist:
