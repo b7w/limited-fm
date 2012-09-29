@@ -14,7 +14,7 @@ class FileStorageTrash( FileStorageBaseApi ):
         """
         Safe call for list trash files
         """
-        if self.fs.exists( settings.LIMITED_TRASH_PATH ) == False:
+        if not self.fs.exists(settings.LIMITED_TRASH_PATH):
             self.fs.mkdir( settings.LIMITED_TRASH_PATH )
         return self.fs.listdir( settings.LIMITED_TRASH_PATH, hidden=False )
 
@@ -26,8 +26,8 @@ class FileStorageTrash( FileStorageBaseApi ):
         path = self.check( path )
         if signal:
             file_pre_change.send( self, basedir=FilePath.dirname( path ) )
-        if self.fs.exists( settings.LIMITED_TRASH_PATH ) == False:
+        if not self.fs.exists(settings.LIMITED_TRASH_PATH):
             self.fs.mkdir( settings.LIMITED_TRASH_PATH )
-        if self.fs.exists( path ) == False:
+        if not self.fs.exists(path):
             raise FileNotExist( u"'%s' not found" % path )
         self.fs.move( path, settings.LIMITED_TRASH_PATH )

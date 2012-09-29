@@ -59,7 +59,7 @@ class FilePath( object ):
         if find - return False
         if norm=True, than path = FilePath.norm( path ). By default is False
         """
-        if norm == True:
+        if norm:
             path = FilePath.norm( path )
         if path.startswith( u'/' ):
             return False

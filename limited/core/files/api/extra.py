@@ -57,7 +57,7 @@ class FileStorageExtra( FileStorageBaseApi ):
         On not exist raise :class:`~limited.core.files.storage.FileNotExist`.
         """
         path = self.check( path )
-        if self.fs.exists( path ) == False:
+        if not self.fs.exists(path):
             raise FileNotExist( u"'%s' not found" % path )
 
         if file == None:

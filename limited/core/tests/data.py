@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 
@@ -66,8 +66,8 @@ class InitData:
 
     def Links(self):
         link = Link( hash="d89d9baa47e8", lib=self.LibTest, path=u"Фото 007.bin" )
-        link.expires = datetime( 2012, 6, 30, 19, 56, 4 )
-        link.time = datetime( 2011, 6, 29, 19, 56, 4 )
+        link.expires = datetime.now() + timedelta(days=32)
+        link.time = datetime.now()
         link.save( )
 
     def History(self):

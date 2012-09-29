@@ -137,7 +137,7 @@ class FileStorage( object ):
         """
         Return listi of files in directory
         """
-        if self.isdir( name ) == False:
+        if not self.isdir(name):
             raise FileNotExist( u"path '%s' doesn't exist or it isn't a directory" % name )
         return os.listdir( self.abspath( name ) )
 
@@ -215,7 +215,7 @@ class FileStorage( object ):
 
         if dir and self.isdir( name ):
             key = md5( "storage.size" + smart_str( name ) ).hexdigest( )
-            if cached == True:
+            if cached:
                 size = cache.get( key )
                 if size != None:
                     return size

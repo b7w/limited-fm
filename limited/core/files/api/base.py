@@ -41,7 +41,7 @@ class FileStorageBaseApi:
         if path is hidden raise FileNotExist
         """
         path = FilePath.norm( path )
-        if FilePath.check( path ) == False:
+        if not FilePath.check(path):
             raise FileError( u"IOError, Permission denied" )
             #TODO: TRASH and CACHE are visible, is is not good.
         if path.startswith( u'.' ) or u'/.' in path:
@@ -60,13 +60,13 @@ class FileStorageBaseApi:
         max = xlen ** 3
 
         while id > max:
-            id = id >> 2
+            id >>= 2
 
         value = ""
         while id != 0:
             remainder = id % xlen
             value += FileStorageBaseApi.xdict[remainder]
-            id = id / xlen
+            id /= xlen
         return value
 
     def homepath(self, path):
@@ -82,10 +82,10 @@ class FileStorageBaseApi:
         If file exists add '[i]' to file name.
         If overrideTrue - override, False - create new name, Else - raise FileError
         """
-        if self.fs.exists( path ) == True:
-            if override == True:
+        if self.fs.exists(path):
+            if override:
                 return path
-            elif override == False:
+            elif not override:
                 return self.fs.available_name( path )
             else:
                 raise FileError( u"'%s' exists" % path )

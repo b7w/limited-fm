@@ -77,7 +77,7 @@ class FileStorageApi( FileStorageBaseApi ):
         elif flag.group(0) != path:
             raise FileError( u"Not supported symbols" )
 
-        if self.exists( path ) == True:
+        if self.exists(path):
             raise FileError( u"Directory '%s' already exists" % path )
         self.fs.mkdir( path )
 
@@ -104,9 +104,9 @@ class FileStorageApi( FileStorageBaseApi ):
         src_dir = FilePath.dirname( src )
         if src == dst or src_dir == dst:
             raise FileError( u"Moving to the same directory" )
-        if self.exists( src ) == False:
+        if not self.exists(src):
             raise FileNotExist( u"'%s' not found" % src )
-        if self.exists( dst ) == False:
+        if not self.exists(dst):
             raise FileNotExist( u"'%s' not found" % dst )
         src = self.check( src )
         dst = self.check( dst )
@@ -124,7 +124,7 @@ class FileStorageApi( FileStorageBaseApi ):
         path = self.check( path )
         if '/' in name:
             raise FileError( u"'%s' contains not supported symbols" % name )
-        if self.exists( path ) == False:
+        if not self.exists(path):
             raise FileNotExist( u"'%s' not found" % path )
 
         new_path = FilePath.join( FilePath.dirname( path ), name )
@@ -151,7 +151,7 @@ class FileStorageApi( FileStorageBaseApi ):
         Remove directory or file, on not exist raise :class:`~limited.core.files.storage.FileNotExist`
         """
         path = self.check( path )
-        if self.exists( path ) == False:
+        if not self.exists(path):
             raise FileNotExist( u"'%s' not found" % path )
         if signal:
             file_pre_change.send( self, basedir=FilePath.dirname( path ) )

@@ -79,7 +79,7 @@ def truncate_path( str, length=64, ext=False):
     long name.ext -> {length}...ext
     or if fail long name - {length}..
     """
-    if ext == True:
+    if ext:
         restr = r"^(.{%s}).*\.(\w+)$" % length
         name_ext = re.match( restr, str )
         if name_ext != None:
