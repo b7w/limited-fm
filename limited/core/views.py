@@ -13,7 +13,7 @@ from limited.core import settings
 from limited.core.serve.manager import DownloadManager
 from limited.core.files.storage import FileError, FileNotExist
 from limited.core.files.utils import Thread, FilePath
-from limited.core.models import Home, History, Link
+from limited.core.models import Home, History, Link, Profile
 from limited.core.models import PermissionError
 from limited.core.controls import get_home, get_homes, get_user
 from limited.core.utils import split_path, HttpResponseReload, url_get_filename, check_file_name, MailFileNotify, urlbilder
@@ -57,10 +57,13 @@ def IndexView( request ):
               filter( lib__in=libs ).\
               order_by( '-time' )[0:8]
 
+    rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
+
     return render( request, "limited/index.html", {
         'history': history,
         'Homes': Homes,
         'AnonHomes': AnonHomes,
+        'rss_token': rss_token,
         } )
 
 
@@ -70,7 +73,8 @@ def FilesView( request, id ):
 
     template :template:`limited/browser.html`
     """
-    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+    user = request.user
+    if user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
@@ -80,7 +84,7 @@ def FilesView( request, id ):
         return RenderError( request, u"IOError, Permission denied" )
 
     try:
-        home = get_home( request.user, lib_id )
+        home = get_home( user, lib_id )
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -107,6 +111,8 @@ def FilesView( request, id ):
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] ).replace( '\\', '\\\\' )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] ).replace( '\\', '\\\\' )
 
+        rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
+
     except ObjectDoesNotExist:
         logger.error( u"Files. No such file lib or you don't have permissions. home_id:{0}, path:{1}".format( lib_id, path ) )
         return RenderError( request, u"No such file lib or you don't have permissions" )
@@ -124,6 +130,7 @@ def FilesView( request, id ):
         'permission': home.permission,
         'files': files,
         'allowed': allowed,
+        'rss_token': rss_token,
         'lviewer': lViewer,
         } )
 
@@ -134,13 +141,14 @@ def HistoryView( request, id ):
 
     template :template:`limited/history.html`
     """
-    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+    user = request.user
+    if user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
 
     try:
-        home = get_home( request.user, lib_id )
+        home = get_home( user, lib_id )
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -149,6 +157,8 @@ def HistoryView( request, id ):
                   order_by( '-id' )[0:30]
 
         patharr = split_path( u"History" )
+
+        rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
 
     except ObjectDoesNotExist:
         logger.error( u"History. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -161,6 +171,7 @@ def HistoryView( request, id ):
         'home_id': lib_id,
         'home': home.lib.name,
         'permission': home.permission,
+        'rss_token': rss_token,
         } )
 
 
@@ -170,13 +181,14 @@ def TrashView( request, id ):
     
     template :template:`limited/trash.html`
     """
-    if request.user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
+    user = request.user
+    if user.is_anonymous( ) and not settings.LIMITED_ANONYMOUS:
         return HttpResponseRedirect( '%s?next=%s' % (settings.LOGIN_URL, request.path) )
 
     lib_id = int( id )
 
     try:
-        home = get_home( request.user, lib_id )
+        home = get_home(user, lib_id )
 
         history = History.objects.\
                   select_related( 'user' ).\
@@ -188,6 +200,8 @@ def TrashView( request, id ):
 
         File = home.lib.getStorage( )
         files = File.trash.listdir( )
+
+        rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
 
     except ObjectDoesNotExist:
         logger.error( u"Trash. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )
@@ -205,6 +219,7 @@ def TrashView( request, id ):
         'home': home.lib.name,
         'permission': home.permission,
         'files': files,
+        'rss_token': rss_token,
         } )
 
 

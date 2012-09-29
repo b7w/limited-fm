@@ -2,9 +2,6 @@
 {% load staticfiles %}
 {% load limited_filters %}
 
-{% block rss %}
-    <link rel="alternate" type="application/rss+xml" href="{% url rss.user.lib home_id %}" title="Lib user history">
-{% endblock %}
 
 {% block media %}
 <script type="text/javascript" src="{% static "limited/js/actions.js" %}"></script>

@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.template.defaultfilters import filesizeformat
 
-from limited.core.models import FileLib, Permission, Home, History, Link, LUser
+from limited.core.models import FileLib, Permission, Home, History, Link, LUser, Profile
 from limited.core.utils import urlbilder
 
 class AdminFileLib( admin.ModelAdmin ):
@@ -145,6 +145,14 @@ class AdminLink( admin.ModelAdmin ):
     readonly_fields = ( 'time', )
 
 admin.site.register( Link, AdminLink )
+
+
+class AdminProfile( admin.ModelAdmin ):
+    list_display = ( 'user', 'rss_token', )
+    list_filter = ( 'user', )
+    readonly_fields = ( 'user', )
+
+admin.site.register( Profile, AdminProfile )
 
 
 class HomeInline( admin.TabularInline ):

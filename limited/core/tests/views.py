@@ -5,7 +5,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.html import escape
 
 from limited.core import settings
-from limited.core.models import  Link, Home, History
+from limited.core.models import  Link, Home, History, Profile
 from limited.core.files.utils import FilePath
 from limited.core.tests.base import StorageTestCase
 from limited.core.utils import urlbilder
@@ -348,6 +348,8 @@ class ViewsTest( StorageTestCase ):
         Test that check feed exists for anon
         """
         self.setAnonymous( True )
+        rss_token = Profile.objects.get(user=self.data.UserB7W).rss_token
+        Home.objects.filter(user=self.data.UserAnon, lib=self.data.LibTest).delete()
 
         def assertFeed( link, count ):
             """
@@ -358,33 +360,26 @@ class ViewsTest( StorageTestCase ):
             """
             resp = self.client.get( link )
             assert resp.status_code == 200
-            assert unicode( resp ).count( u"<item>" ) == count
+            assert unicode( resp.content ).count( u"<item>" ) == count, unicode( resp.content ).count( u"<item>" )
 
-        link_all = urlbilder( 'rss.user.all' )
-        link_fm = urlbilder( 'rss.user.lib', self.data.LibFM.id )
-        link_test = urlbilder( 'rss.user.lib', self.data.LibTest.id )
+        link_anon = urlbilder( 'rss.user.anon' )
+        link_all = urlbilder( 'rss.user.all', rss_token )
+        link_fm = urlbilder( 'rss.user.lib', rss_token, self.data.LibFM.id )
+        link_test = urlbilder( 'rss.user.lib',rss_token,  self.data.LibTest.id )
 
-        Home.objects.get( user=self.data.UserAnon, lib=self.data.LibTest ).delete( )
-
-        assertFeed( link_fm, 0 )
-        resp = self.client.get( link_test )
-        assert resp.status_code == 404
-        assertFeed( link_all, 0 )
-
+        assertFeed( link_anon, 0 )
         History( user=self.data.UserAnon, lib=self.data.LibFM, type=3, path=u"Фото 070.jpg" ).save( )
-        assertFeed( link_fm, 1 )
-
-        self.client.login( username='B7W', password='root' )
+        assertFeed( link_anon, 1 )
 
         assertFeed( link_fm, 1 )
         assertFeed( link_test, 3 )
         assertFeed( link_all, 4 )
 
-        resp = self.client.get( urlbilder( 'rss.user.lib', 100 ) )
+        resp = self.client.get( urlbilder( 'rss.user.all', u'none_exists') )
         assert resp.status_code == 404
 
-        self.client.logout( )
-        Home.objects.get( user=self.data.UserAnon ).delete( )
-        resp = self.client.get( link_all )
+        resp = self.client.get( urlbilder( 'rss.user.lib', rss_token, 100 ) )
         assert resp.status_code == 404
+
+
 

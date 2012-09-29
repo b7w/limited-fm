@@ -348,6 +348,26 @@ Link model
 
 
 
+.. index:: Profile model
+
+Profile model
+====================================
+
+.. autoclass:: limited.core.models.Profile
+    :show-inheritance:
+    :members:
+
+    .. attribute:: user
+
+        | *ForeignKey*, to User.
+
+    .. attribute:: rss_token
+
+        | *CharField*, max_length=16, null=False, unique=True
+        | Generated 12 char lengths field to provide rss for user without authentication.
+
+
+
 .. index:: LUser model
 
 LUser model

@@ -3,7 +3,7 @@
 from django.conf.urls.defaults import patterns, url, include
 
 from limited.core import settings
-from limited.core.feeds import UserFeed, UserLibFeed
+from limited.core.feeds import UserAnonFeed, UserFeed, UserLibFeed
 
 urlpatterns = patterns( '',
     url( r'^$', 'limited.core.views.IndexView', name='index' ),
@@ -18,8 +18,9 @@ urlpatterns = patterns( '',
 
     url( r'^link/(?P<hash>\w+)/$', 'limited.core.views.LinkView', name='link' ),
 
-    url( r'^rss/user/$', UserFeed( ), name='rss.user.all' ),
-    url( r'^rss/user/(?P<lib_id>\d+)/$', UserLibFeed( ), name='rss.user.lib' ),
+    url( r'^rss/$', UserAnonFeed( ), name='rss.user.anon' ),
+    url( r'^rss/user/(?P<hash>\w+)/$', UserFeed( ), name='rss.user.all' ),
+    url( r'^rss/user/(?P<hash>\w+)/lib/(?P<lib_id>\d+)/$', UserLibFeed( ), name='rss.user.lib' ),
 )
 
 if settings.LIMITED_LVIEWER:

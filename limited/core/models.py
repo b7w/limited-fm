@@ -2,11 +2,13 @@
 
 from datetime import datetime, timedelta
 import hashlib
+from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.signals import post_save
 from django.utils.encoding import smart_str
 
 from limited.core import settings
@@ -32,20 +34,20 @@ class Permission( models.Model ):
     http_get = models.BooleanField( default=False )
 
     @classmethod
-    def fields(self):
+    def fields(cls):
         """
         Return names of field, except id.
         Generated for any count of fields.
         """
-        return [k.name for k in self._meta.fields if k.name != 'id']
+        return [k.name for k in cls._meta.fields if k.name != 'id']
 
     @classmethod
-    def full(self):
+    def full(cls):
         """
         Return object with all fields equal True
         """
-        fieldcount = len( self._meta.fields ) - 1
-        fields = self.fields( )
+        fieldcount = len( cls._meta.fields ) - 1
+        fields = cls.fields( )
         perm = Permission( )
         for l in range( fieldcount ):
             setattr( perm, fields[l], True )
@@ -274,6 +276,41 @@ class Link( models.Model ):
 
     def __unicode__(self):
         return u'ID' + unicode( self.id ) + u': ' + unicode( self.path ) + u', ' + unicode( self.time )
+
+
+class Profile(models.Model):
+    """
+    Simple user profile, to store additional information.
+     Entry created with User via signal.
+    """
+    user = models.OneToOneField(User)
+
+    rss_token = models.CharField(max_length=16, null=False, unique=True)
+
+    @classmethod
+    def create_rss_token(cls):
+        return str(uuid4().get_hex())[0:12]
+
+    def save(self, force_insert=False, force_update=False, using=None):
+        if not self.rss_token:
+            self.rss_token = Profile.create_rss_token()
+        return super(Profile, self).save(force_insert, force_update, using)
+
+    class Meta:
+        db_table = 'limited_profile'
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
+
+    def __unicode__(self):
+        return u'ID' + unicode(self.id) + u': ' + unicode(self.user)
+
+
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        profile = Profile(user=instance)
+        profile.save()
+
+post_save.connect( create_profile, sender=User )
 
 
 class LUser( User ):
