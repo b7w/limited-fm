@@ -111,7 +111,6 @@ class Thread( threading.Thread ):
             self.view( *self.args, **self.kwargs )
         except Exception as e:
             logger.error( "Tread. {0}. args: {1}, kwargs:{2},".format( e, *self.args, **self.kwargs ) )
-            logger.error(e)
 
 
 class FileUnicName:

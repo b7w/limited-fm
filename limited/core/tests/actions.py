@@ -91,19 +91,13 @@ class ActionTest( StorageTestCase ):
         """
         Test MailFileNotify
         """
+
         def upload():
             opn = self.storage.open
             with opn(u"test1.txt") as f1, opn(u"test2.txt") as f2:
                 self.client.post(urlbilder(u'upload', self.lib.id), {'p': 'Test Folder', 'files': [f1, f2]})
             assert self.storage.exists(u"Test Folder/test1.txt") == True
             assert self.storage.exists(u"Test Folder/test2.txt") == True
-
-        def assertEmail(*emails):
-            assert len(mail.outbox) == 1
-            msg = mail.outbox[0]
-            assert set(msg.to) == set(emails)
-            assert u'test1.txt' in msg.body
-            assert u'test2.txt' in msg.body
 
         user = User.objects.create_user('Test', 'test@loc.com', 'root')
         perm = Permission.objects.get(id=64)
@@ -119,12 +113,15 @@ class ActionTest( StorageTestCase ):
 
         settings.LIMITED_EMAIL_NOTIFY['ENABLE'] = True
         upload()
-        assertEmail(u'b7w@loc.com')
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].to == [u'b7w@loc.com']
 
         mail.outbox = []
         Profile.objects.filter(user=user).update(mail_notify=True)
         upload()
-        assertEmail(u'b7w@loc.com', u'test@loc.com')
+        assert len(mail.outbox) == 2
+        assert mail.outbox[0].to == [u'b7w@loc.com']
+        assert mail.outbox[1].to == [u'test@loc.com']
 
         settings.LIMITED_EMAIL_NOTIFY['ENABLE'] = False
 

@@ -6,7 +6,7 @@ import re
 import threading
 import urllib
 
-from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.encoding import iri_to_uri
@@ -249,9 +249,10 @@ class MailFileNotify( threading.Thread ):
             self.body += '\n'.join(map(lambda x: ' * ' + x, self.files))
         try:
             emails = self.emails or self.get_emails()
-            send_mail( self.title, self.body, self.user_from, emails, fail_silently=False )
+            data = [(self.title, self.body, self.user_from, (email,),) for email in emails]
+            send_mass_mail(data, fail_silently=False)
         except Exception as e:
-            logging.error( e )
+            logging.error(e)
 
     def get_emails(self):
         from limited.core.models import Profile
