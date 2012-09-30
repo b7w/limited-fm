@@ -368,9 +368,9 @@ Profile model
 
     .. attribute:: mail_notify
 
-            | *BooleanField*, default=False
-            | Flag to send notify email on upload. Work
-              if :ref:`LIMITED_EMAIL_NOTIFY <LIMITED_EMAIL_NOTIFY>` enable.
+        | *BooleanField*, default=False
+        | Flag to send notify email on upload. Work
+          if :ref:`LIMITED_EMAIL_NOTIFY <SETTINGS_EMAIL_NOTIFY>` enable.
 
 
 

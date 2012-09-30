@@ -162,6 +162,7 @@ Default: ``{ 'ENABLE': False, 'TITLE': 'LimitedFM Notify message', 'USER_FROM': 
 
 | LimitedFM can notify about upload files via email.
   To turn it on you need to set `ENABLE`: True and change subject and user.
+  In user profile flag ``limited.core.models.Permission.mail_notify`` have to be True.
   Also you need to setup `django email options <https://docs.djangoproject.com/en/dev/ref/settings/#email-backend>`__.
 
 
