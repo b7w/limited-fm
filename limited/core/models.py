@@ -286,9 +286,13 @@ class Profile(models.Model):
     user = models.OneToOneField(User)
 
     rss_token = models.CharField(max_length=16, null=False, unique=True)
+    mail_notify = models.BooleanField( default=False )
 
     @classmethod
     def create_rss_token(cls):
+        """
+        Create 12 char len rss token from uuid hex
+        """
         return str(uuid4().get_hex())[0:12]
 
     def save(self, force_insert=False, force_update=False, using=None):

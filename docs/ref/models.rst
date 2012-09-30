@@ -366,6 +366,12 @@ Profile model
         | *CharField*, max_length=16, null=False, unique=True
         | Generated 12 char lengths field to provide rss for user without authentication.
 
+    .. attribute:: mail_notify
+
+            | *BooleanField*, default=False
+            | Flag to send notify email on upload. Work
+              if :ref:`LIMITED_EMAIL_NOTIFY <LIMITED_EMAIL_NOTIFY>` enable.
+
 
 
 .. index:: LUser model

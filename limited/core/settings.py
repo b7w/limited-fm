@@ -3,6 +3,8 @@
 from django.conf import settings
 
 # Some default settings that needed in app
+TEST = False
+
 LOGIN_URL = getattr( settings, 'LOGIN_URL' )
 
 

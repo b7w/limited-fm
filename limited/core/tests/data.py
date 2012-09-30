@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 
-from limited.core.models import FileLib, Home, Permission, Link, History
+from limited.core.models import FileLib, Home, Permission, Link, History, Profile
 from limited.core.management.utils import load_permissions
 
 class InitData:
@@ -34,12 +34,14 @@ class InitData:
         self.UserAdmin.is_staff = True
         self.UserAdmin.is_superuser = True
         self.UserAdmin.save( )
+        Profile.objects.filter(user=self.UserAdmin).update(mail_notify=True)
 
         self.UserAnon = User.objects.create_user( 'Anonymous', 'anon@loc.com' )
         self.UserAnon.save( )
 
         self.UserB7W = User.objects.create_user( 'B7W', 'b7w@loc.com', 'root' )
         self.UserB7W.save( )
+        Profile.objects.filter(user=self.UserB7W).update(mail_notify=True)
 
     def Permissions(self):
         load_permissions( )

@@ -227,7 +227,8 @@ class MailFileNotify( threading.Thread ):
     Default subject and user_from are take from settings.LIMITED_EMAIL_NOTIFY
 
     Need to set ``title``, ``body``, ``user_from`` fields.
-    Emails to send to are stored in ``emails`` field.
+    Emails are retrieve from ``users`` id list later in tread.
+    Or you can set in directly in ``emails`` field.
     Also if ``files`` is set, they will be add to body.
     """
 
@@ -236,6 +237,7 @@ class MailFileNotify( threading.Thread ):
         self.title = settings.LIMITED_EMAIL_NOTIFY['TITLE']
         self.user_from = settings.LIMITED_EMAIL_NOTIFY['USER_FROM']
         self.body = ''
+        self.users = []
         self.emails = []
         self.files = []
 
@@ -246,6 +248,12 @@ class MailFileNotify( threading.Thread ):
             self.body += 'Files:\n'
             self.body += '\n'.join(map(lambda x: ' * ' + x, self.files))
         try:
-            send_mail( self.title, self.body, self.user_from, self.emails, fail_silently=False )
+            emails = self.emails or self.get_emails()
+            send_mail( self.title, self.body, self.user_from, emails, fail_silently=False )
         except Exception as e:
             logging.error( e )
+
+    def get_emails(self):
+        from limited.core.models import Profile
+        profiles = Profile.objects.filter(user__in=self.users, mail_notify=True).exclude(user__email='').select_related('user')
+        return [i.user.email for i in profiles]

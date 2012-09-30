@@ -449,9 +449,9 @@ def UploadView( request, id ):
         return RenderError( request, u"IOError, Permission denied" )
 
     if request.method == u"POST":
+        file_paths = []
         try:
             # file paths to delete them after any Exception
-            file_paths = []
             home = get_home( request.user, lib_id )
             if not home.permission.upload:
                 raise PermissionError( u"You have no permission to upload" )
@@ -481,19 +481,16 @@ def UploadView( request, id ):
             if settings.LIMITED_EMAIL_NOTIFY['ENABLE']:
                 domain = Site.objects.get_current( ).domain
                 link = urlbilder( "browser", lib_id, p=history.path )
-                libs = Home.objects.filter( lib_id=lib_id ).select_related( "user" )
-                emails = []
-                for item in libs:
-                    user_email = item.user.email
-                    if user_email and user_email != user.email:
-                        emails.append( user_email )
+                libs = Home.objects.filter( lib_id=lib_id )
+                users = [i.user_id for i in libs]
 
                 notify = MailFileNotify( )
-                notify.body = "New files upload to '{0}' by user {1}\n".format(path, history.user)
+                notify.body = "New files upload to '{0}' by user {1}\n".format(path or '/', history.user)
                 notify.body += "Link http://{0}{1}&hl={2}\n".format(domain, link, history.hash())
                 notify.files = [i.name for i in files]
-                notify.emails = emails
-                notify.start( )
+                notify.users = users
+                # Hack to stay in one thread and test mail.outbox
+                notify.run( ) if settings.TEST else notify.start( )
 
         except ObjectDoesNotExist:
             logger.error( u"Upload. No such file lib or you don't have permissions. home_id:{0}".format( lib_id ) )

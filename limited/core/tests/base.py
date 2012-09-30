@@ -67,6 +67,7 @@ class StorageTestCase( TestCase ):
         self.lib2 = FileLib.objects.get( name="FileManager" )
         self.storage2 = self.lib2.getStorage( )
 
+        settings.TEST = True
         settings.LIMITED_ANONYMOUS = False
         settings.LIMITED_ANONYMOUS_ID = self.data.UserAnon.id
         settings.LIMITED_ZIP_HUGE_SIZE = 16 * 1024 ** 2

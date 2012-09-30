@@ -148,9 +148,12 @@ admin.site.register( Link, AdminLink )
 
 
 class AdminProfile( admin.ModelAdmin ):
-    list_display = ( 'user', 'rss_token', )
-    list_filter = ( 'user', )
+    list_display = ( 'user', 'mail_notify', 'rss_token', )
+    list_filter = ( 'mail_notify', )
     readonly_fields = ( 'user', )
+
+    def has_add_permission(self, request):
+        return False
 
 admin.site.register( Profile, AdminProfile )
 

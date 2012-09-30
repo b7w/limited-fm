@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
+from django.contrib.auth.models import User
+from django.core import mail
 from django.utils.html import escape
 
 from limited.core import settings
 from limited.core.files.utils import FilePath
-from limited.core.models import History
+from limited.core.models import History, Home, Permission, Profile
 from limited.core.tests.base import StorageTestCase
 from limited.core.utils import urlbilder
 
@@ -85,6 +86,47 @@ class ActionTest( StorageTestCase ):
         self.client.post( urlbilder( u'upload', self.lib.id ), {'p': 'Test Folder', 'files': [file3]} )
         file3.close( )
         assert self.storage.exists( u"Test Folder/content.txt" ) == True
+
+    def test_Upload_Email_Notify(self):
+        """
+        Test MailFileNotify
+        """
+        def upload():
+            opn = self.storage.open
+            with opn(u"test1.txt") as f1, opn(u"test2.txt") as f2:
+                self.client.post(urlbilder(u'upload', self.lib.id), {'p': 'Test Folder', 'files': [f1, f2]})
+            assert self.storage.exists(u"Test Folder/test1.txt") == True
+            assert self.storage.exists(u"Test Folder/test2.txt") == True
+
+        def assertEmail(*emails):
+            assert len(mail.outbox) == 1
+            msg = mail.outbox[0]
+            assert set(msg.to) == set(emails)
+            assert u'test1.txt' in msg.body
+            assert u'test2.txt' in msg.body
+
+        user = User.objects.create_user('Test', 'test@loc.com', 'root')
+        perm = Permission.objects.get(id=64)
+        Home(user=user, lib=self.lib, permission=perm).save()
+
+        self.client.login(username='admin', password='root')
+
+        self.storage.extra.create(u"test1.txt", "first")
+        self.storage.extra.create(u"test2.txt", "second")
+
+        upload()
+        assert mail.outbox == []
+
+        settings.LIMITED_EMAIL_NOTIFY['ENABLE'] = True
+        upload()
+        assertEmail(u'b7w@loc.com')
+
+        mail.outbox = []
+        Profile.objects.filter(user=user).update(mail_notify=True)
+        upload()
+        assertEmail(u'b7w@loc.com', u'test@loc.com')
+
+        settings.LIMITED_EMAIL_NOTIFY['ENABLE'] = False
 
     def test_Clear(self):
         """
