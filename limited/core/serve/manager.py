@@ -62,7 +62,7 @@ class DownloadManager:
         if not self.storage.exists( cache ) and not self.storage.exists( part ):
             th = Thread( )
             th.setView( self.storage.extra.zip, path, self.cache_file( path ) )
-            th.start( )
+            th.run( ) if settings.TEST else th.start( )
 
     def get_backend(self):
         """

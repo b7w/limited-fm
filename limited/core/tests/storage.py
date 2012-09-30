@@ -118,8 +118,8 @@ class FileStorageTest( StorageTestCase ):
 
         self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=60 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == True
-        self.timer.sleep( )
-        self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=1 )
+
+        self.storage.extra.clear( settings.LIMITED_TRASH_PATH, older=0 )
         assert self.storage.exists( settings.LIMITED_TRASH_PATH + u"/Crash Test" ) == False
 
         self.storage.extra.create( settings.LIMITED_TRASH_PATH + u"/test.bin", u"Test" )
@@ -292,8 +292,7 @@ class FileStorageTest( StorageTestCase ):
 
         obj = Thread( )
         obj.setView( self.storage.extra.zip, u"Test Folder", u"Test Folder2.zip" )
-        obj.start( )
-        self.timer.sleep( )
+        obj.run( )
         assert self.storage.exists( u"Test Folder2.zip" ) == True
 
     def test_download(self):
@@ -308,8 +307,7 @@ class FileStorageTest( StorageTestCase ):
 
         obj = Thread( )
         obj.setView( self.storage.extra.download, url, u"logo3w.png", signal=False )
-        obj.start( )
-        self.timer.sleep( )
+        obj.run( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_other(self):

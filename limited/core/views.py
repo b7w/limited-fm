@@ -252,14 +252,16 @@ def ActionView( request, id, command ):
             name = request.GET['n']
             # If it link - download it
             # No any messages on success
-            if name.startswith( u"http://" ):
+            if name.startswith( u"http://" ) or name.startswith( u"https://" ):
+                if not home.permission.http_get:
+                    raise PermissionError( u"You have no permission to upload from url" )
                 filename = url_get_filename( name )
                 path = FilePath.join( path, filename )
                 #TODO: Fucking TransactionManagementError don't now how to fix
                 # In a Thread we set signal=False to not update DB
                 T = Thread( )
                 T.setView( Storage.extra.download, name, path, signal=False )
-                T.start( )
+                T.run( ) if settings.TEST else T.start( )
                 messages.success( request, u"file '%s' added for upload" % filename )
             # Just create new directory
             else:

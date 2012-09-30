@@ -1,42 +1,9 @@
 # -*- coding: utf-8 -*-
-
-import time
-
 from django.test import TestCase
 
 from limited.core import settings
 from limited.core.models import FileLib
 from limited.core.tests.data import InitData
-
-# It can happen so that error in test
-# are raises because of not enough time
-# to wait async task.
-# So increase this value
-
-
-DEFAULT_SLEEP_TINE = 1.0
-
-class Timer:
-    """
-    Wrapper to get sleep method
-    with default value
-    for waiting async tasks
-    """
-
-    def __init__(self, default=None):
-        """
-        default - default value in float
-        """
-        if default:
-            self.default = default
-        else:
-            self.default = 1.0
-
-    def sleep(self, times=1 ):
-        """
-        Sleep times * default value
-        """
-        time.sleep( self.default * times )
 
 
 class StorageTestCase( TestCase ):
@@ -56,8 +23,6 @@ class StorageTestCase( TestCase ):
     """
 
     def setUp(self):
-        self.timer = Timer( DEFAULT_SLEEP_TINE )
-
         self.data = InitData( )
         self.data.LoadAll( )
 

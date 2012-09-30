@@ -182,7 +182,6 @@ class ActionTest( StorageTestCase ):
 
         resp = self.client.get( link_url, follow=True )
         assert resp.status_code == 200
-        self.timer.sleep( )
         assert self.storage.exists( u"logo3w.png" ) == True
 
     def test_Chroot(self):
