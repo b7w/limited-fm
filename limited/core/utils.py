@@ -244,9 +244,9 @@ class MailFileNotify( threading.Thread ):
     def run(self):
         assert self.title and self.body and self.user_from
         if self.files:
-            self.body += '\n'
-            self.body += 'Files:\n'
-            self.body += '\n'.join(map(lambda x: ' * ' + x, self.files))
+            self.body += u'\n'
+            self.body += u'Files:\n'
+            self.body += u'\n'.join(map(lambda x: u' * ' + x, self.files))
         try:
             emails = self.emails or self.get_emails()
             data = [(self.title, self.body, self.user_from, (email,),) for email in emails]

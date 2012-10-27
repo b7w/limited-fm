@@ -136,6 +136,19 @@ Default: ``{ 'ONLY': [ u'^[А-Яа-я\w\.\(\)\+\- ]+$', ], 'EXCEPT': [ u'.+\.rar
 
 
 
+.. _SETTINGS_FILES_MESSAGE:
+
+LIMITED_FILES_MESSAGE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``u"This name of file '{0}' is not allowed for upload!"``
+
+| Message to show if file is not allowed for upload. Look :ref:`SETTINGS_FILES_ALLOWED`.
+  Put '{0}' for place of file name. Be careful, string must be unicode.
+
+
+
+
 .. _SETTINGS_SERVE:
 
 LIMITED_SERVE

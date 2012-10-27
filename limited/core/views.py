@@ -110,6 +110,7 @@ def FilesView( request, id ):
         allowed = {}
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] ).replace( '\\', '\\\\' )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] ).replace( '\\', '\\\\' )
+        allowed['message'] = settings.LIMITED_FILES_MESSAGE
 
         rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
 
@@ -464,12 +465,12 @@ def UploadView( request, id ):
             files = request.FILES.getlist( u'files' )
 
             if not len( files ):
-                messages.warning( request, "No any files selected" )
+                messages.warning( request, u"No any files selected" )
                 return HttpResponseReload( request )
 
             for file in files:
                 if not check_file_name( file.name ):
-                    raise PermissionError( u"This name of file '{0}' is not allowed for upload!".format( file.name ) )
+                    raise PermissionError( settings.LIMITED_FILES_MESSAGE.format( file.name ) )
 
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
 
@@ -482,13 +483,13 @@ def UploadView( request, id ):
 
             if settings.LIMITED_EMAIL_NOTIFY['ENABLE']:
                 domain = Site.objects.get_current( ).domain
-                link = urlbilder( "browser", lib_id, p=history.path )
+                link = urlbilder( u"browser", lib_id, p=history.path )
                 libs = Home.objects.filter( lib_id=lib_id )
                 users = [i.user_id for i in libs]
 
                 notify = MailFileNotify( )
-                notify.body = "New files upload to '{0}' by user {1}\n".format(path or '/', history.user)
-                notify.body += "Link http://{0}{1}&hl={2}\n".format(domain, link, history.hash())
+                notify.body = u"New files upload to '{0}' by user {1}\n".format(path or '/', history.user)
+                notify.body += u"Link http://{0}{1}&hl={2}\n".format(domain, link, history.hash())
                 notify.files = [i.name for i in files]
                 notify.users = users
                 # Hack to stay in one thread and test mail.outbox

@@ -71,7 +71,7 @@ function Size(obj) {
     } );
 }
 
-function handleFileSelect(event, allowed, except) {
+function handleFileSelect(event, allowed, except, message) {
     var files = event.target.files;
     var allowed = allowed.split( '|' );
     var except = except.split( '|' );
@@ -90,7 +90,7 @@ function handleFileSelect(event, allowed, except) {
             }
         }
         if (flag == true) {
-            NotifyError( "This type of file '" + f.name + "' is not allowed for upload!" )
+            NotifyError( message.replace('{0}', f.name) )
         }
     }
     if (flag == true) {

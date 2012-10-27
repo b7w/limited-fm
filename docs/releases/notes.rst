@@ -15,6 +15,17 @@ Release notes
 ====================================
 
 
+1.3.1
+------------------------------------
+
+| Fix some strong bugs. Move error message on uploading not allowed file names
+  to settings :ref:`SETTINGS_FILES_MESSAGE`. Now it can be easy to tell user where error is.
+
+* Fix wrong message on uploading not allowed file names.
+* Fix encoding problems in mail notify.
+* Fix profile creation only on LUser add.
+
+
 1.3.0
 ------------------------------------
 
