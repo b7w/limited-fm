@@ -360,7 +360,7 @@ class ViewsTest( StorageTestCase ):
             """
             resp = self.client.get( link )
             assert resp.status_code == 200
-            assert unicode( resp.content ).count( u"<item>" ) == count, unicode( resp.content ).count( u"<item>" )
+            assert unicode( resp.content, errors='ignore' ).count( u"<item>" ) == count
 
         link_anon = urlbilder( 'rss.user.anon' )
         link_all = urlbilder( 'rss.user.all', rss_token )

@@ -35,9 +35,14 @@ LIMITED_ZIP_HUGE_SIZE = getattr( settings, 'LIMITED_ZIP_HUGE_SIZE', 32 * 1024 **
 # Allow and block some regex patterns.
 # It is highly needed to set pattern in unicode!
 LIMITED_FILES_ALLOWED = getattr( settings, 'LIMITED_FILES_ALLOWED', {
-    'ONLY': [u'^[А-Яа-я\w\.\(\)\+\- ]+$', ],
+    'ONLY': [u'^[А-Яа-я\w№\.\(\)\+\- ]+$', ],
     'EXCEPT': [u'.+\.rar', ],
     } )
+
+# Message to show if file is not allowed
+# '{0}' - place for file name
+LIMITED_FILES_MESSAGE = getattr( settings, 'LIMITED_FILES_MESSAGE',
+    u"This name of file '{0}' is not allowed for upload!" )
 
 # Set backend for serving files
 # Now only default and nginx

@@ -24,10 +24,10 @@ class BaseUserFeed(Feed):
         return obj
 
     def item_title(self, item):
-        return ", ".join(item.files)
+        return u", ".join(item.files)
 
     def item_description(self, item):
-        return u"{0} by {1}, in '{2}'".format(item.get_type_display(), item.user, item.path or '/').capitalize()
+        return u"{0} by {1}, in '{2}'".format(item.get_type_display(), item.user, item.path or u'/').capitalize()
 
     def item_link(self, item):
         return urlbilder(u"browser", item.lib_id, p=item.path, hl=item.hash())

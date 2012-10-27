@@ -110,6 +110,7 @@ def FilesView( request, id ):
         allowed = {}
         allowed['only'] = '|'.join( settings.LIMITED_FILES_ALLOWED["ONLY"] ).replace( '\\', '\\\\' )
         allowed['except'] = '|'.join( settings.LIMITED_FILES_ALLOWED["EXCEPT"] ).replace( '\\', '\\\\' )
+        allowed['message'] = settings.LIMITED_FILES_MESSAGE
 
         rss_token = None if user.is_anonymous() else Profile.objects.get(user=user).rss_token
 
@@ -469,7 +470,7 @@ def UploadView( request, id ):
 
             for file in files:
                 if not check_file_name( file.name ):
-                    raise PermissionError( u"This name of file '{0}' is not allowed for upload!".format( file.name ) )
+                    raise PermissionError( settings.LIMITED_FILES_MESSAGE.format( file.name ) )
 
             history = History( user=user, lib=home.lib, type=History.UPLOAD, path=path )
 

@@ -146,7 +146,7 @@
     var fl = document.getElementById( 'files' )
     if (fl != null) {
         fl.addEventListener( 'change', function(ev) {
-            handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}" )
+            handleFileSelect( ev, "{{ allowed.only }}", "{{ allowed.except }}", "{{ allowed.message }}" )
         }, false );
     }
 </script>
