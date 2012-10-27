@@ -13,9 +13,9 @@ class BaseUserFeed(Feed):
     Base feed for History objects
     Need to override get_object method.
     """
-    title = "User feed"
-    link = "/"
-    description = "Some history events"
+    title = u"User feed"
+    link = u"/"
+    description = u"Some history events"
 
     def get_object(self, request, *args, **kwargs):
         raise NotImplemented()
@@ -27,10 +27,10 @@ class BaseUserFeed(Feed):
         return ", ".join(item.files)
 
     def item_description(self, item):
-        return "{0} by {1}".format(item.get_type_display(), item.user).capitalize()
+        return u"{0} by {1}, in '{2}'".format(item.get_type_display(), item.user, item.path or '/').capitalize()
 
     def item_link(self, item):
-        return urlbilder("browser", item.lib_id, p=item.path, hl=item.hash())
+        return urlbilder(u"browser", item.lib_id, p=item.path, hl=item.hash())
 
     def item_pubdate(self, item):
         return item.time
@@ -86,11 +86,9 @@ class UserLibFeed(BaseUserFeed):
     def get_object(self, request, hash, lib_id):
         user = Profile.objects.get(rss_token=hash).user
 
-        # If none, it raise Home.DoesNotExist
-        if settings.LIMITED_ANONYMOUS:
-            Home.objects.select_related('lib').get(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=lib_id)
-        else:
-            Home.objects.select_related('lib').get(user=user, lib__id=lib_id)
+        count = Home.objects.select_related('lib').filter(Q(user=user) | Q(user=settings.LIMITED_ANONYMOUS_ID), lib__id=lib_id).count()
+        if not count:
+            raise Home.DoesNotExist()
 
         history = History.objects.\
                   select_related('user').\
