@@ -327,3 +327,5 @@ class LUser( User ):
         proxy = True
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+post_save.connect( create_profile, sender=LUser )
